@@ -32,7 +32,7 @@ private constructor(private val configFileName: String, val typeClass: Class<in 
             val configFile = File(configFilePathName)
 
             if (!configFile.exists()) {
-                logger.fine("Create new config file $configFileName")
+                logger.info("Create new config file $configFileName")
 
                 val defaultConfigFileStream = this.javaClass.classLoader.getResourceAsStream("config/$configFileName.yml")
                     ?: throw FileNotFoundException("No default config file $configFileName found")
@@ -44,7 +44,7 @@ private constructor(private val configFileName: String, val typeClass: Class<in 
             configYaml = Yaml(Constructor(typeClass))
             content = configYaml.load(configFileStream) as T
 
-            logger.finest("Loaded config: $configFileName")
+            logger.info("Loaded config: $configFileName")
         }
 
         return content

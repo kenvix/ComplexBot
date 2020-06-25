@@ -1,8 +1,6 @@
 @file:JvmName("Utils")
 package com.kenvix.moecraftbot.ng.lib
 
-import com.kenvix.moecraftbot.ng.lib.bot.BotCommandQueryData
-import com.kenvix.moecraftbot.ng.lib.bot.BotUpdate
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.text.SimpleDateFormat
@@ -15,7 +13,6 @@ import kotlin.math.pow
 const val CHAT_TYPE_IDLE = 0
 const val CHAT_TYPE_AUTH = 0xa04
 
-typealias BotCommandCallback = (BotUpdate<*>, BotCommandQueryData) -> Unit
 
 fun StringBuilder.replace(oldStr: String, newStr: String): StringBuilder {
     var index = this.indexOf(oldStr)

@@ -1,23 +1,12 @@
 package com.kenvix.moecraftbot.ng
 
-import com.google.gson.GsonBuilder
 import com.kenvix.moecraftbot.ng.lib.ConfigManager
 import com.kenvix.moecraftbot.ng.lib.ExternalClassPathSetup
 import com.kenvix.moecraftbot.ng.lib.SystemOptions
-import com.kenvix.moecraftbot.ng.lib.api.APIException
-import com.kenvix.moecraftbot.ng.lib.api.APIResult
-import com.kenvix.moecraftbot.ng.lib.bot.AbstractBotProvider
-import com.kenvix.moecraftbot.ng.lib.bot.AbstractDriver
-import com.kenvix.moecraftbot.ng.lib.bot.DriverFeature
+import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
+import com.kenvix.moecraftbot.mirai.lib.bot.DriverFeature
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
-import com.kenvix.utils.log.LogSettings
 import com.kenvix.utils.log.Logging
-import com.kenvix.utils.log.severe
-import io.javalin.Javalin
-import io.javalin.http.HttpResponseException
-import io.javalin.plugin.json.FromJsonMapper
-import io.javalin.plugin.json.JavalinJson
-import io.javalin.plugin.json.ToJsonMapper
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.apache.commons.cli.CommandLine
@@ -54,30 +43,15 @@ object Defines : Logging {
         private set
 
     @JvmStatic
-    lateinit var activeBotProvider: AbstractBotProvider<*>
-        private set
-
-    @JvmStatic
     lateinit var appCmds: CommandLine
         private set
 
     @JvmStatic
     val predefinedDriverNameMap = mapOf<String, String>(
-            "n3ro" to "com.kenvix.moecraftbot.ng.driver.n3ro.N3roDriver",
-            "example" to "com.kenvix.moecraftbot.ng.driver.example.ExampleDriver"
-    )
-
-    @JvmStatic
-    val predefinedBotProviderNameMap = mapOf<String, String>(
-            "telegram" to "com.kenvix.moecraftbot.ng.bot.provider.telegram.TelegramBot",
-            "coolq" to "com.kenvix.moecraftbot.ng.bot.provider.coolq.CoolqBot",
-            "mirai" to "com.kenvix.moecraftbot.ng.bot.provider.mirai.MiraiBot"
+            "complexbot" to "com.kenvix.moecraftbot.ng.driver.complexbot.ComplexBotDriver"
     )
 
     lateinit var driverThread: Thread
-        private set
-
-    lateinit var botProviderThread: Thread
         private set
 
     @JvmStatic
@@ -102,9 +76,6 @@ object Defines : Logging {
     lateinit var proxy: Proxy
         private set
 
-    lateinit var httpServer: Javalin
-        private set
-
     @JvmStatic
     lateinit var cachedThreadPool: ExecutorService
         private set
@@ -113,7 +84,7 @@ object Defines : Logging {
     private val consoleInputHandlers: MutableList<ConsoleReadSupported> = LinkedList()
 
     internal fun setupSystem(appCmds: CommandLine) {
-        logger.finest("Application Setup")
+        logger.info("Application Setup")
 
         this.appCmds = appCmds
         baseConfigPath = appCmds.getOptionValue('c', "config")
@@ -135,7 +106,7 @@ object Defines : Logging {
         if (!pluginLibDir.exists())
             pluginLibDir.mkdirs()
 
-        logger.fine("Loading plugins from ${pluginDir.absolutePath}")
+        logger.info("Loading plugins from ${pluginDir.absolutePath}")
         ExternalClassPathSetup.addJarDirectory(pluginDir)
         ExternalClassPathSetup.addJarDirectory(pluginLibDir)
 
@@ -151,20 +122,6 @@ object Defines : Logging {
         activeDriver = driverClass.newInstance() as AbstractDriver<*>
         if (activeDriver.driverFeatures.contains(DriverFeature.ReadSystemConsoleInput))
             consoleInputHandlers.add(activeDriver)
-
-        //Load bot provider
-        val providerName = appCmds.getOptionValue('p', "telegram")
-
-        val botProviderClass = if (predefinedBotProviderNameMap.containsKey(providerName)) {
-            Class.forName(predefinedBotProviderNameMap[providerName.toLowerCase()], true, ExternalClassPathSetup.loader)
-        } else {
-            Class.forName(providerName, true, ExternalClassPathSetup.loader)
-        }
-
-        activeBotProvider = botProviderClass.newInstance() as AbstractBotProvider<*>
-
-        if (activeBotProvider.providerOptions and AbstractBotProvider.OPTION_REDIRECT_STDIN != 0)
-            consoleInputHandlers.add(activeBotProvider)
 
         //Load system (2)
         systemOptions = ConfigManager.getConfigManager("system", SystemOptions::class.java).content
@@ -185,7 +142,7 @@ object Defines : Logging {
                 val jdbcUriString = "jdbc:sqlite:${databaseFile.canonicalPath}"
 
                 if (!databaseFile.exists()) {
-                    logger.fine("Create new database file $databaseFileName")
+                    logger.info("Create new database file $databaseFileName")
 
                     val defaultConfigFileStream = this.javaClass.classLoader.getResourceAsStream(databaseFileName)
                         ?: throw FileNotFoundException("No default database file $databaseFileName found")
@@ -216,7 +173,7 @@ object Defines : Logging {
             }
 
             "none" -> {
-                logger.warning("Warning: No database enabled. If any modules using database was loaded, unexpected errors may occurs.")
+                logger.warn("Warning: No database enabled. If any modules using database was loaded, unexpected errors may occurs.")
             }
 
             else -> throw InvalidConfigException("Invalid database type ${systemOptions.database.type}")
@@ -226,12 +183,12 @@ object Defines : Logging {
         dataSource.minIdle = 1
         dataSource.maxIdle = 3
 
-        logger.finer("Database ready: ${systemOptions.database.type}://${systemOptions.database.host}")
+        logger.info("Database ready: ${systemOptions.database.type}://${systemOptions.database.host}")
     }
 
     internal fun setupNetwork() {
         if (systemOptions.proxy.enable) {
-            logger.fine("Proxy enabled: ${systemOptions.proxy.type}://${systemOptions.proxy.host}:${systemOptions.proxy.port}")
+            logger.info("Proxy enabled: ${systemOptions.proxy.type}://${systemOptions.proxy.host}:${systemOptions.proxy.port}")
 
             proxy = Proxy(
                 when (systemOptions.proxy.type) {
@@ -242,7 +199,7 @@ object Defines : Logging {
             )
 
             if (systemOptions.proxy.scope.other) {
-                logger.fine("Global other proxy enabled.");
+                logger.info("Global other proxy enabled.");
 
                 if (systemOptions.proxy.type == SystemOptions.Proxy.Type.http) {
                     // HTTP/HTTPS Proxy
@@ -279,83 +236,31 @@ object Defines : Logging {
         if (systemOptions.proxy.scope.driver || systemOptions.proxy.scope.other) {
             okHttpClientBuilder.proxy(proxy).cache(Cache(cacheDirectory, systemOptions.system.cacheSize))
         }
+
         okHttpClient = okHttpClientBuilder.build()
-        //LogSettings.setAsDefaultLogger()
-        LogSettings.replaceLogger(okhttp3.internal.platform.Platform::class.java, "logger", "OKHttpClient")
     }
 
     internal fun setupHttpServer() {
-        if (systemOptions.http != null && systemOptions.http.enable) {
-            httpServer = Javalin.create {
-                it.showJavalinBanner = false
-                it.logIfServerNotStarted = true
 
-                if (!systemOptions.http.corsOrigin.isNullOrBlank())
-                    it.enableCorsForOrigin(systemOptions.http.corsOrigin)
-            }.start(systemOptions.http.host, systemOptions.http.port)
-
-            val gson = GsonBuilder().create()
-
-            JavalinJson.fromJsonMapper = object : FromJsonMapper {
-                override fun <T> map(json: String, targetClass: Class<T>) = gson.fromJson(json, targetClass)
-            }
-
-            JavalinJson.toJsonMapper = object : ToJsonMapper {
-                override fun map(obj: Any): String = gson.toJson(obj)
-            }
-
-            httpServer.exception(HttpResponseException::class.java) { e, ctx ->
-                ctx.status(e.status)
-                ctx.json(APIResult(e.status, e.localizedMessage, APIException(e)))
-            }
-
-            httpServer.exception(Exception::class.java) { e, ctx ->
-                logger.severe(e, "Unexpected web api exception")
-                ctx.status(500)
-                ctx.json(APIResult(500, e.localizedMessage, APIException(e)))
-            }
-        } else {
-            logger.info("HTTP API Server not enabled. Some functions may not available.")
-        }
     }
 
     internal fun setupDriver() {
         if (!this::driverThread.isInitialized) {
             driverThread = Thread({
-                logger.finer("Starting driver ${this::activeDriver.name}")
+                logger.info("Starting driver ${this::activeDriver.name}")
 
                 synchronized(loadLock) {
                     activeDriver.onEnable()
                     loadLock.wait()
 
                     if (!activeDriver.isInitialized) {
-                        logger.severe("Bot provider didn't call onBotProviderConnect")
+                        logger.error("Bot provider didn't call onBotProviderConnect")
                         exitProcess(19)
                     }
                 }
             }, "Driver")
 
             driverThread.start()
-        }
-    }
-
-    internal fun setupBotProvider() {
-        if (!this::botProviderThread.isInitialized) {
-            botProviderThread = Thread({
-                try {
-                    logger.finer("Starting bot provider ${this::activeBotProvider.name}")
-
-                    synchronized(loadLock) {
-                        activeBotProvider.onLoad()
-                        activeBotProvider.onEnable()
-                        loadLock.notifyAll()
-                    }
-                } catch (e: Throwable) {
-                    Bootstrapper.showErrorAndExit(e, 8, "Bot Provider Initialize Failed")
-                }
-            }, "Bot Provider")
-
-            botProviderThread.start()
         }
     }
 
