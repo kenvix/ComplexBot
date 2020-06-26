@@ -91,14 +91,14 @@ object Defines : Logging {
         if (!baseConfigPath.endsWith('/'))
             baseConfigPath += "/"
 
-
-
         run {
             val configDirFile = Paths.get(baseConfigPath).resolve("config").toFile()
             if (!configDirFile.exists())
                 configDirFile.mkdirs()
         }
+    }
 
+    internal fun setupPlugins() {
         val pluginDir = File("plugins")
         if (!pluginDir.exists())
             pluginDir.mkdirs()
@@ -109,7 +109,9 @@ object Defines : Logging {
 
         logger.info("Loading plugins from ${pluginDir.absolutePath}")
         pluginClassLoader = URLClassLoader(arrayOf(pluginDir.toURI().toURL(), pluginLibDir.toURI().toURL()))
+    }
 
+    internal fun setupDriverPre() {
         //Load bot driver
         val driverName = appCmds.getOptionValue('d') ?: "demobot"
 
@@ -127,7 +129,6 @@ object Defines : Logging {
         cachedThreadPool = ThreadPoolExecutor(1, systemOptions.system.threadPoolMaxSize,
             60L, TimeUnit.SECONDS, SynchronousQueue<Runnable>())
         cacheDirectory = File("cache")
-
     }
 
     internal fun setupDatabase() {

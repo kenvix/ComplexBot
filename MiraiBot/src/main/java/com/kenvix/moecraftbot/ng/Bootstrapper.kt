@@ -58,6 +58,9 @@ object Bootstrapper : Logging {
 
         try {
             Defines.setupSystem(cmd)
+            Defines.setupPlugins()
+            Defines.setupDriverPre()
+
             Defines.setupDatabase()
             Defines.setupNetwork()
             Defines.setupHttpServer()

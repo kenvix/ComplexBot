@@ -9,6 +9,7 @@ plugins {
 
 val ktor_version: String by project
 val kotlin_version: String by project
+val kotlinx_coroutines_version: String by project
 val logback_version: String by project
 val miraiCoreVersion: String by project
 
@@ -27,7 +28,8 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinx_coroutines_version")
 
     implementation("io.github.cdimascio:java-dotenv:5.1.4")
     implementation("org.apache.thrift:libthrift:0.13.0")
