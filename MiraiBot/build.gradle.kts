@@ -1,6 +1,10 @@
 plugins {
     java
     kotlin("jvm") version "1.3.72"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
+    //id("org.beryx.jlink") version "2.17.2"
+    id("nu.studer.jooq") version "4.1"
+    id("java-library")
 }
 
 val ktor_version: String by project
@@ -15,7 +19,9 @@ repositories {
     mavenCentral()
     jcenter()
     google()
-    
+    maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
+    maven(url = "https://repo.spring.io/libs-milestone")
+    maven(url = "https://repo.spring.io/plugins-release")
 }
 
 dependencies {
@@ -57,6 +63,8 @@ dependencies {
 
     implementation("net.mamoe:mirai-core:$miraiCoreVersion")
     implementation("net.mamoe:mirai-core-qqandroid:$miraiCoreVersion")
+
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 }
 
 configure<JavaPluginConvention> {

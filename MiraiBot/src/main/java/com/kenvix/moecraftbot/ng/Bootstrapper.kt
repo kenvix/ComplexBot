@@ -75,7 +75,7 @@ object Bootstrapper : Logging {
     @JvmOverloads
     fun showErrorAndExit(throwable: Throwable, exitCode: Int = 1, extraMessage: String? = null) {
         showErrorAndExit(
-            message = "${if (extraMessage != null) extraMessage + "\n\n" else ""}Message: ${throwable.localizedMessage}\nType:${throwable.javaClass.name}\n\n${throwable.stackTrace.getStringStackTrace()}",
+            message = "${if (extraMessage != null) extraMessage + "\n\n" else ""} Exception Message: ${throwable.localizedMessage}",
             exitCode = exitCode,
             throwable = throwable
         )

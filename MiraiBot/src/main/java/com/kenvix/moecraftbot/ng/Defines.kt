@@ -1,10 +1,8 @@
 package com.kenvix.moecraftbot.ng
 
 import com.kenvix.moecraftbot.ng.lib.ConfigManager
-import com.kenvix.moecraftbot.ng.lib.ExternalClassPathSetup
 import com.kenvix.moecraftbot.ng.lib.SystemOptions
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
-import com.kenvix.moecraftbot.mirai.lib.bot.DriverFeature
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
 import com.kenvix.utils.log.Logging
 import okhttp3.Cache
@@ -18,10 +16,7 @@ import org.jooq.impl.DSL
 import org.jooq.impl.DefaultConfiguration
 import java.io.File
 import java.io.FileNotFoundException
-import java.net.Authenticator
-import java.net.InetSocketAddress
-import java.net.PasswordAuthentication
-import java.net.Proxy
+import java.net.*
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -48,7 +43,7 @@ object Defines : Logging {
 
     @JvmStatic
     val predefinedDriverNameMap = mapOf<String, String>(
-            "complexbot" to "com.kenvix.moecraftbot.ng.driver.complexbot.ComplexBotDriver"
+            "demobot" to "com.kenvix.moecraftbot.ng.driver.demobot.DemoBotDriver"
     )
 
     lateinit var driverThread: Thread
@@ -83,14 +78,20 @@ object Defines : Logging {
     private val loadLock = java.lang.Object()
     private val consoleInputHandlers: MutableList<ConsoleReadSupported> = LinkedList()
 
+
+    lateinit var pluginClassLoader: URLClassLoader
+        private set
+
     internal fun setupSystem(appCmds: CommandLine) {
-        logger.info("Application Setup")
+        logger.info("Loading Application")
 
         this.appCmds = appCmds
         baseConfigPath = appCmds.getOptionValue('c', "config")
 
         if (!baseConfigPath.endsWith('/'))
             baseConfigPath += "/"
+
+
 
         run {
             val configDirFile = Paths.get(baseConfigPath).resolve("config").toFile()
@@ -107,21 +108,19 @@ object Defines : Logging {
             pluginLibDir.mkdirs()
 
         logger.info("Loading plugins from ${pluginDir.absolutePath}")
-        ExternalClassPathSetup.addJarDirectory(pluginDir)
-        ExternalClassPathSetup.addJarDirectory(pluginLibDir)
+        pluginClassLoader = URLClassLoader(arrayOf(pluginDir.toURI().toURL(), pluginLibDir.toURI().toURL()))
 
         //Load bot driver
-        val driverName = appCmds.getOptionValue('d') ?: throw InvalidConfigException("Driver full class name or predefined required")
+        val driverName = appCmds.getOptionValue('d') ?: "demobot"
 
         val driverClass = if (predefinedDriverNameMap.containsKey(driverName)) {
-            Class.forName(predefinedDriverNameMap[driverName.toLowerCase()], true, ExternalClassPathSetup.loader)
+            Class.forName(predefinedDriverNameMap[driverName.toLowerCase()], true, pluginClassLoader)
         } else {
-            Class.forName(driverName, true, ExternalClassPathSetup.loader)
+            Class.forName(driverName, true, pluginClassLoader)
         }
 
-        activeDriver = driverClass.newInstance() as AbstractDriver<*>
-        if (activeDriver.driverFeatures.contains(DriverFeature.ReadSystemConsoleInput))
-            consoleInputHandlers.add(activeDriver)
+        activeDriver = driverClass.getConstructor().newInstance() as AbstractDriver<*>
+        consoleInputHandlers.add(activeDriver)
 
         //Load system (2)
         systemOptions = ConfigManager.getConfigManager("system", SystemOptions::class.java).content

@@ -5,6 +5,7 @@ import java.lang.reflect.Method
 import java.net.URL
 import java.net.URLClassLoader
 
+@Deprecated("Incompatible with java 9")
 object ExternalClassPathSetup {
     val loader: URLClassLoader by lazy { URLClassLoader.getSystemClassLoader() as URLClassLoader }
     private val urlClassLoaderMethod: Method by lazy {

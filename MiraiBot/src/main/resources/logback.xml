@@ -1,0 +1,20 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%highlight(%-5level)][%thread: %cyan(%logger{15})] %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="trace">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="org.eclipse.jetty" level="INFO"/>
+
+    <logger name="org.jooq.tools.LoggerListener" level="INFO"/>
+    <logger name="org.jooq.impl.DefaultBinding" level="INFO"/>
+
+    <logger name="org.reflections.Reflections" level="INFO"/>
+    <logger name="com.mongodb" level="WARN"/>
+    <logger name="org.mongodb.driver" level="WARN"/>
+    <logger name="io.netty" level="INFO"/>
+</configuration>
