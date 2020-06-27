@@ -43,7 +43,8 @@ object Defines : Logging {
 
     @JvmStatic
     val predefinedDriverNameMap = mapOf<String, String>(
-            "demobot" to "com.kenvix.moecraftbot.ng.driver.demobot.DemoBotDriver"
+            "demobot" to "com.kenvix.moecraftbot.ng.driver.demobot.DemoBotDriver",
+            "complexbot" to "com.kenvix.complexbot.ComplexBotDriver"
     )
 
     lateinit var driverThread: Thread
@@ -96,6 +97,8 @@ object Defines : Logging {
             if (!configDirFile.exists())
                 configDirFile.mkdirs()
         }
+
+        Runtime.getRuntime().addShutdownHook(Thread({ shutdownSystem() }, "Shutdown Callback"))
     }
 
     internal fun setupPlugins() {
@@ -288,6 +291,26 @@ object Defines : Logging {
 
         override fun getPasswordAuthentication(): PasswordAuthentication {
             return auth
+        }
+    }
+
+    private fun shutdownSystem() {
+        logger.info("Shutdown system ...")
+        synchronized(loadLock) {
+            if (this::activeDriver.isInitialized)
+                activeDriver.onDisable()
+
+            if (this::driverThread.isInitialized)
+                driverThread.interrupt()
+
+            if (this::dslContext.isInitialized)
+                dslContext.close()
+
+            if (this::dataSource.isInitialized)
+                dataSource.close()
+
+            if (this::cachedThreadPool.isInitialized)
+                cachedThreadPool.shutdown()
         }
     }
 

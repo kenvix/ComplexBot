@@ -7,10 +7,13 @@
 package com.kenvix.complexbot
 
 import com.kenvix.android.utils.Coroutines
+import com.kenvix.complexbot.rpc.thrift.BackendBridge
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
 import com.kenvix.utils.log.LoggingOutputStream
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import org.apache.thrift.protocol.TBinaryProtocol
+import org.apache.thrift.transport.TSocket
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileNotFoundException
@@ -34,9 +37,11 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     private val coroutine = Coroutines()
 
     private var backendSocket: Socket? = null
+    private var backendClient: BackendBridge.Client? = null
     private var backendProcess: Process? = null
         @Synchronized get
         @Synchronized set
+    private var miraiComponent: ComplexBotMiraiComponent? = null
 
     override fun onEnable() {
         super.onEnable()
@@ -49,6 +54,12 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
 
     override fun onDisable() = runBlocking {
         super.onDisable()
+
+        if (miraiComponent != null) {
+            miraiComponent!!.close()
+            miraiComponent = null
+        }
+
         stopBackend()
         coroutine.close()
     }
@@ -108,7 +119,14 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
             connect(InetSocketAddress(backendHost, backendPort), SocketTimeout)
         }
 
+        val transport = TSocket(backendSocket)
+        val protocol = TBinaryProtocol(transport)
+        backendClient = BackendBridge.Client(protocol)
 
+        if (backendClient!!.ping("hello") == "hello")
+            logger.info("Backend connected")
+        else
+            throw IllegalStateException("Unrecognized backend reply. expected hello")
     }
 
     internal suspend fun stopBackend() = withContext(IO) {
@@ -136,7 +154,13 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     }
 
     internal fun loadMiraiBot() {
-
+        if (miraiComponent == null) {
+            miraiComponent = ComplexBotMiraiComponent(object : CallBridge {
+                override val backendClient: BackendBridge.Client
+                    get() = this@ComplexBotDriver.backendClient!!
+            })
+            miraiComponent!!.start()
+        }
     }
 
     companion object {
