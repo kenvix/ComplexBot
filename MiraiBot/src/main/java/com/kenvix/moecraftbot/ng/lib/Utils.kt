@@ -13,6 +13,13 @@ import kotlin.math.pow
 const val CHAT_TYPE_IDLE = 0
 const val CHAT_TYPE_AUTH = 0xa04
 
+fun <T: Named> importNamedElementsIntoMap(target: MutableMap<String, T>, vararg things: T) {
+    things.forEach { target[it.name] = it }
+}
+
+fun <T: Named> createNamedElementsMap(vararg things: T): Map<String, T> {
+    return things.associateBy { it.name }
+}
 
 fun StringBuilder.replace(oldStr: String, newStr: String): StringBuilder {
     var index = this.indexOf(oldStr)

@@ -1,7 +1,6 @@
-package com.kenvix.complexbot.feature.switch_all
+package com.kenvix.complexbot.feature.switchall
 
 import com.kenvix.complexbot.BotCommandFeature
-import com.kenvix.complexbot.BotMiddleware
 import net.mamoe.mirai.message.MessageEvent
 
 object SwitchAllCommand : BotCommandFeature {

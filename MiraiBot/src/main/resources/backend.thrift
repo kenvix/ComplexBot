@@ -9,4 +9,7 @@ service BackendBridge {
 
     string ocrFromFile(1:string path)
     string ocrFromBinary(1:binary data)
+
+    string scanQrCodeFromFile(1:string path)
+    string scanQrCodeFromBinary(1:binary data)
 }
