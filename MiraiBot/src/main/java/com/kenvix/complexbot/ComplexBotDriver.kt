@@ -9,6 +9,7 @@ package com.kenvix.complexbot
 import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.rpc.thrift.BackendBridge
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
+import com.kenvix.moecraftbot.ng.lib.ConfigManager
 import com.kenvix.utils.log.LoggingOutputStream
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -158,7 +159,10 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
             miraiComponent = ComplexBotMiraiComponent(object : CallBridge {
                 override val backendClient: BackendBridge.Client
                     get() = this@ComplexBotDriver.backendClient!!
-            })
+
+                override val config: ComplexBotConfig
+                    get() = this@ComplexBotDriver.config.content
+            }, qq = config.content.bot.qq, password = config.content.bot.password)
             miraiComponent!!.start()
         }
     }
