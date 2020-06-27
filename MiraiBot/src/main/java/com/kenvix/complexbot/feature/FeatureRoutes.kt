@@ -1,6 +1,7 @@
 package com.kenvix.complexbot.feature
 
 import com.kenvix.complexbot.command
+import com.kenvix.complexbot.feature.help.DebugCommand
 import com.kenvix.complexbot.feature.inspector.InspectorCommand
 import com.kenvix.complexbot.feature.help.HelpCommand
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequiredIfInGroup
@@ -14,6 +15,8 @@ import net.mamoe.mirai.event.subscribeMessages
 fun Bot.featureRoutes() {
     subscribeMessages {
         command("help", HelpCommand)
+        command("debug", DebugCommand)
+
         command("sex", SexCommand)
         command("inspector", InspectorCommand, GroupMessageOnly, AdminPermissionRequiredIfInGroup)
 

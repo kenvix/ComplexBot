@@ -4,12 +4,10 @@ package com.kenvix.moecraftbot.ng
 
 import com.kenvix.moecraftbot.ng.lib.Sideloader
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
-import com.kenvix.moecraftbot.ng.lib.getStringStackTrace
 import org.apache.commons.cli.*
 import java.io.File
 import com.kenvix.utils.log.Logging
 import java.io.IOException
-import java.util.logging.Level
 import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 
@@ -61,7 +59,11 @@ object Bootstrapper : Logging {
             Defines.setupPlugins()
             Defines.setupDriverPre()
 
-            Defines.setupDatabase()
+            // Currently no need for mysql
+            // Defines.setupSQLDatabase()
+
+            Defines.setupMongoDatabase()
+
             Defines.setupNetwork()
             Defines.setupHttpServer()
 

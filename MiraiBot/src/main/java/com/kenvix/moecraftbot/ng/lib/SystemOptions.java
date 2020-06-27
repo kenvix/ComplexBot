@@ -14,9 +14,20 @@ public class SystemOptions {
     public Database database;
     public HTTP http;
     public MessagePush messagePush;
+    public MongoDB mongo;
 
     public static class Database {
         public String type;
+        public String name;
+        public String user;
+        public String password;
+        public String host;
+        public int port;
+        public boolean needAuth;
+    }
+
+    public static class MongoDB {
+        public String authSource;
         public String name;
         public String user;
         public String password;

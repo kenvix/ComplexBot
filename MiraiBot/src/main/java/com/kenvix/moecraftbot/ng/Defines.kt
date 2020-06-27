@@ -5,6 +5,11 @@ import com.kenvix.moecraftbot.ng.lib.SystemOptions
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
 import com.kenvix.utils.log.Logging
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
+import com.mongodb.MongoCredential
+import com.mongodb.ServerAddress
+import kotlinx.coroutines.runBlocking
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.apache.commons.cli.CommandLine
@@ -14,6 +19,10 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.jooq.impl.DefaultConfiguration
+import org.litote.kmongo.coroutine.CoroutineClient
+import org.litote.kmongo.coroutine.CoroutineDatabase
+import org.litote.kmongo.coroutine.coroutine
+import org.litote.kmongo.reactivestreams.KMongo
 import java.io.File
 import java.io.FileNotFoundException
 import java.net.*
@@ -70,6 +79,12 @@ object Defines : Logging {
         private set
 
     lateinit var proxy: Proxy
+        private set
+
+    lateinit var mongoClient: CoroutineClient
+        private set
+
+    lateinit var mongoDatabase: CoroutineDatabase
         private set
 
     @JvmStatic
@@ -134,7 +149,7 @@ object Defines : Logging {
         cacheDirectory = File("cache")
     }
 
-    internal fun setupDatabase() {
+    internal fun setupSQLDatabase() {
         System.getProperties().setProperty("org.jooq.no-logo", "true")
         dataSource = BasicDataSource()
 
@@ -187,6 +202,33 @@ object Defines : Logging {
         dataSource.maxIdle = 3
 
         logger.info("Database ready: ${systemOptions.database.type}://${systemOptions.database.host}")
+    }
+
+    internal fun setupMongoDatabase() = runBlocking {
+        val address = ServerAddress(systemOptions.mongo.host, systemOptions.mongo.port)
+        val conn = ConnectionString("mongodb://${address.host}:" +
+                "${address.port}/${systemOptions.mongo.name}?w=majority")
+
+        logger.info("Loading Mongo Database: $conn")
+
+
+        val options = MongoClientSettings.builder().apply {
+            applicationName("MoeCraftBot/Mirai")
+
+            if (systemOptions.mongo.needAuth) {
+                val credential = MongoCredential.createCredential(systemOptions.mongo.user,
+                        systemOptions.mongo.authSource, systemOptions.mongo.password.toCharArray())
+                credential(credential)
+            }
+
+            applyConnectionString(conn)
+        }.build()
+
+        mongoClient = KMongo.createClient(options).coroutine
+        mongoDatabase = mongoClient.getDatabase(systemOptions.mongo.name)
+
+        logger.info("Mongo Database connection test pass!" +
+                " ${mongoDatabase.listCollectionNames().size} collections present")
     }
 
     internal fun setupNetwork() {

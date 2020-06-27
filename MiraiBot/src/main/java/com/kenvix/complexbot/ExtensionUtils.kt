@@ -1,5 +1,6 @@
 package com.kenvix.complexbot
 
+import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
 

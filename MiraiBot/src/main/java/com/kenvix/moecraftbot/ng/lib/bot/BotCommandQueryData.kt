@@ -10,6 +10,9 @@ data class BotCommandQueryData(val command: String, val arguments: List<String> 
     val firstArgument
         get() = arguments[0]
 
+    val secondArgument
+        get() = arguments[1]
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
