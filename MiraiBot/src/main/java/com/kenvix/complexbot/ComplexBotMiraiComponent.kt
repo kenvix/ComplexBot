@@ -37,7 +37,7 @@ class ComplexBotMiraiComponent(
     }
 
     private suspend fun initMirai() = withContext(IO) {
-        bot.featureRoutes()
+        bot.featureRoutes(callBridge)
         logger.info("Mirai Bot setup success: ${bot.nick}(${bot.selfQQ})")
     }
 

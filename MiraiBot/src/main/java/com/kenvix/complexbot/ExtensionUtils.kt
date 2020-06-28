@@ -1,14 +1,22 @@
 package com.kenvix.complexbot
 
+import com.kenvix.moecraftbot.ng.lib.exception.BusinessLogicException
+import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
+import com.kenvix.moecraftbot.ng.lib.exception.UserViolationException
+import com.kenvix.moecraftbot.ng.lib.nameAndHashcode
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
+import org.slf4j.LoggerFactory
+import java.lang.NumberFormatException
 
 const val CommandPrefix = "."
 val enabledFeatures = ArrayList<BotFeature>()
 lateinit var commands: HashMap<String, RegisteredBotCommand>
+val logger = LoggerFactory.getLogger("ComplexBot.ExtensionUtils")
 
-fun MessagePacketSubscribersBuilder.command(command: String,
+fun MessagePacketSubscribersBuilder.command(callBridge: CallBridge,
+                                            command: String,
                                             handler: BotCommandFeature,
                                             vararg middleware: BotMiddleware
 ) {
@@ -22,14 +30,18 @@ fun MessagePacketSubscribersBuilder.command(command: String,
                         var success = true
                         if (middlewares != null) {
                             for (middle in middlewares) {
-                                if (!middle.onMessage(this@startsWith)) {
+                                if (!executeCatchingBusinessException { middle.onMessage(this@startsWith) }) {
                                     success = false
                                     break
                                 }
                             }
                         }
 
-                        if (success) this.handler.onMessage(this@startsWith)
+                        if (success) {
+                            executeCatchingBusinessException {
+                                this.handler.onMessage(this@startsWith, callBridge)
+                            }
+                        }
                     }
                 }
         )
@@ -39,16 +51,51 @@ fun MessagePacketSubscribersBuilder.command(command: String,
 }
 
 interface BotCommandFeature {
-    suspend fun onMessage(msg: MessageEvent)
+    suspend fun onMessage(msg: MessageEvent, callBridge: CallBridge)
 }
 
 interface BotFeature {
-    fun onEnable(bot: Bot)
+    fun onEnable(bot: Bot, callBridge: CallBridge)
 }
 
-fun Bot.addFeature(handler: BotFeature) {
+fun Bot.addFeature(callBridge: CallBridge, handler: BotFeature) {
     enabledFeatures.add(handler)
-    handler.onEnable(this)
+    handler.onEnable(this, callBridge)
+}
+
+suspend fun MessageEvent.executeCatchingBusinessException(function: suspend (() -> Unit)): Boolean {
+    return try {
+        function()
+        true
+    } catch (exception: Throwable) {
+        when (exception) {
+            is UserViolationException, is NumberFormatException -> {
+                sendExceptionMessage(exception)
+            }
+
+            is BusinessLogicException -> {
+                sendExceptionMessage(exception)
+                logger.warn("An unhandled business exception is thrown ", exception)
+            }
+
+            is NotImplementedError -> {
+                logger.warn("An Unimplemented method is called. ", exception)
+            }
+
+            else -> throw exception
+        }
+
+        false
+    }
+}
+
+suspend fun MessageEvent.sendExceptionMessage(exception: Throwable) {
+    this.sender.sendMessage(kotlin.run {
+        if (exception.localizedMessage.isNullOrBlank())
+            "操作失败：${exception.nameAndHashcode}"
+        else
+            exception.localizedMessage
+    })
 }
 
 interface BotMiddleware {

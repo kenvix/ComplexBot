@@ -57,12 +57,13 @@ object Bootstrapper : Logging {
         try {
             Defines.setupSystem(cmd)
             Defines.setupPlugins()
-            Defines.setupDriverPre()
 
             // Currently no need for mysql
             // Defines.setupSQLDatabase()
 
             Defines.setupMongoDatabase()
+
+            Defines.setupDriverPre()
 
             Defines.setupNetwork()
             Defines.setupHttpServer()

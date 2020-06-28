@@ -1,5 +1,6 @@
 package com.kenvix.complexbot.feature
 
+import com.kenvix.complexbot.CallBridge
 import com.kenvix.complexbot.addFeature
 import com.kenvix.complexbot.command
 import com.kenvix.complexbot.feature.help.DebugCommand
@@ -14,16 +15,16 @@ import com.kenvix.complexbot.feature.switchall.SwitchAllCommand
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.subscribeMessages
 
-fun Bot.featureRoutes() {
+fun Bot.featureRoutes(b: CallBridge) {
     subscribeMessages {
-        command("help", HelpCommand)
-        command("debug", DebugCommand)
+        command(b, "help", HelpCommand)
+        command(b,"debug", DebugCommand)
 
-        command("sex", SexCommand)
+        command(b,"sex", SexCommand)
 
-        command("switch sex", SexSwitchCommand, GroupMessageOnly, AdminPermissionRequiredIfInGroup)
-        command("switch all", SwitchAllCommand, GroupMessageOnly, AdminPermissionRequiredIfInGroup)
+        command(b,"switch sex", SexSwitchCommand, GroupMessageOnly, AdminPermissionRequiredIfInGroup)
+        command(b,"switch all", SwitchAllCommand, GroupMessageOnly, AdminPermissionRequiredIfInGroup)
     }
 
-    addFeature(InspectorFeature)
+    addFeature(b, InspectorFeature)
 }

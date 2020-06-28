@@ -13,8 +13,10 @@ import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.ConfigManager
 import com.kenvix.utils.exception.NotFoundException
 import com.kenvix.utils.log.LoggingOutputStream
+import com.mongodb.client.result.UpdateResult
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import net.mamoe.mirai.contact.Contact
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TSocket
 import org.bson.types.ObjectId
@@ -171,6 +173,13 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
 
                 override val config: ComplexBotConfig
                     get() = this@ComplexBotDriver.config.content
+
+                override suspend fun getGroupOptions(groupId: Long): GroupOptions
+                    = this@ComplexBotDriver.getGroupOptions(groupId)
+
+                override suspend fun saveGroupOptions(groupId: Long): UpdateResult
+                    = this@ComplexBotDriver.saveGroupOptions(groupId)
+
             }, qq = config.content.bot.qq, password = config.content.bot.password)
             miraiComponent!!.start()
         }
@@ -192,7 +201,7 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
         }
     }
 
-    suspend fun saveGroupOptions(groupId: Long) = withContext(IO) {
+    suspend fun saveGroupOptions(groupId: Long): UpdateResult = withContext(IO) {
         val op = groupOptionsCache[groupId] ?: throw NotFoundException("No such group in cache")
         val objId = groupMongoIdMap[groupId] ?: throw NotFoundException("No such group in cache")
         groupMongoCollection.updateOneById(objId, op)

@@ -14,11 +14,11 @@ data class GroupOptions(
         @BsonId
         val _id: Id<GroupOptions> = newId(),
         val groupId: Long = -1,
-        val inspector: InspectorOptions? = null
+        var inspector: InspectorOptions = InspectorOptions()
 )
 
 data class InspectorOptions(
-        val enabled: Boolean = false,
-        val rules: Map<String, String> = emptyMap(),
-        val white: List<Long> = emptyList()
+        var enabled: Boolean = false,
+        val rules: MutableMap<String, String> = mutableMapOf(),
+        val white: MutableSet<Long> = mutableSetOf()
 )
