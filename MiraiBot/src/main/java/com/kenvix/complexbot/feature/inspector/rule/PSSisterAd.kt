@@ -12,6 +12,7 @@ object PSSisterAd : InspectorRule {
         get() = "PS 学姐广告"
 
     override suspend fun onMessage(msg: MessageEvent): Boolean {
+
         TODO("Not yet implemented")
     }
 }

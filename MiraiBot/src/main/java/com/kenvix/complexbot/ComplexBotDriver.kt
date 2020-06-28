@@ -9,19 +9,26 @@ package com.kenvix.complexbot
 import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.rpc.thrift.BackendBridge
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
+import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.ConfigManager
+import com.kenvix.utils.exception.NotFoundException
 import com.kenvix.utils.log.LoggingOutputStream
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TSocket
+import org.bson.types.ObjectId
+import org.litote.kmongo.Id
+import org.litote.kmongo.eq
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileNotFoundException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.file.Paths
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
 
 class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     override val driverName: String get() = "ComplexBot"
@@ -43,6 +50,8 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
         @Synchronized get
         @Synchronized set
     private var miraiComponent: ComplexBotMiraiComponent? = null
+    private val groupMongoIdMap = HashMap<Long, Id<GroupOptions>>()
+    private val userMongoIdMap = HashMap<Long, ObjectId>()
 
     override fun onEnable() {
         super.onEnable()
@@ -165,6 +174,32 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
             }, qq = config.content.bot.qq, password = config.content.bot.password)
             miraiComponent!!.start()
         }
+    }
+
+    val groupMongoCollection = Defines.mongoDatabase.getCollection<GroupOptions>()
+    val groupOptionsCache = WeakHashMap<Long, GroupOptions>()
+
+    suspend fun getGroupOptions(groupId: Long): GroupOptions = withContext(IO) {
+        if (groupId in groupOptionsCache) {
+            groupOptionsCache[groupId]!!
+        } else {
+            val op = groupMongoCollection.findOne(GroupOptions::groupId eq groupId)
+                    ?: createGroupOptions(groupId)
+
+            groupOptionsCache[groupId] = op
+            groupMongoIdMap[groupId] = op._id
+            op
+        }
+    }
+
+    suspend fun saveGroupOptions(groupId: Long) = withContext(IO) {
+        val op = groupOptionsCache[groupId] ?: throw NotFoundException("No such group in cache")
+        val objId = groupMongoIdMap[groupId] ?: throw NotFoundException("No such group in cache")
+        groupMongoCollection.updateOneById(objId, op)
+    }
+
+    private suspend fun createGroupOptions(groupId: Long): GroupOptions = withContext(IO) {
+        GroupOptions(groupId = groupId).also { groupMongoCollection.insertOne(it) }
     }
 
     companion object {

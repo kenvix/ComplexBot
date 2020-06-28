@@ -5,8 +5,8 @@ import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
 
 const val CommandPrefix = "."
+val enabledFeatures = ArrayList<BotFeature>()
 lateinit var commands: HashMap<String, RegisteredBotCommand>
-
 
 fun MessagePacketSubscribersBuilder.command(command: String,
                                             handler: BotCommandFeature,
@@ -40,6 +40,15 @@ fun MessagePacketSubscribersBuilder.command(command: String,
 
 interface BotCommandFeature {
     suspend fun onMessage(msg: MessageEvent)
+}
+
+interface BotFeature {
+    fun onEnable(bot: Bot)
+}
+
+fun Bot.addFeature(handler: BotFeature) {
+    enabledFeatures.add(handler)
+    handler.onEnable(this)
 }
 
 interface BotMiddleware {
