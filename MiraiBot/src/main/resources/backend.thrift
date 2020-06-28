@@ -2,6 +2,9 @@ service BackendBridge {
     string ping(1:string data)
     string operate(1:string operate)
 
+    string getAboutInfo()
+    i32 getBackendVersionCode()
+
     string parseCaptchaFromFile(1:string path)
     string parseCaptchaFromBinary(1:binary data)
 

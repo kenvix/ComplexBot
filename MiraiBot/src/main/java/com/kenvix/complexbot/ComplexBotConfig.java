@@ -6,6 +6,8 @@
 
 package com.kenvix.complexbot;
 
+import java.util.List;
+
 public class ComplexBotConfig {
     public Bot bot;
     public Mirai mirai;
@@ -14,6 +16,9 @@ public class ComplexBotConfig {
         public String name;
         public String password;
         public long qq;
+        public List<Long> administratorIds;
+        public boolean acceptAllFriendRequest;
+        public boolean acceptAllGroupInvitation;
     }
 
     public static class Mirai {

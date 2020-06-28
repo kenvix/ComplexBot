@@ -5,7 +5,7 @@ import com.kenvix.complexbot.CallBridge
 import net.mamoe.mirai.message.MessageEvent
 
 object SwitchAllCommand : BotCommandFeature {
-    override suspend fun onMessage(msg: MessageEvent, callBridge: CallBridge) {
+    override suspend fun onMessage(msg: MessageEvent) {
         TODO("Not yet implemented")
     }
 }

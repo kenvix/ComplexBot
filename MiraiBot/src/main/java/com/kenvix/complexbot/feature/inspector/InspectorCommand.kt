@@ -1,8 +1,8 @@
 package com.kenvix.complexbot.feature.inspector
 
 import com.kenvix.complexbot.BotCommandFeature
-import com.kenvix.complexbot.CallBridge
 import com.kenvix.complexbot.InspectorOptions
+import com.kenvix.complexbot.callBridge
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import com.kenvix.moecraftbot.ng.lib.bot.BotCommandQueryData
 import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
@@ -14,12 +14,11 @@ import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.content
-import java.lang.NumberFormatException
-import kotlin.math.min
+import net.mamoe.mirai.message.data.toMessage
 
 object InspectorCommand : BotCommandFeature, Logging {
     @Throws(UserInvalidUsageException::class, NumberFormatException::class)
-    override suspend fun onMessage(msg: MessageEvent, callBridge: CallBridge) {
+    override suspend fun onMessage(msg: MessageEvent) {
         val member = msg.sender as Member
         val group = member.group
         val command = parseCommandFromMessage(msg.message.content, true)
@@ -105,7 +104,7 @@ object InspectorCommand : BotCommandFeature, Logging {
         if (!options.enabled)
             helpString.appendln("注意：本群没有启用此功能，启用请输入：.inspector enable")
 
-        group.sendMessage(helpString.toString())
+        group.sendMessage(helpString.toString().toMessage())
     }
 
     private suspend fun sendList(group: Group, options: InspectorOptions) = withContext(IO) {

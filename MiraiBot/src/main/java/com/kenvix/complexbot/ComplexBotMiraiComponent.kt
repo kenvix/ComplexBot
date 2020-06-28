@@ -10,7 +10,6 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.utils.SilentLogger
 
 class ComplexBotMiraiComponent(
-        private val callBridge: CallBridge,
         private val qq: Long,
         private val password: String
 ) : AutoCloseable, Logging {
@@ -37,7 +36,7 @@ class ComplexBotMiraiComponent(
     }
 
     private suspend fun initMirai() = withContext(IO) {
-        bot.featureRoutes(callBridge)
+        bot.featureRoutes()
         logger.info("Mirai Bot setup success: ${bot.nick}(${bot.selfQQ})")
     }
 

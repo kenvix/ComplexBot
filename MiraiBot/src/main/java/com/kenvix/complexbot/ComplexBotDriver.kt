@@ -18,6 +18,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import net.mamoe.mirai.contact.Contact
 import org.apache.thrift.protocol.TBinaryProtocol
+import org.apache.thrift.transport.TFramedTransport
 import org.apache.thrift.transport.TSocket
 import org.bson.types.ObjectId
 import org.litote.kmongo.Id
@@ -129,9 +130,10 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
         backendSocket = Socket().apply {
             keepAlive = true
             connect(InetSocketAddress(backendHost, backendPort), SocketTimeout)
-        }
+       }
 
-        val transport = TSocket(backendSocket)
+        val transportSocket = TSocket(backendSocket)
+        val transport = TFramedTransport(transportSocket)
         val protocol = TBinaryProtocol(transport)
         backendClient = BackendBridge.Client(protocol)
 
@@ -166,21 +168,28 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     }
 
     internal fun loadMiraiBot() {
-        if (miraiComponent == null) {
-            miraiComponent = ComplexBotMiraiComponent(object : CallBridge {
-                override val backendClient: BackendBridge.Client
-                    get() = this@ComplexBotDriver.backendClient!!
+        logger.debug("Loading mirai")
 
-                override val config: ComplexBotConfig
-                    get() = this@ComplexBotDriver.config.content
+        callBridge = object : CallBridge {
+            override val backendClient: BackendBridge.Client
+                get() = this@ComplexBotDriver.backendClient!!
 
-                override suspend fun getGroupOptions(groupId: Long): GroupOptions
+            override val config: ComplexBotConfig
+                get() = this@ComplexBotDriver.config.content
+
+            override suspend fun getGroupOptions(groupId: Long): GroupOptions
                     = this@ComplexBotDriver.getGroupOptions(groupId)
 
-                override suspend fun saveGroupOptions(groupId: Long): UpdateResult
+            override suspend fun saveGroupOptions(groupId: Long): UpdateResult
                     = this@ComplexBotDriver.saveGroupOptions(groupId)
 
-            }, qq = config.content.bot.qq, password = config.content.bot.password)
+        }
+
+        if (miraiComponent == null) {
+            miraiComponent = ComplexBotMiraiComponent(
+                qq = config.content.bot.qq,
+                password = config.content.bot.password
+            )
             miraiComponent!!.start()
         }
     }

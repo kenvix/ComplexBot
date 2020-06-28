@@ -114,6 +114,12 @@ object Defines : Logging {
         }
 
         Runtime.getRuntime().addShutdownHook(Thread({ shutdownSystem() }, "Shutdown Callback"))
+
+        //Load system (2)
+        systemOptions = ConfigManager.getConfigManager("system", SystemOptions::class.java).content
+        cachedThreadPool = ThreadPoolExecutor(1, systemOptions.system.threadPoolMaxSize,
+            60L, TimeUnit.SECONDS, SynchronousQueue<Runnable>())
+        cacheDirectory = File("cache")
     }
 
     internal fun setupPlugins() {
@@ -141,12 +147,6 @@ object Defines : Logging {
 
         activeDriver = driverClass.getConstructor().newInstance() as AbstractDriver<*>
         consoleInputHandlers.add(activeDriver)
-
-        //Load system (2)
-        systemOptions = ConfigManager.getConfigManager("system", SystemOptions::class.java).content
-        cachedThreadPool = ThreadPoolExecutor(1, systemOptions.system.threadPoolMaxSize,
-            60L, TimeUnit.SECONDS, SynchronousQueue<Runnable>())
-        cacheDirectory = File("cache")
     }
 
     internal fun setupSQLDatabase() {

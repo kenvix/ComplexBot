@@ -6,6 +6,8 @@
 
 package com.kenvix.moecraftbot.ng.lib;
 
+import java.util.List;
+
 public class SystemOptions {
     public Proxy proxy;
     public Bot bot;

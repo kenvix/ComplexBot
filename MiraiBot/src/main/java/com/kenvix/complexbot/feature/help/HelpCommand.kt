@@ -5,7 +5,9 @@ import com.kenvix.complexbot.CallBridge
 import net.mamoe.mirai.message.MessageEvent
 
 object HelpCommand : BotCommandFeature {
-    override suspend fun onMessage(msg: MessageEvent, callBridge: CallBridge) {
-        TODO("Not yet implemented")
+    override suspend fun onMessage(msg: MessageEvent) {
+        val text = StringBuilder("MoeNet Complex Bot v0.1")
+
+        msg.reply(text.toString())
     }
 }

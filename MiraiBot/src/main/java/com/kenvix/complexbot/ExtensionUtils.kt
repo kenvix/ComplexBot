@@ -1,46 +1,52 @@
 package com.kenvix.complexbot
 
+import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.exception.BusinessLogicException
-import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
 import com.kenvix.moecraftbot.ng.lib.exception.UserViolationException
 import com.kenvix.moecraftbot.ng.lib.nameAndHashcode
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.message.data.content
 import org.slf4j.LoggerFactory
 import java.lang.NumberFormatException
 
-const val CommandPrefix = "."
+val commandPrefix: String = Defines.systemOptions.bot.commandPrefix
+val commandPrefixLength = commandPrefix.length
 val enabledFeatures = ArrayList<BotFeature>()
 lateinit var commands: HashMap<String, RegisteredBotCommand>
 val logger = LoggerFactory.getLogger("ComplexBot.ExtensionUtils")
+lateinit var callBridge: CallBridge
 
-fun MessagePacketSubscribersBuilder.command(callBridge: CallBridge,
-                                            command: String,
+fun MessagePacketSubscribersBuilder.command(command: String,
                                             handler: BotCommandFeature,
                                             vararg middleware: BotMiddleware
 ) {
     if (!::commands.isInitialized) {
         commands = HashMap()
         this.startsWith(
-                prefix = CommandPrefix,
+                prefix = commandPrefix,
                 trim = true,
                 onEvent = {
-                    commands[command]?.run {
-                        var success = true
-                        if (middlewares != null) {
-                            for (middle in middlewares) {
-                                if (!executeCatchingBusinessException { middle.onMessage(this@startsWith) }) {
-                                    success = false
-                                    break
+                    executeCatchingBusinessException {
+                        val requestedCommand = this.message.content.run {
+                            val spacePos = this.indexOf(' ')
+                            if (spacePos == -1)
+                                substring(commandPrefixLength)
+                            else
+                                substring(commandPrefixLength, spacePos)
+                        }
+                        commands[requestedCommand]?.also {
+                            var success = true
+                            if (it.middlewares != null) {
+                                for (middle in it.middlewares) {
+                                    success = success && middle.onMessage(this@startsWith)
+                                    if (!success) break
                                 }
                             }
-                        }
 
-                        if (success) {
-                            executeCatchingBusinessException {
-                                this.handler.onMessage(this@startsWith, callBridge)
-                            }
+                            if (success)
+                                it.handler.onMessage(this@startsWith)
                         }
                     }
                 }
@@ -51,16 +57,16 @@ fun MessagePacketSubscribersBuilder.command(callBridge: CallBridge,
 }
 
 interface BotCommandFeature {
-    suspend fun onMessage(msg: MessageEvent, callBridge: CallBridge)
+    suspend fun onMessage(msg: MessageEvent)
 }
 
 interface BotFeature {
-    fun onEnable(bot: Bot, callBridge: CallBridge)
+    fun onEnable(bot: Bot)
 }
 
-fun Bot.addFeature(callBridge: CallBridge, handler: BotFeature) {
+fun Bot.addFeature(handler: BotFeature) {
     enabledFeatures.add(handler)
-    handler.onEnable(this, callBridge)
+    handler.onEnable(this)
 }
 
 suspend fun MessageEvent.executeCatchingBusinessException(function: suspend (() -> Unit)): Boolean {
@@ -90,7 +96,7 @@ suspend fun MessageEvent.executeCatchingBusinessException(function: suspend (() 
 }
 
 suspend fun MessageEvent.sendExceptionMessage(exception: Throwable) {
-    this.sender.sendMessage(kotlin.run {
+    this.reply(kotlin.run {
         if (exception.localizedMessage.isNullOrBlank())
             "操作失败：${exception.nameAndHashcode}"
         else
@@ -126,4 +132,8 @@ data class RegisteredBotCommand(
         result = 31 * result + (middlewares?.contentHashCode() ?: 0)
         return result
     }
+}
+
+fun isBotSystemAdministrator(qq: Long): Boolean {
+    return callBridge.config.bot.administratorIds != null && qq in callBridge.config.bot.administratorIds
 }
