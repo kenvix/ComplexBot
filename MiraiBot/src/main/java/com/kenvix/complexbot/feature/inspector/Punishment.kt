@@ -15,7 +15,7 @@ interface Punishment : Named {
      * On message
      * @return boolean Is rule matched and should punish sender
      */
-    suspend fun punish(msg: MessageEvent, user: User)
+    suspend fun punish(msg: MessageEvent, reason: String)
 }
 
 object Kick : Punishment {
@@ -24,7 +24,7 @@ object Kick : Punishment {
     override val description: String
         get() = "撤回消息并踢出用户"
 
-    override suspend fun punish(msg: MessageEvent, user: User) {
+    override suspend fun punish(msg: MessageEvent, reason: String) {
 
     }
 }
@@ -35,7 +35,7 @@ object Withdraw : Punishment {
     override val description: String
         get() = "只撤回消息"
 
-    override suspend fun punish(msg: MessageEvent, user: User) {
+    override suspend fun punish(msg: MessageEvent, reason: String) {
 
     }
 }
@@ -46,7 +46,7 @@ object Noop : Punishment {
     override val description: String
         get() = "只记录，不执行任何惩罚操作"
 
-    override suspend fun punish(msg: MessageEvent, user: User) {
+    override suspend fun punish(msg: MessageEvent, reason: String) {
 
     }
 }
@@ -58,7 +58,7 @@ abstract class Mute : Punishment {
     override val description: String
         get() = "禁言"
 
-    override suspend fun punish(msg: MessageEvent, user: User) {
+    override suspend fun punish(msg: MessageEvent, reason: String) {
 
     }
 }

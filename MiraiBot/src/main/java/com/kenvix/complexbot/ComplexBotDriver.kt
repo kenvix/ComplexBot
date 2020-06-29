@@ -10,13 +10,11 @@ import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.rpc.thrift.BackendBridge
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
 import com.kenvix.moecraftbot.ng.Defines
-import com.kenvix.moecraftbot.ng.lib.ConfigManager
 import com.kenvix.utils.exception.NotFoundException
 import com.kenvix.utils.log.LoggingOutputStream
 import com.mongodb.client.result.UpdateResult
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import net.mamoe.mirai.contact.Contact
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TFramedTransport
 import org.apache.thrift.transport.TSocket
@@ -180,9 +178,14 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
             override suspend fun getGroupOptions(groupId: Long): GroupOptions
                     = this@ComplexBotDriver.getGroupOptions(groupId)
 
-            override suspend fun saveGroupOptions(groupId: Long): UpdateResult
-                    = this@ComplexBotDriver.saveGroupOptions(groupId)
+            override suspend fun saveGroupOptions(groupId: Long, options: GroupOptions): UpdateResult
+                    = this@ComplexBotDriver.saveGroupOptions(groupId, options)
 
+            override suspend fun setGroupOptions(groupId: Long, options: GroupOptions): UpdateResult
+                    = this@ComplexBotDriver.setGroupOptions(groupId, options)
+
+            override suspend fun getAllGroupOptions(): List<GroupOptions>
+                    = this@ComplexBotDriver.getAllGroupOptions()
         }
 
         if (miraiComponent == null) {
@@ -210,10 +213,18 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
         }
     }
 
-    suspend fun saveGroupOptions(groupId: Long): UpdateResult = withContext(IO) {
-        val op = groupOptionsCache[groupId] ?: throw NotFoundException("No such group in cache")
+    suspend fun getAllGroupOptions(): List<GroupOptions> {
+        return groupMongoCollection.find().toList()
+    }
+
+    suspend fun setGroupOptions(groupId: Long, options: GroupOptions): UpdateResult = withContext(IO) {
+        groupOptionsCache[groupId] = options
+        saveGroupOptions(groupId, options)
+    }
+
+    suspend fun saveGroupOptions(groupId: Long, options: GroupOptions): UpdateResult = withContext(IO) {
         val objId = groupMongoIdMap[groupId] ?: throw NotFoundException("No such group in cache")
-        groupMongoCollection.updateOneById(objId, op)
+        groupMongoCollection.updateOneById(objId, options)
     }
 
     private suspend fun createGroupOptions(groupId: Long): GroupOptions = withContext(IO) {

@@ -24,7 +24,8 @@ object InspectorCommand : BotCommandFeature, Logging {
         val command = parseCommandFromMessage(msg.message.content, true)
         checkArgumentNum(command, 1)
 
-        val opt = callBridge.getGroupOptions(member.group.id).inspector
+        val groupOpt = callBridge.getGroupOptions(member.group.id)
+        val opt = groupOpt.inspector
 
         when (command.firstArgument) {
             "help" -> {
@@ -80,7 +81,7 @@ object InspectorCommand : BotCommandFeature, Logging {
             else -> throw UserInvalidUsageException("Inspector 用法错误，非法参数。请输入 .inspector help 查看使用说明")
         }
 
-        callBridge.saveGroupOptions(group.id)
+        callBridge.saveGroupOptions(group.id, groupOpt)
     }
 
     private suspend fun sendHelp(group: Group, options: InspectorOptions) = withContext(IO) {

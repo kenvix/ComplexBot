@@ -14,6 +14,9 @@ import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.dbcp2.BasicDataSource
+import org.bson.BsonDocument
+import org.bson.BsonString
+import org.bson.conversions.Bson
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect

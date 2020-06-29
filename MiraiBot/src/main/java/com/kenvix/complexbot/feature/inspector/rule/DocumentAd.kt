@@ -10,8 +10,10 @@ object DocumentAd : InspectorRule {
         get() = 1
     override val description: String
         get() = "基于腾讯文档的盗号诈骗消息"
+    override val punishReason: String
+        get() = "疑似被盗号并利用腾讯文档发送了诈骗消息，请勿相信"
 
     override suspend fun onMessage(msg: MessageEvent): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 }

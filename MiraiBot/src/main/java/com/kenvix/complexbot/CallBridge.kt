@@ -16,5 +16,7 @@ interface CallBridge {
     val backendClient: BackendBridge.Client
     val config: ComplexBotConfig
     suspend fun getGroupOptions(groupId: Long): GroupOptions
-    suspend fun saveGroupOptions(groupId: Long): UpdateResult
+    suspend fun saveGroupOptions(groupId: Long, options: GroupOptions): UpdateResult
+    suspend fun setGroupOptions(groupId: Long, options: GroupOptions): UpdateResult
+    suspend fun getAllGroupOptions(): List<GroupOptions>
 }

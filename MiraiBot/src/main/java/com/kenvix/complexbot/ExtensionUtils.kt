@@ -2,6 +2,7 @@ package com.kenvix.complexbot
 
 import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.exception.BusinessLogicException
+import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
 import com.kenvix.moecraftbot.ng.lib.exception.UserViolationException
 import com.kenvix.moecraftbot.ng.lib.nameAndHashcode
 import net.mamoe.mirai.Bot
@@ -57,6 +58,7 @@ fun MessagePacketSubscribersBuilder.command(command: String,
 }
 
 interface BotCommandFeature {
+    @Throws(UserInvalidUsageException::class, NumberFormatException::class)
     suspend fun onMessage(msg: MessageEvent)
 }
 

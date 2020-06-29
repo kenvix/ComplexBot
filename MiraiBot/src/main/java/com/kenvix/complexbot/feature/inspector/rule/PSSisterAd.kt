@@ -9,10 +9,11 @@ object PSSisterAd : InspectorRule {
     override val version: Int
         get() = 1
     override val description: String
-        get() = "PS 学姐广告"
+        get() = "PS 学姐广告及黄赌毒广告"
+    override val punishReason: String
+        get() = "是PS学姐"
 
     override suspend fun onMessage(msg: MessageEvent): Boolean {
-
-        TODO("Not yet implemented")
+        return false
     }
 }

@@ -12,6 +12,7 @@ import net.mamoe.mirai.message.MessageEvent
 interface InspectorRule : Named {
     val version: Int
     val description: String
+    val punishReason: String
 
     /**
      * On message

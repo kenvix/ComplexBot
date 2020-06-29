@@ -10,8 +10,10 @@ object PhotoQrCodeAd : InspectorRule {
         get() = 1
     override val description: String
         get() = "非法二维码广告"
+    override val punishReason: String
+        get() = "疑似被盗号并发送了二维码黄赌毒广告，请勿相信"
 
     override suspend fun onMessage(msg: MessageEvent): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 }
