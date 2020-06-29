@@ -81,6 +81,7 @@ object InspectorCommand : BotCommandFeature, Logging {
             else -> throw UserInvalidUsageException("Inspector 用法错误，非法参数。请输入 .inspector help 查看使用说明")
         }
 
+        InspectorFeature.applyInspectorOptions(group.id, opt)
         callBridge.saveGroupOptions(group.id, groupOpt)
     }
 

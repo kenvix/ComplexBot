@@ -64,9 +64,12 @@ dependencies {
     implementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
 
     implementation("net.mamoe:mirai-core:$miraiCoreVersion")
-    //implementation("net.mamoe:mirai-core-qqandroid:$miraiCoreVersion")
+    implementation("net.mamoe:mirai-core-qqandroid:$miraiCoreVersion")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
+
+    //ahocorasick 字符串关键词匹配算法
+    implementation("org.ahocorasick:ahocorasick:0.4.0")
 }
 
 configure<JavaPluginConvention> {

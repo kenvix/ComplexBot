@@ -42,8 +42,11 @@ object InspectorFeature : BotFeature {
                         }
 
                         for (result in checkList) {
-                            if (result.result.await()) { //Should punish
-                                result.punishment.punish(this@always, result.rule.punishReason)
+                            if (kotlin.runCatching { result.result.await() }.getOrNull() == true) { //Should punish
+                                this@always.executeCatchingBusinessException {
+                                    result.punishment.punish(this@always, result.rule.punishReason)
+                                }
+
                                 break
                             }
                         }

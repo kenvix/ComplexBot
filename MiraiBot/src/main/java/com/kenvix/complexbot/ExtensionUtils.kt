@@ -6,6 +6,7 @@ import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
 import com.kenvix.moecraftbot.ng.lib.exception.UserViolationException
 import com.kenvix.moecraftbot.ng.lib.nameAndHashcode
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.content
@@ -81,9 +82,14 @@ suspend fun MessageEvent.executeCatchingBusinessException(function: suspend (() 
                 sendExceptionMessage(exception)
             }
 
+            is PermissionDeniedException -> {
+                this.reply("错误：Bot 权限不足，无法执行操作。请设置 Bot 为管理员")
+                logger.info("No permission to operate. ", exception)
+            }
+
             is BusinessLogicException -> {
                 sendExceptionMessage(exception)
-                logger.warn("An unhandled business exception is thrown ", exception)
+                logger.warn("An unhandled business exception is thrown. ", exception)
             }
 
             is NotImplementedError -> {
