@@ -65,6 +65,7 @@ interface BotCommandFeature {
 
 interface BotFeature {
     fun onEnable(bot: Bot)
+    fun onDisable() { }
 }
 
 fun Bot.addFeature(handler: BotFeature) {

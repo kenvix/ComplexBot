@@ -15,6 +15,7 @@ import com.kenvix.utils.log.LoggingOutputStream
 import com.mongodb.client.result.UpdateResult
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import org.apache.commons.collections4.map.ReferenceMap
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TFramedTransport
 import org.apache.thrift.transport.TSocket
@@ -59,13 +60,13 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     private val userMongoIdMap = HashMap<Long, ObjectId>()
 
     lateinit var groupMongoCollection: CoroutineCollection<GroupOptions>
-    val groupOptionsCache = WeakHashMap<Long, GroupOptions>()
+    val groupOptionsCache: MutableMap<Long, GroupOptions> = ReferenceMap()
 
     override fun onEnable() {
         super.onEnable()
         runBlocking {
             loadComplexBotOptions()
-            groupMongoCollection = Defines.mongoDatabase.getCollection<GroupOptions>()
+            groupMongoCollection = Defines.mongoDatabase.getCollection("groupOptions")
 
             loadBackend()
             loadMiraiBot()
@@ -74,10 +75,15 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
 
     override fun onDisable() = runBlocking {
         super.onDisable()
+        enabledFeatures.forEach { it.onDisable() }
 
         if (miraiComponent != null) {
             miraiComponent!!.close()
             miraiComponent = null
+        }
+
+        groupOptionsCache.forEach { (groupId, options) ->
+            saveGroupOptions(groupId, options)
         }
 
         stopBackend()

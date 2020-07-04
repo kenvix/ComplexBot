@@ -14,7 +14,8 @@ data class GroupOptions(
         @BsonId
         val _id: Id<GroupOptions> = newId(),
         val groupId: Long = -1,
-        var inspector: InspectorOptions = InspectorOptions()
+        var inspector: InspectorOptions = InspectorOptions(),
+        var options: MutableMap<String, String> = HashMap()
 )
 
 data class InspectorOptions(

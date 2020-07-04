@@ -33,7 +33,7 @@ object InspectorFeature : BotFeature {
         bot.subscribeGroupMessages {
             always {
                 inspectorOptions[this.group.id]?.also { inspectorOptions ->
-                    val ruleResultChannel = Channel<Boolean>()
+                    var isPunished = false
                     if (this.sender.id !in inspectorOptions.white) {
                         inspectorOptions.rules.map { (rule, punishment) ->
                             RuleResult(coroutines.ioScope.async {
@@ -48,11 +48,20 @@ object InspectorFeature : BotFeature {
                                 this@always.executeCatchingBusinessException {
                                     it.punishment.punish(this@always, it.rule.punishReason)
                                 }
+                                isPunished = true
                             }
                         }
                     }
+
+                    InspectorStatisticUtils.addMemberCountStat(sender, isPunished)
                 }
             }
+        }
+    }
+
+    override fun onDisable() {
+        runBlocking {
+            InspectorStatisticUtils.saveAllStat()
         }
     }
 
