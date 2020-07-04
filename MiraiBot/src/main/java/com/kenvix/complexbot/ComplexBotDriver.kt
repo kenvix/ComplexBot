@@ -20,6 +20,7 @@ import org.apache.thrift.transport.TFramedTransport
 import org.apache.thrift.transport.TSocket
 import org.bson.types.ObjectId
 import org.litote.kmongo.Id
+import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.eq
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -46,7 +47,10 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     private val coroutine = Coroutines()
 
     private var backendSocket: Socket? = null
-    private var backendClient: BackendBridge.Client? = null
+
+    var backendClient: BackendBridge.Client? = null
+        private set
+
     private var backendProcess: Process? = null
         @Synchronized get
         @Synchronized set
@@ -54,10 +58,15 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     private val groupMongoIdMap = HashMap<Long, Id<GroupOptions>>()
     private val userMongoIdMap = HashMap<Long, ObjectId>()
 
+    lateinit var groupMongoCollection: CoroutineCollection<GroupOptions>
+    val groupOptionsCache = WeakHashMap<Long, GroupOptions>()
+
     override fun onEnable() {
         super.onEnable()
         runBlocking {
             loadComplexBotOptions()
+            groupMongoCollection = Defines.mongoDatabase.getCollection<GroupOptions>()
+
             loadBackend()
             loadMiraiBot()
         }
@@ -134,11 +143,13 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
         val transport = TFramedTransport(transportSocket)
         val protocol = TBinaryProtocol(transport)
         backendClient = BackendBridge.Client(protocol)
+        transportSocket.setTimeout(1000)
 
-        if (backendClient!!.ping("hello") == "hello")
+        if (backendClient!!.ping("hello") == "hello") {
             logger.info("Backend connected")
-        else
+        } else {
             throw IllegalStateException("Unrecognized backend reply. expected hello")
+        }
     }
 
     internal suspend fun stopBackend() = withContext(IO) {
@@ -196,9 +207,6 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
             miraiComponent!!.start()
         }
     }
-
-    val groupMongoCollection = Defines.mongoDatabase.getCollection<GroupOptions>()
-    val groupOptionsCache = WeakHashMap<Long, GroupOptions>()
 
     suspend fun getGroupOptions(groupId: Long): GroupOptions = withContext(IO) {
         if (groupId in groupOptionsCache) {

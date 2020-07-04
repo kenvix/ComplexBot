@@ -4,6 +4,7 @@ import com.kenvix.complexbot.addFeature
 import com.kenvix.complexbot.command
 import com.kenvix.complexbot.feature.friend.AutoAcceptFriendRequest
 import com.kenvix.complexbot.feature.friend.AutoAcceptGroupInvitation
+import com.kenvix.complexbot.feature.help.DebugActiveDataCommand
 import com.kenvix.complexbot.feature.help.DebugCommand
 import com.kenvix.complexbot.feature.help.HelpCommand
 import com.kenvix.complexbot.feature.inspector.InspectorFeature
@@ -19,6 +20,7 @@ fun Bot.featureRoutes() {
     subscribeMessages {
         command("help", HelpCommand)
         command("debug", DebugCommand)
+        command("debugactivedata", DebugActiveDataCommand, GroupMessageOnly)
 
         command("sex", SexCommand)
 

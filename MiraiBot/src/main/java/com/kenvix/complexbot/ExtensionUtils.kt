@@ -37,7 +37,7 @@ fun MessagePacketSubscribersBuilder.command(command: String,
                                 substring(commandPrefixLength)
                             else
                                 substring(commandPrefixLength, spacePos)
-                        }
+                        }.toLowerCase()
                         commands[requestedCommand]?.also {
                             var success = true
                             if (it.middlewares != null) {

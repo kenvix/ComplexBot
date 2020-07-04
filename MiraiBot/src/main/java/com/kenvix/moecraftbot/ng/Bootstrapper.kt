@@ -45,8 +45,15 @@ object Bootstrapper : Logging {
 
 
     @JvmStatic
-    fun startApplicationBySideload(sideloader: Sideloader<*>, args: String)
-        = startApplicationBySideload(sideloader, args.split(" ").toTypedArray())
+    fun startApplicationBySideload(sideloader: Sideloader<*>, args: String) = startApplicationBySideload(sideloader, args.split(" ").toTypedArray())
+
+    @JvmStatic
+    fun startCoreOnly(args: Array<String>? = null) {
+        val cmd = getCmd(loadExtraArgs(args))
+        Defines.setupSystem(cmd)
+        Defines.setupPlugins()
+        Defines.setupNetwork()
+    }
 
     @JvmStatic
     fun startApplication(args: Array<String>? = null) {
@@ -79,9 +86,9 @@ object Bootstrapper : Logging {
     @JvmOverloads
     fun showErrorAndExit(throwable: Throwable, exitCode: Int = 1, extraMessage: String? = null) {
         showErrorAndExit(
-            message = "${if (extraMessage != null) extraMessage + "\n\n" else ""} Exception Message: ${throwable.localizedMessage}",
-            exitCode = exitCode,
-            throwable = throwable
+                message = "${if (extraMessage != null) extraMessage + "\n\n" else ""} Exception Message: ${throwable.localizedMessage}",
+                exitCode = exitCode,
+                throwable = throwable
         )
     }
 

@@ -113,10 +113,15 @@ object InspectorCommand : BotCommandFeature, Logging {
         val helpString = StringBuilder()
         helpString.appendln("Inspector: QQ 群广告过滤器和消息监视器.")
 
-        if (!options.enabled)
+        if (!options.enabled) {
             helpString.appendln("注意：本群没有启用此功能，启用请输入：.inspector enable")
-        else
-            helpString.appendln("已启用")
+        } else {
+            helpString.append("已启用。")
+            if (group.botPermission.level >= 1)
+                helpString.append("权限正常。")
+            else
+                helpString.append("但Bot没有管理员权限，无法执行任何惩罚")
+        }
 
         helpString.appendln("===========================")
         helpString.appendln("本群 (${group.id}) 白名单列表：")
