@@ -35,19 +35,19 @@ object InspectorFeature : BotFeature {
                 inspectorOptions[this.group.id]?.also { inspectorOptions ->
                     val ruleResultChannel = Channel<Boolean>()
                     if (this.sender.id !in inspectorOptions.white) {
-                        val checkList = inspectorOptions.rules.map { (rule, punishment) ->
+                        inspectorOptions.rules.map { (rule, punishment) ->
                             RuleResult(coroutines.ioScope.async {
                                 rule.onMessage(this@always)
                             }, rule, punishment)
-                        }
-
-                        for (result in checkList) {
-                            if (kotlin.runCatching { result.result.await() }.getOrNull() == true) { //Should punish
+                        }.filter {
+                            kotlin.runCatching { it.result.await() }.getOrNull() == true
+                        }.maxBy {
+                            it.punishment
+                        }.also {
+                            if (it != null) {
                                 this@always.executeCatchingBusinessException {
-                                    result.punishment.punish(this@always, result.rule.punishReason)
+                                    it.punishment.punish(this@always, it.rule.punishReason)
                                 }
-
-                                break
                             }
                         }
                     }
@@ -67,12 +67,12 @@ object InspectorFeature : BotFeature {
     private data class RuleResult(
             val result: Deferred<Boolean>,
             val rule: InspectorRule,
-            val punishment: Punishment
+            val punishment: AbstractPunishment
     )
 
     private data class InspectorInternalOptions(
             val options: InspectorOptions,
-            val rules: Map<InspectorRule, Punishment>
+            val rules: Map<InspectorRule, AbstractPunishment>
     ) {
         val white: Set<Long>
             get() = options.white

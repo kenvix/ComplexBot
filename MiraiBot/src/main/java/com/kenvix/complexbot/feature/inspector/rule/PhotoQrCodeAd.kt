@@ -18,16 +18,16 @@ object PhotoQrCodeAd : InspectorRule {
         get() = "疑似被盗号并发送了二维码黄赌毒广告，请勿相信"
 
     override suspend fun onMessage(msg: MessageEvent): Boolean {
-        msg.message.forEach { message ->
-            when(message) {
+        return msg.message.any { message ->
+            when (message) {
                 is Image -> verifyImageMessage(msg, message)
                 is FlashImage -> verifyImageMessage(msg, message.image)
+                else -> false
             }
         }
-        return false
     }
 
-    private suspend fun verifyImageMessage(msgEvent: MessageEvent, image: Image) {
-
+    private suspend fun verifyImageMessage(msgEvent: MessageEvent, image: Image): Boolean {
+        return false
     }
 }

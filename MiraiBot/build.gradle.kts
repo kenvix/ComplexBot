@@ -64,7 +64,7 @@ dependencies {
     implementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
 
     implementation("net.mamoe:mirai-core:$miraiCoreVersion")
-    implementation("net.mamoe:mirai-core-qqandroid:$miraiCoreVersion")
+    // implementation("net.mamoe:mirai-core-qqandroid:$miraiCoreVersion")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
 

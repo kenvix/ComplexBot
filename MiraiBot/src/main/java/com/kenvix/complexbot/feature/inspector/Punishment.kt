@@ -27,17 +27,18 @@ val punishments = createNamedElementsMap(
     Mute(43199),
     Noop)
 
-interface Punishment : Named, Logging {
-    val description: String
+abstract class AbstractPunishment : Named, Logging, Comparable<AbstractPunishment> {
+    abstract val description: String
     override fun getLogTag(): String = "Punishment.$name"
+    abstract val rank: Int
 
     /**
      * On message
      * @return boolean Is rule matched and should punish sender
      */
-    suspend fun punish(msg: MessageEvent, reason: String)
+    abstract suspend fun punish(msg: MessageEvent, reason: String)
 
-    suspend fun sendPunishmentMessage(msg: MessageEvent, reason: String) {
+    protected suspend fun sendPunishmentMessage(msg: MessageEvent, reason: String) {
         val group = msg.subject as Group
         logger.info("${msg.sender.id}(${msg.sender.nameCardOrNick}) in ${group.id}(${group.name}): $reason")
 
@@ -47,13 +48,20 @@ interface Punishment : Named, Logging {
             add(" <$name>")
         }.build())
     }
+
+    override fun toString(): String {
+        return "Punishment($name: $description) Lv.$rank"
+    }
+
+    override fun compareTo(other: AbstractPunishment): Int {
+        return this.rank.compareTo(other.rank)
+    }
 }
 
-object Kick : Punishment {
-    override val name: String
-        get() = "kick"
-    override val description: String
-        get() = "撤回消息并踢出用户"
+object Kick : AbstractPunishment() {
+    override val name: String = "kick"
+    override val description: String = "撤回消息并踢出用户"
+    override val rank: Int = 99999999
 
     override suspend fun punish(msg: MessageEvent, reason: String) {
         msg.source.recall()
@@ -62,11 +70,10 @@ object Kick : Punishment {
     }
 }
 
-object Withdraw : Punishment {
-    override val name: String
-        get() = "withdraw"
-    override val description: String
-        get() = "只撤回消息"
+object Withdraw : AbstractPunishment() {
+    override val name: String = "withdraw"
+    override val description: String = "只撤回消息"
+    override val rank: Int = 10
 
     override suspend fun punish(msg: MessageEvent, reason: String) {
         msg.source.recall()
@@ -74,11 +81,10 @@ object Withdraw : Punishment {
     }
 }
 
-object Noop : Punishment {
-    override val name: String
-        get() = "noop"
-    override val description: String
-        get() = "只记录，不执行任何惩罚操作"
+object Noop : AbstractPunishment() {
+    override val name: String = "noop"
+    override val description: String = "只记录，不执行任何惩罚操作"
+    override val rank: Int = 1
 
     override suspend fun punish(msg: MessageEvent, reason: String) {
         sendPunishmentMessage(msg, reason)
@@ -86,11 +92,10 @@ object Noop : Punishment {
 }
 
 
-class Mute(private val minute: Int) : Punishment {
-    override val name: String
-        get() = "mute$minute"
-    override val description: String
-        get() = "禁言 $minute 分钟并撤回消息"
+class Mute(private val minute: Int) : AbstractPunishment() {
+    override val name: String = "mute$minute"
+    override val description: String = "禁言 $minute 分钟并撤回消息"
+    override val rank: Int = minute + 1000
 
     override suspend fun punish(msg: MessageEvent, reason: String) {
         msg.source.recall()
