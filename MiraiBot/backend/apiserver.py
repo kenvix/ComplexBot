@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import logging
 from platform import python_version
 import os

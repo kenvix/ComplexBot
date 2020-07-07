@@ -7,6 +7,7 @@
 package com.kenvix.moecraftbot.ng.lib;
 
 import java.util.List;
+import java.util.Set;
 
 public class SystemOptions {
     public Proxy proxy;
@@ -60,7 +61,8 @@ public class SystemOptions {
     }
 
     public static class Bot {
-        public String commandPrefix;
+        public Set<String> commandPrefix;
+        public int commandPrefixLength;
         public String helpMessage;
     }
 

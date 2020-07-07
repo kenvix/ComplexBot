@@ -17,6 +17,9 @@ import net.mamoe.mirai.message.data.content
 import net.mamoe.mirai.message.data.toMessage
 
 object InspectorCommand : BotCommandFeature, Logging {
+    override val description: String
+        get() = "监视器选项"
+
     @Throws(UserInvalidUsageException::class, NumberFormatException::class)
     override suspend fun onMessage(msg: MessageEvent) {
         val member = msg.sender as Member

@@ -13,14 +13,17 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object DebugCommand : BotCommandFeature {
+    override val description: String
+        get() = "调试命令"
+
     override suspend fun onMessage(msg: MessageEvent) {
         val text = StringBuilder()
         text.appendln("MoeNet Complex Bot v0.1")
         text.appendln("Written by Kenvix | Github: kenvix/ComplexBot")
         text.appendln("Powered by mamoe/mirai and MoeCraft Bot Framework")
-        text.appendln("Java ${System.getProperty("java.version")} | Kotlin ${KotlinVersion.CURRENT}")
+        text.appendln("${System.getProperty("java.vm.name")} ${System.getProperty("java.vm.version")} (${System.getProperty("java.vm.vendor")})")
         text.appendln(callBridge.backendClient.aboutInfo)
-        text.appendln("Platform: ${System.getProperty("os.name")} ")
+        text.appendln("Platform: ${System.getProperty("os.name")} | Kotlin ${KotlinVersion.CURRENT}")
         text.appendln("Time: " + SimpleDateFormat("YYYY-MM-dd HH:mm:ss").format(Date(System.currentTimeMillis())))
 
         val total = Runtime.getRuntime().totalMemory().toInt() / 1024 / 1024

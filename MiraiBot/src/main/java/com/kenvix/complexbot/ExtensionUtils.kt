@@ -13,8 +13,8 @@ import net.mamoe.mirai.message.data.content
 import org.slf4j.LoggerFactory
 import java.lang.NumberFormatException
 
-val commandPrefix: String = Defines.systemOptions.bot.commandPrefix
-val commandPrefixLength = commandPrefix.length
+val commandPrefix: Set<String> = Defines.systemOptions.bot.commandPrefix
+val commandPrefixLength = Defines.systemOptions.bot.commandPrefixLength
 val enabledFeatures = ArrayList<BotFeature>()
 lateinit var commands: HashMap<String, RegisteredBotCommand>
 val logger = LoggerFactory.getLogger("ComplexBot.ExtensionUtils")
@@ -26,39 +26,39 @@ fun MessagePacketSubscribersBuilder.command(command: String,
 ) {
     if (!::commands.isInitialized) {
         commands = HashMap()
-        this.startsWith(
-                prefix = commandPrefix,
-                trim = true,
-                onEvent = {
-                    executeCatchingBusinessException {
-                        val requestedCommand = this.message.content.run {
-                            val spacePos = this.indexOf(' ')
-                            if (spacePos == -1)
-                                substring(commandPrefixLength)
-                            else
-                                substring(commandPrefixLength, spacePos)
-                        }.toLowerCase()
-                        commands[requestedCommand]?.also {
-                            var success = true
-                            if (it.middlewares != null) {
-                                for (middle in it.middlewares) {
-                                    success = success && middle.onMessage(this@startsWith)
-                                    if (!success) break
-                                }
+        this.always {
+            if (this.message.content.trim().substring(0, commandPrefixLength) in commandPrefix) {
+                executeCatchingBusinessException {
+                    val requestedCommand = this.message.content.run {
+                        val spacePos = this.indexOf(' ')
+                        if (spacePos == -1)
+                            substring(commandPrefixLength)
+                        else
+                            substring(commandPrefixLength, spacePos)
+                    }.toLowerCase()
+                    commands[requestedCommand]?.also {
+                        var success = true
+                        if (it.middlewares != null) {
+                            for (middle in it.middlewares) {
+                                success = success && middle.onMessage(this)
+                                if (!success) break
                             }
-
-                            if (success)
-                                it.handler.onMessage(this@startsWith)
                         }
+
+                        if (success)
+                            it.handler.onMessage(this)
                     }
                 }
-        )
+            }
+        }
     }
 
     commands[command] = RegisteredBotCommand(handler, middleware)
 }
 
 interface BotCommandFeature {
+    val description: String
+
     @Throws(UserInvalidUsageException::class, NumberFormatException::class)
     suspend fun onMessage(msg: MessageEvent)
 }
@@ -114,7 +114,7 @@ suspend fun MessageEvent.sendExceptionMessage(exception: Throwable) {
 }
 
 interface BotMiddleware {
-    suspend fun onMessage(msg: MessageEvent): Boolean
+    suspend fun onMessage(msg: MessageEvent, command: String? = null): Boolean
 }
 
 data class RegisteredBotCommand(

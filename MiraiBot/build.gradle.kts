@@ -74,11 +74,14 @@ dependencies {
 
     implementation("com.google.zxing:core:3.4.0")
     implementation("com.google.zxing:javase:3.4.0")
+
+    implementation("org.apache.commons:commons-collections4:4.4")
 }
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
+
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"

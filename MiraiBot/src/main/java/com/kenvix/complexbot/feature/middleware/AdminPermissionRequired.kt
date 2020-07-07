@@ -8,7 +8,7 @@ import net.mamoe.mirai.contact.isAdministrator
 import net.mamoe.mirai.message.MessageEvent
 
 object AdminPermissionRequired : BotMiddleware {
-    override suspend fun onMessage(msg: MessageEvent): Boolean {
+    override suspend fun onMessage(msg: MessageEvent, command: String?): Boolean {
         if (isBotSystemAdministrator(msg.sender.id))
             return true
 

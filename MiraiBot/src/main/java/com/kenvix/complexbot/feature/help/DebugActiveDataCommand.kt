@@ -14,6 +14,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object DebugActiveDataCommand : BotCommandFeature {
+    override val description: String
+        get() = "调试 ActiveData"
+
     @LowLevelAPI
     override suspend fun onMessage(msg: MessageEvent) {
         val member = msg.sender as Member
