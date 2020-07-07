@@ -5,6 +5,7 @@ import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.utils.exception.NotFoundException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -23,9 +24,8 @@ object InspectorStatisticUtils {
     private val groupIdMap: MutableMap<Long, StatIdMapValue> = HashMap()
     private val statCacheMap: MutableMap<Long, InspectorStatistic> = HashMap()
     private val groupMongoCollection: CoroutineCollection<InspectorStatistic>
-            = Defines.mongoDatabase.getCollection("inspectorStatistic")
+            = Defines.mongoDatabase.getCollection("inspectorStatistics")
     private val saveTimer = Timer()
-    private val coroutines = Coroutines()
     private var calendar = Calendar.getInstance()
     val todayKey: Int
         get() = calendar.get(Calendar.YEAR) * 1_0000 +
@@ -41,10 +41,9 @@ object InspectorStatisticUtils {
 
     private fun scheduleSaveTimerTask() {
         saveTimer.schedule(SaveFrequentSeconds) {
+            // Run save task on timer thread to prevent concurrent save caused by timer
+            runBlocking { saveAllStat() }
             scheduleSaveTimerTask()
-            coroutines.ioScope.launch {
-                saveAllStat()
-            }
         }
     }
 
@@ -154,4 +153,7 @@ data class UserStatistic(
     var countIllegal: Long = 0,
     val counts: MutableMap<Int, Long> = HashMap(),
     val createdAt: Date = Date()
-)
+) {
+    val countLegal: Long
+        get() = countTotal - countIllegal
+}

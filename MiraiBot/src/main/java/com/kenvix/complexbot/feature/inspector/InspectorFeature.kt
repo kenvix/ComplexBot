@@ -28,6 +28,7 @@ object InspectorFeature : BotFeature {
 
         bot.subscribeMessages {
             command("inspector", InspectorCommand, GroupMessageOnly, AdminPermissionRequired)
+            command("监视", InspectorCommand, GroupMessageOnly, AdminPermissionRequired)
         }
 
         bot.subscribeGroupMessages {
