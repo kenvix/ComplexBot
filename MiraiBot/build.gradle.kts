@@ -89,4 +89,15 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
+
+    withType<Jar> {
+        manifest {
+            attributes(
+                    mapOf(
+                            "Implementation-Title" to project.name,
+                            "Main-Class" to "com.kenvix.moecraftbot.ng.Main"
+                    )
+            )
+        }
+    }
 }

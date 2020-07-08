@@ -1,0 +1,9 @@
+.gradle
+.idea
+__pycache__
+*.pyc
+*.iml
+*.class
+build
+out
+MiraiBot/config
