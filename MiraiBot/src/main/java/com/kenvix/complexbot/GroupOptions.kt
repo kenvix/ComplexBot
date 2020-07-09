@@ -15,6 +15,7 @@ data class GroupOptions(
         val _id: Id<GroupOptions> = newId(),
         val groupId: Long = -1,
         var inspector: InspectorOptions = InspectorOptions(),
+        val welcomeNew: WelcomeNewOptions = WelcomeNewOptions(),
         val disabledCommands: MutableSet<String> = mutableSetOf(),
         val options: MutableMap<String, String> = HashMap()
 )
@@ -23,4 +24,9 @@ data class InspectorOptions(
         var enabled: Boolean = false,
         val rules: MutableMap<String, String> = mutableMapOf(),
         val white: MutableSet<Long> = mutableSetOf()
+)
+
+data class WelcomeNewOptions(
+        var enabled: Boolean = false,
+        var joinMessage: String = ""
 )

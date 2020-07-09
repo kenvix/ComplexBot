@@ -4,6 +4,7 @@ import com.kenvix.complexbot.addFeature
 import com.kenvix.complexbot.command
 import com.kenvix.complexbot.feature.friend.AutoAcceptFriendRequest
 import com.kenvix.complexbot.feature.friend.AutoAcceptGroupInvitation
+import com.kenvix.complexbot.feature.friend.WelcomeNewFeature
 import com.kenvix.complexbot.feature.help.DebugActiveDataCommand
 import com.kenvix.complexbot.feature.help.DebugCommand
 import com.kenvix.complexbot.feature.help.HelpCommand
@@ -37,6 +38,8 @@ fun Bot.featureRoutes() {
     }
 
     addFeature(InspectorFeature)
+    addFeature(WelcomeNewFeature)
+
     addFeature(AutoAcceptFriendRequest)
     addFeature(AutoAcceptGroupInvitation)
 }

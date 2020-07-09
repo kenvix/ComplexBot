@@ -2,17 +2,13 @@
 
 import os
 import re
+
 import pandas as pd
-import numpy as np
 import torch
-from torch.autograd import Variable
-from torch.nn.modules.module import T_co
+from torch import nn
 from torch.utils import data
 from torch.utils.data import DataLoader
-from torchvision import transforms
-from ignite.engine import Engine, Events, create_supervised_evaluator
-from ignite.metrics import Accuracy
-from torch import nn
+import numpy as np
 
 
 class PoemDataset(torch.utils.data.Dataset):
@@ -43,6 +39,14 @@ class PoemDataset(torch.utils.data.Dataset):
             seq_out = all_words[i + seq_len]
             self.dataX.append([word_index_dict[x] for x in seq_in])
             self.dataY.append(word_index_dict[seq_out])
+
+        print("dataX[0]", len(self.dataX[0]))
+        print("dataX", len(self.dataX))
+        print("dataY", len(self.dataY))
+        print("word_dataframe", len(word_dataframe))
+
+        X = np.array(self.dataX)
+        print("X.shape", X.shape)
         pass
 
     def __len__(self):
@@ -54,7 +58,7 @@ class PoemDataset(torch.utils.data.Dataset):
         :return: data/feature(x), label(y)
         '''
 
-        return self.dataX[index], self.dataY[index]
+        return torch.from_numpy(np.array(self.dataX[index])), torch.from_numpy(np.array(self.dataY[index]))
 
     @staticmethod
     def getDataset(batch_size):
@@ -68,23 +72,27 @@ class PoemDataset(torch.utils.data.Dataset):
 
 
 class PoemModel(nn.Module):
-    def __init__(self):
+    def __init__(self, vocab_size, embedding_dim, hidden_dim):
         super(PoemModel, self).__init__()
         self.model = nn.Sequential(
-            nn.Embedding(),
-            nn.GRU(),
+            nn.Embedding(vocab_size, embedding_dim),
+            nn.GRU(embedding_dim, hidden_dim),
             nn.Linear(),
             nn.Softmax(),
         )
         pass
 
-    def forward(self, x) -> T_co:
+    def forward(self, x):
         pass
 
 
 
 def main():
-    dataset = PoemDataset.getDataset(64)
+    # dataset = PoemDataset.getDataset(64)
+    ds = PoemDataset()
+    print("len", len(ds))
+    print(ds[0])
+    print(ds[1])
     pass
 
 
