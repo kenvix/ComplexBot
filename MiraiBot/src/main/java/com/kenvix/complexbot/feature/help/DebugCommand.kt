@@ -16,6 +16,8 @@ object DebugCommand : BotCommandFeature {
     override val description: String
         get() = "调试命令"
 
+    val formatter = SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS")
+
     override suspend fun onMessage(msg: MessageEvent) {
         val text = StringBuilder()
         text.appendln("MoeNet Complex Bot v0.1")
@@ -24,7 +26,11 @@ object DebugCommand : BotCommandFeature {
         text.appendln("${System.getProperty("java.vm.name")} ${System.getProperty("java.vm.version")} (${System.getProperty("java.vm.vendor")})")
         text.appendln(callBridge.backendClient.aboutInfo)
         text.appendln("Platform: ${System.getProperty("os.name")} | Kotlin ${KotlinVersion.CURRENT}")
-        text.appendln("Time: " + SimpleDateFormat("YYYY-MM-dd HH:mm:ss").format(Date(System.currentTimeMillis())))
+        text.appendln("Time: " + formatter.format(Date(System.currentTimeMillis())))
+
+        val uptime = System.currentTimeMillis() - Defines.startedAt
+        text.appendln("Started at: " + formatter.format(Date(Defines.startedAt)))
+        text.appendln("UpTime ${uptime}ms")
 
         val total = Runtime.getRuntime().totalMemory().toInt() / 1024 / 1024
         val free = Runtime.getRuntime().freeMemory().toInt() / 1024 / 1024

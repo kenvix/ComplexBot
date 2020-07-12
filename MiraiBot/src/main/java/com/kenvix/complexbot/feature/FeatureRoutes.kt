@@ -8,6 +8,7 @@ import com.kenvix.complexbot.feature.friend.WelcomeNewFeature
 import com.kenvix.complexbot.feature.help.DebugActiveDataCommand
 import com.kenvix.complexbot.feature.help.DebugCommand
 import com.kenvix.complexbot.feature.help.HelpCommand
+import com.kenvix.complexbot.feature.help.UpTimeCommand
 import com.kenvix.complexbot.feature.inspector.InspectorFeature
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
@@ -30,11 +31,13 @@ fun Bot.featureRoutes() {
         command("文爱", SexCommand, SwitchableCommand)
 
         command("算卦", LifePredictorCommand, SwitchableCommand)
+        command("占卜", LifePredictorCommand, SwitchableCommand)
         command("predict", LifePredictorCommand, SwitchableCommand)
 
         command("enable", SwitchCommand, GroupMessageOnly, AdminPermissionRequired)
         command("disable", SwitchCommand, GroupMessageOnly, AdminPermissionRequired)
         command("listcommands", ListCommand)
+        command("uptime", UpTimeCommand)
     }
 
     addFeature(InspectorFeature)

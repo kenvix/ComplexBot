@@ -97,12 +97,14 @@ object Defines : Logging {
     private val loadLock = java.lang.Object()
     private val consoleInputHandlers: MutableList<ConsoleReadSupported> = LinkedList()
 
+    val startedAt = System.currentTimeMillis()
 
     lateinit var pluginClassLoader: URLClassLoader
         private set
 
     internal fun setupSystem(appCmds: CommandLine) {
         logger.info("Loading Application")
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
 
         this.appCmds = appCmds
         baseConfigPath = appCmds.getOptionValue('c', "config")

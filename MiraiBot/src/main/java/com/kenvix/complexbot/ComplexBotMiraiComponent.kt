@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.utils.BotConfiguration
 import net.mamoe.mirai.utils.SilentLogger
 
 class ComplexBotMiraiComponent(
@@ -21,6 +22,7 @@ class ComplexBotMiraiComponent(
         loginSolver = ExtendedLoginSolver(callBridge)
         // networkLoggerSupplier = { SilentLogger } // 禁用网络层输出
         deviceInfo = { ExtendedDeviceInfo }
+        protocol = BotConfiguration.MiraiProtocol.ANDROID_WATCH
     }
 
     private val coroutines = Coroutines()

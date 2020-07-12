@@ -9,7 +9,7 @@ object HelpCommand : BotCommandFeature {
         get() = "帮助"
 
     override suspend fun onMessage(msg: MessageEvent) {
-        msg.reply(StringBuilder("MoeNet Complex Bot v0.1").apply {
+        msg.reply(StringBuilder("MoeNet Complex Bot v0.1\n").apply {
             appendln("所有命令前需要加点“.”，命令参数用空格分隔")
             appendln(".help  查看帮助")
             appendln(".listcommands 列出命令列表")
