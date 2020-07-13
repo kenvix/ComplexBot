@@ -15,6 +15,8 @@ object LifePredictorCommand : BotCommandFeature {
     private val calendar = Calendar.getInstance()
     override val description: String
         get() = "算卦"
+    private val offsetStr = System.getProperties()["complexbot.lifepredictor.offsetstr"] ?: "M O E C R A F T"
+    private val offsetStrHash = offsetStr.hashCode()
 
     override suspend fun onMessage(msg: MessageEvent) {
         val command = parseCommandFromMessage(msg.message.content, false)
@@ -23,7 +25,8 @@ object LifePredictorCommand : BotCommandFeature {
                     (calendar.get(Calendar.DAY_OF_MONTH) xor
                         calendar.get(Calendar.MONTH) xor
                         calendar.get(Calendar.YEAR) xor
-                        command.firstArgument.hashCode()
+                        command.firstArgument.hashCode() xor
+                        offsetStrHash
                     ).toLong()
                 ).rem(resultArray.size).toInt().absoluteValue
         msg.reply(MessageChainBuilder().apply {

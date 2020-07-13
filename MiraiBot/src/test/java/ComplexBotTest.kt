@@ -23,6 +23,20 @@ class ComplexBotTest {
     }
 
     @Test
+    fun getSysEnv() {
+        System.getenv().forEach {
+            println("${it.key} -> ${it.value}")
+        }
+    }
+
+    @Test
+    fun getSysProps() {
+        System.getProperties().forEach {
+            println("${it.key} -> ${it.value}")
+        }
+    }
+
+    @Test
     fun loadBackend() = runBlocking {
         ComplexBotDriver().loadBackend()
     }
