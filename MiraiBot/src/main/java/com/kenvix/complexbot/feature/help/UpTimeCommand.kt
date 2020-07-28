@@ -17,8 +17,10 @@ object UpTimeCommand : BotCommandFeature {
         val uptime = System.currentTimeMillis() - Defines.startedAt
         text.appendln("启动于: " + DebugCommand.formatter.format(Date(Defines.startedAt)))
 
-        val timeOfDay = LocalTime.ofSecondOfDay(uptime / 1000)
-        text.append("已运行时间 ${uptime/1000}s : $timeOfDay")
+
+        val upDays = uptime / 86400
+        val timeOfDay = LocalTime.ofSecondOfDay((uptime / 1000) % 86400)
+        text.append("已运行时间 ${uptime/1000}s : $upDays:$timeOfDay")
         msg.reply(text.toString())
     }
 }

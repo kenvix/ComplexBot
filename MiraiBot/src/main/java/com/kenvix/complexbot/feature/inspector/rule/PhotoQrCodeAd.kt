@@ -1,6 +1,8 @@
 package com.kenvix.complexbot.feature.inspector.rule
 
 import com.kenvix.complexbot.feature.inspector.InspectorRule
+import com.kenvix.complexbot.feature.inspector.InspectorStatisticUtils
+import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.FlashImage
 import net.mamoe.mirai.message.data.Image
@@ -28,6 +30,12 @@ object PhotoQrCodeAd : InspectorRule {
     }
 
     private suspend fun verifyImageMessage(msgEvent: MessageEvent, image: Image): Boolean {
+        val sender = msgEvent.sender as Member
+        val stat = InspectorStatisticUtils.getStat(sender.group.id).stats[sender.id]
+        if (stat == null || stat.countLegal <= 1L) { //Assume ad sender has low activity
+
+        }
+
         return false
     }
 }

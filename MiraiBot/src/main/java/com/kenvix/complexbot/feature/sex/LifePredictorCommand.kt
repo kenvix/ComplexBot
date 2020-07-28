@@ -12,7 +12,6 @@ import kotlin.math.absoluteValue
 
 object LifePredictorCommand : BotCommandFeature {
     private val resultArray = arrayOf("大凶", "凶", "小凶", "凶多于吉", "吉多于凶", "小吉", "吉", "大吉")
-    private val calendar = Calendar.getInstance()
     override val description: String
         get() = "算卦"
     private val offsetStr = System.getProperties()["complexbot.lifepredictor.offsetstr"] ?: "M O E C R A F T"
@@ -21,10 +20,8 @@ object LifePredictorCommand : BotCommandFeature {
     override suspend fun onMessage(msg: MessageEvent) {
         val command = parseCommandFromMessage(msg.message.content, false)
         val result =
-                (msg.sender.id xor 0xDEAD_BEEF_CAFE xor
-                    (calendar.get(Calendar.DAY_OF_MONTH) xor
-                        calendar.get(Calendar.MONTH) xor
-                        calendar.get(Calendar.YEAR) xor
+                (msg.sender.id xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
+                    (
                         command.firstArgument.hashCode() xor
                         offsetStrHash
                     ).toLong()

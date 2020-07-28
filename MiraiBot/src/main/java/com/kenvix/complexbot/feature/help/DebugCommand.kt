@@ -35,7 +35,7 @@ object DebugCommand : BotCommandFeature {
         val total = Runtime.getRuntime().totalMemory().toInt() / 1024 / 1024
         val free = Runtime.getRuntime().freeMemory().toInt() / 1024 / 1024
         val max = (Runtime.getRuntime().maxMemory() / 1024 / 1024).toInt()
-        text.appendln("Memory：$free/$total MiB (Max $max)")
+        text.appendln("Memory：$free/$total MiB (Max $max MiB)")
         text.appendln("===Sender Info===")
         text.append(msg.sender.run {
             when(this) {

@@ -4,6 +4,7 @@ import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.feature.featureRoutes
 import com.kenvix.utils.log.Logging
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.handleCoroutineException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.mamoe.mirai.Bot
