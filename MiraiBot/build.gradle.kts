@@ -76,7 +76,7 @@ dependencies {
     implementation("com.google.zxing:core:3.4.0")
     implementation("com.google.zxing:javase:3.4.0")
 
-    implementation("com.google.guava:guava:29.0-jre'")
+    implementation("com.google.guava:guava:29.0-jre")
 
     implementation("org.apache.commons:commons-collections4:4.4")
 }

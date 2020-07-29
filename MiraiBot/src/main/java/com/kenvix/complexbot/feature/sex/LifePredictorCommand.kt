@@ -22,13 +22,10 @@ object LifePredictorCommand : BotCommandFeature {
         if (command.firstArgumentOrNull.isNullOrBlank()) {
             msg.reply("来算一卦吧！示例食用方法：\n。算卦 写代码")
         } else {
-            val result =
-                    (msg.sender.id xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
-                            (
-                                    command.firstArgument.hashCode() xor
-                                            offsetStrHash
-                                    ).toLong()
-                            ).rem(resultArray.size).toInt().absoluteValue
+            val result = (
+                    msg.sender.id xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
+                            (command.firstArgument.hashCode() xor offsetStrHash).toLong()
+                    ).rem(resultArray.size).toInt().absoluteValue
             msg.reply(MessageChainBuilder().apply {
                 add("你好，")
 
