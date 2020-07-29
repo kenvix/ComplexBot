@@ -19,22 +19,26 @@ object LifePredictorCommand : BotCommandFeature {
 
     override suspend fun onMessage(msg: MessageEvent) {
         val command = parseCommandFromMessage(msg.message.content, false)
-        val result =
-                (msg.sender.id xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
-                    (
-                        command.firstArgument.hashCode() xor
-                        offsetStrHash
-                    ).toLong()
-                ).rem(resultArray.size).toInt().absoluteValue
-        msg.reply(MessageChainBuilder().apply {
-            add("你好，")
+        if (command.firstArgumentOrNull.isNullOrBlank()) {
+            msg.reply("来算一卦吧！示例食用方法：\n。算卦 写代码")
+        } else {
+            val result =
+                    (msg.sender.id xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
+                            (
+                                    command.firstArgument.hashCode() xor
+                                            offsetStrHash
+                                    ).toLong()
+                            ).rem(resultArray.size).toInt().absoluteValue
+            msg.reply(MessageChainBuilder().apply {
+                add("你好，")
 
-            if (msg.sender is Member)
-                add(At(msg.sender as Member))
-            else
-                add(msg.sender.nick)
+                if (msg.sender is Member)
+                    add(At(msg.sender as Member))
+                else
+                    add(msg.sender.nick)
 
-            add("\n所求事项：${command.firstArgument}\n结果：${resultArray[result]}")
-        }.build())
+                add("\n所求事项：${command.firstArgument}\n结果：${resultArray[result]}")
+            }.build())
+        }
     }
 }

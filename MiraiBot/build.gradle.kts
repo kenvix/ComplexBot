@@ -38,7 +38,8 @@ dependencies {
     implementation(group = "org.yaml", name = "snakeyaml", version = "1.21")
     implementation(fileTree("libs"))
 
-    implementation("com.squareup.okhttp3:okhttp:3.5.0")
+    implementation("com.squareup.okhttp3:okhttp:4.8.0")
+    implementation("com.launchdarkly:okhttp-eventsource:2.3.1")
     implementation("com.google.code.gson:gson:2.8.5")
 
     testImplementation("junit", "junit", "4.12")
@@ -74,6 +75,8 @@ dependencies {
 
     implementation("com.google.zxing:core:3.4.0")
     implementation("com.google.zxing:javase:3.4.0")
+
+    implementation("com.google.guava:guava:29.0-jre'")
 
     implementation("org.apache.commons:commons-collections4:4.4")
 }
