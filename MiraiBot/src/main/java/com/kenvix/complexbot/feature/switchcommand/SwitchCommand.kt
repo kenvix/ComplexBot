@@ -25,7 +25,7 @@ object SwitchCommand : BotCommandFeature {
                         disabledCommands.remove(command.firstArgument)
                         msg.reply("已在本群启用命令：${command.firstArgument}")
                     }
-                    callBridge.saveGroupOptions((msg.sender as Member).group.id, this)
+                    callBridge.saveGroupOptions(this)
                 }
             } else {
                 msg.reply("不存在此命令：${command.firstArgument}")

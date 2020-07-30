@@ -6,10 +6,16 @@
 
 package com.kenvix.complexbot
 
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheLoader
+import com.google.common.cache.CacheStats
+import com.google.common.cache.LoadingCache
 import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.rpc.thrift.BackendBridge
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
 import com.kenvix.moecraftbot.ng.Defines
+import com.kenvix.moecraftbot.ng.lib.Cached
+import com.kenvix.moecraftbot.ng.lib.cacheLoader
 import com.kenvix.utils.exception.NotFoundException
 import com.kenvix.utils.log.LoggingOutputStream
 import com.mongodb.client.result.UpdateResult
@@ -33,11 +39,13 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
-class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
+class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
     override val driverName: String get() = "ComplexBot"
     override val driverVersion: String get() = "0.1"
     override val driverVersionCode: Int get() = 1
     override val configFileName: String get() = "complexbot"
+
+    private val GroupOptionsMaxCacheSeconds: Long = 60 * 10 //TODO
 
     private var backendPort: Int = 48519
     private var backendHost: String = "localhost"
@@ -56,11 +64,18 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
         @Synchronized get
         @Synchronized set
     private var miraiComponent: ComplexBotMiraiComponent? = null
-    private val groupMongoIdMap = HashMap<Long, Id<GroupOptions>>()
-    private val userMongoIdMap = HashMap<Long, ObjectId>()
 
     lateinit var groupMongoCollection: CoroutineCollection<GroupOptions>
-    val groupOptionsCache: MutableMap<Long, GroupOptions> = ReferenceMap()
+
+    val groupOptionsCache: LoadingCache<Long, GroupOptions> = CacheBuilder.newBuilder().apply {
+        recordStats()
+        expireAfterWrite(GroupOptionsMaxCacheSeconds, TimeUnit.SECONDS)
+        removalListener<Long, GroupOptions> { runBlocking { saveGroupOptions(it.value) } }
+    }.build(cacheLoader { key ->
+        runBlocking {
+            groupMongoCollection.findOne(GroupOptions::groupId eq key) ?: createGroupOptions(key)
+        }
+    })
 
     override fun onEnable() {
         super.onEnable()
@@ -80,10 +95,6 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
         if (miraiComponent != null) {
             miraiComponent!!.close()
             miraiComponent = null
-        }
-
-        groupOptionsCache.forEach { (groupId, options) ->
-            saveGroupOptions(groupId, options)
         }
 
         stopBackend()
@@ -195,11 +206,11 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
             override suspend fun getGroupOptions(groupId: Long): GroupOptions
                     = this@ComplexBotDriver.getGroupOptions(groupId)
 
-            override suspend fun saveGroupOptions(groupId: Long, options: GroupOptions): UpdateResult
-                    = this@ComplexBotDriver.saveGroupOptions(groupId, options)
+            override suspend fun saveGroupOptions(options: GroupOptions): UpdateResult
+                    = this@ComplexBotDriver.saveGroupOptions(options)
 
-            override suspend fun setGroupOptions(groupId: Long, options: GroupOptions): UpdateResult
-                    = this@ComplexBotDriver.setGroupOptions(groupId, options)
+            override suspend fun setGroupOptions(options: GroupOptions)
+                    = this@ComplexBotDriver.setGroupOptions(options)
 
             override suspend fun getAllGroupOptions(): List<GroupOptions>
                     = this@ComplexBotDriver.getAllGroupOptions()
@@ -215,30 +226,19 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
     }
 
     suspend fun getGroupOptions(groupId: Long): GroupOptions = withContext(IO) {
-        if (groupId in groupOptionsCache) {
-            groupOptionsCache[groupId]!!
-        } else {
-            val op = groupMongoCollection.findOne(GroupOptions::groupId eq groupId)
-                    ?: createGroupOptions(groupId)
-
-            groupOptionsCache[groupId] = op
-            groupMongoIdMap[groupId] = op._id
-            op
-        }
+        groupOptionsCache[groupId]
     }
 
     suspend fun getAllGroupOptions(): List<GroupOptions> {
         return groupMongoCollection.find().toList()
     }
 
-    suspend fun setGroupOptions(groupId: Long, options: GroupOptions): UpdateResult = withContext(IO) {
-        groupOptionsCache[groupId] = options
-        saveGroupOptions(groupId, options)
+    fun setGroupOptions(options: GroupOptions) {
+        groupOptionsCache.put(options.groupId, options)
     }
 
-    suspend fun saveGroupOptions(groupId: Long, options: GroupOptions): UpdateResult = withContext(IO) {
-        val objId = groupMongoIdMap[groupId] ?: throw NotFoundException("No such group in cache")
-        groupMongoCollection.updateOneById(objId, options)
+    suspend fun saveGroupOptions(options: GroupOptions): UpdateResult = withContext(IO) {
+        groupMongoCollection.updateOneById(options._id, options)
     }
 
     private suspend fun createGroupOptions(groupId: Long): GroupOptions = withContext(IO) {
@@ -247,5 +247,17 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>() {
 
     companion object {
         const val SocketTimeout = 10000
+    }
+
+    override fun invalidateAll() {
+        groupOptionsCache.invalidateAll()
+    }
+
+    override fun cleanUpAll() {
+        groupOptionsCache.cleanUp()
+    }
+
+    override fun getStats(): List<CacheStats> {
+        return listOf(groupOptionsCache.stats())
     }
 }

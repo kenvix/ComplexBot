@@ -1,6 +1,8 @@
 @file:JvmName("Utils")
 package com.kenvix.moecraftbot.ng.lib
 
+import com.google.common.cache.CacheLoader
+import com.kenvix.complexbot.GroupOptions
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.text.SimpleDateFormat
@@ -86,6 +88,10 @@ fun Array<StackTraceElement>.getStringStackTrace(): String {
     }
 
     return builder.toString()
+}
+
+inline fun <K, V> cacheLoader(crossinline loader: ((K) -> V)) = object : CacheLoader<K, V>() {
+    override fun load(key: K): V = loader(key)
 }
 
 fun Throwable.getStringStackTrace(): String {

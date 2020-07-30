@@ -85,7 +85,7 @@ object InspectorCommand : BotCommandFeature, Logging {
         }
 
         InspectorFeature.applyInspectorOptions(group.id, opt)
-        callBridge.saveGroupOptions(group.id, groupOpt)
+        callBridge.saveGroupOptions(groupOpt)
     }
 
     private suspend fun sendHelp(group: Group, options: InspectorOptions) = withContext(IO) {
