@@ -1,7 +1,14 @@
 package com.kenvix.complexbot.feature.inspector
 
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheStats
+import com.google.common.cache.LoadingCache
 import com.kenvix.android.utils.Coroutines
+import com.kenvix.complexbot.GroupOptions
 import com.kenvix.moecraftbot.ng.Defines
+import com.kenvix.moecraftbot.ng.lib.Cached
+import com.kenvix.moecraftbot.ng.lib.CachedClasses
+import com.kenvix.moecraftbot.ng.lib.cacheLoader
 import com.kenvix.utils.exception.NotFoundException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,97 +23,75 @@ import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.eq
 import org.litote.kmongo.newId
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 import kotlin.concurrent.schedule
 
 
-object InspectorStatisticUtils {
-    private val groupIdMap: MutableMap<Long, StatIdMapValue> = HashMap()
-    private val statCacheMap: MutableMap<Long, InspectorStatistic> = HashMap()
+object InspectorStatisticUtils : Cached {
+    private val statCache: LoadingCache<Long, InspectorStatistic> = CacheBuilder.newBuilder().apply {
+        recordStats()
+        expireAfterWrite(SaveFrequentSeconds, TimeUnit.SECONDS)
+        removalListener<Long, InspectorStatistic> { runBlocking { saveStat(it.value) } }
+    }.build(cacheLoader { groupId ->
+        runBlocking {
+            groupMongoCollection.findOne(InspectorStatistic::groupId eq groupId)
+                ?: createStat(groupId)
+        }
+    })
+
     private val groupMongoCollection: CoroutineCollection<InspectorStatistic>
             = Defines.mongoDatabase.getCollection("inspectorStatistics")
-    private val saveTimer = Timer()
-    private var calendar = Calendar.getInstance()
+
     val todayKey: Int
-        get() = calendar.get(Calendar.YEAR) * 1_0000 +
-                calendar.get(Calendar.MONTH) * 100 +
-                calendar.get(Calendar.DAY_OF_MONTH)
+        get() = Calendar.getInstance().run {
+            get(Calendar.YEAR) * 1_0000 + get(Calendar.MONTH) * 100 + get(Calendar.DAY_OF_MONTH)
+        }
 
     init {
-        scheduleSaveTimerTask()
+        CachedClasses.add(this)
     }
 
     const val MaxRecordedStatDays: Int = 7
     const val SaveFrequentSeconds: Long = 100_000L
 
-    private fun scheduleSaveTimerTask() {
-        saveTimer.schedule(SaveFrequentSeconds) {
-            // Run save task on timer thread to prevent concurrent save caused by timer
-            runBlocking { saveAllStat() }
-            scheduleSaveTimerTask()
-        }
-    }
-
-    suspend fun saveAllStat() {
-        groupIdMap.forEach { (groupId, v) ->
-            if (v.isChanged) {
-                saveStat(groupId)
-            }
-        }
-    }
-
     suspend fun getStat(groupId: Long): InspectorStatistic = withContext(Dispatchers.IO) {
-        statCacheMap[groupId].let {
-            if (it != null) {
-                it
-            } else {
-                val op = groupMongoCollection.findOne(InspectorStatistic::groupId eq groupId)
-                    ?: createStat(groupId)
-
-                statCacheMap[groupId] = op
-                groupIdMap[groupId] = StatIdMapValue(op._id)
-                op
-            }
-        }
+        statCache[groupId]
     }
 
     suspend fun addMemberCountStat(member: Member, isIllegal: Boolean = false) {
         getStat(member.group.id).run {
-            groupIdMap[member.group.id]!!.also { statIdMapValue ->
+            statCache[member.group.id]!!.also { statIdMapValue ->
                 val today = todayKey
-                statIdMapValue.mutex.withLock {
-                    this.stats[member.id].also { userStatistic ->
-                        if (userStatistic == null) {
-                            this.stats[member.id] = UserStatistic(member.id, member.nick, 1, if (isIllegal) 1 else 0)
-                        } else {
-                            userStatistic.countTotal++
-                            if (isIllegal)
-                                userStatistic.countIllegal++
 
-                            if (userStatistic.name != member.nick)
-                                userStatistic.name = member.nick
+                this.stats[member.id].also { userStatistic ->
+                    if (userStatistic == null) {
+                        this.stats[member.id] = UserStatistic(member.id, member.nick, 1, if (isIllegal) 1 else 0)
+                    } else {
+                        userStatistic.countTotal++
+                        if (isIllegal)
+                            userStatistic.countIllegal++
 
-                            userStatistic.counts[today].also {
-                                if (it == null) {
-                                    userStatistic.counts[today] = 1
+                        if (userStatistic.name != member.nick)
+                            userStatistic.name = member.nick
 
-                                    if (userStatistic.counts.size > MaxRecordedStatDays) {
-                                        userStatistic.counts
-                                            .minBy { entry -> entry.key }
-                                            .also { entry ->
-                                                if (entry != null)
-                                                    userStatistic.counts.remove(entry.key)
-                                            }
-                                    }
-                                } else {
-                                    userStatistic.counts[today] = it + 1
+                        userStatistic.counts[today].also {
+                            if (it == null) {
+                                userStatistic.counts[today] = 1
+
+                                if (userStatistic.counts.size > MaxRecordedStatDays) {
+                                    userStatistic.counts
+                                        .minBy { entry -> entry.key }
+                                        .also { entry ->
+                                            if (entry != null)
+                                                userStatistic.counts.remove(entry.key)
+                                        }
                                 }
+                            } else {
+                                userStatistic.counts[today] = it + 1
                             }
                         }
                     }
-
-                    if (!statIdMapValue.isChanged)
-                        statIdMapValue.isChanged = true
                 }
             }
         }
@@ -121,21 +106,28 @@ object InspectorStatisticUtils {
     }
 
     suspend fun saveStat(groupId: Long) = withContext(Dispatchers.IO) {
-        val objId = groupIdMap[groupId] ?: throw NotFoundException("No such group in cache")
-        objId.isChanged = false
-        objId.mutex.withLock {
-            val stat = getStat(groupId)
-            stat.updatedAt = Date()
-            groupMongoCollection.updateOneById(objId._id, stat)
-        }
+        val stat = getStat(groupId)
+        stat.updatedAt = Date()
+        groupMongoCollection.updateOneById(stat._id, stat)
+    }
+
+    suspend fun saveStat(stat: InspectorStatistic) = withContext(Dispatchers.IO) {
+        stat.updatedAt = Date()
+        groupMongoCollection.updateOneById(stat._id, stat)
+    }
+
+    override fun invalidateAll() {
+        statCache.invalidateAll()
+    }
+
+    override fun cleanUpAll() {
+        statCache.cleanUp()
+    }
+
+    override fun getStats(): List<CacheStats> {
+        return listOf(statCache.stats())
     }
 }
-
-data class StatIdMapValue(
-    val _id: Id<InspectorStatistic>,
-    var isChanged: Boolean = false,
-    val mutex: Mutex = Mutex()
-)
 
 data class InspectorStatistic(
     @BsonId

@@ -15,6 +15,7 @@ import com.kenvix.complexbot.rpc.thrift.BackendBridge
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
 import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.Cached
+import com.kenvix.moecraftbot.ng.lib.CachedClasses
 import com.kenvix.moecraftbot.ng.lib.cacheLoader
 import com.kenvix.utils.exception.NotFoundException
 import com.kenvix.utils.log.LoggingOutputStream
@@ -76,6 +77,10 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
             groupMongoCollection.findOne(GroupOptions::groupId eq key) ?: createGroupOptions(key)
         }
     })
+
+    init {
+        CachedClasses.add(this)
+    }
 
     override fun onEnable() {
         super.onEnable()

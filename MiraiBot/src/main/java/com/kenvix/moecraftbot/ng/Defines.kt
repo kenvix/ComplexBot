@@ -1,8 +1,7 @@
 package com.kenvix.moecraftbot.ng
 
-import com.kenvix.moecraftbot.ng.lib.ConfigManager
-import com.kenvix.moecraftbot.ng.lib.SystemOptions
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
+import com.kenvix.moecraftbot.ng.lib.*
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
 import com.kenvix.utils.event.EventSet
 import com.kenvix.utils.event.eventSetOf
@@ -109,6 +108,8 @@ object Defines : Logging {
     internal fun setupSystem(appCmds: CommandLine) {
         logger.info("Loading Application")
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
+        CachedClasses
+        ExceptionHandler.registerGlobalExceptionHandler()
 
         this.appCmds = appCmds
         baseConfigPath = appCmds.getOptionValue('c', "config")
@@ -350,6 +351,8 @@ object Defines : Logging {
         synchronized(loadLock) {
             if (this::activeDriver.isInitialized)
                 activeDriver.onDisable()
+
+            shutdownHandler(Unit)
 
             if (this::driverThread.isInitialized)
                 driverThread.interrupt()

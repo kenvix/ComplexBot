@@ -13,10 +13,11 @@ import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.subscribeGroupMessages
 import net.mamoe.mirai.event.subscribeMessages
+import java.util.concurrent.ConcurrentHashMap
 
 object InspectorFeature : BotFeature {
     // Note: 犹豫要不要 @Synchronized，用了性能降低，不用可能发生设置不一致
-    private val inspectorOptions: MutableMap<Long, InspectorInternalOptions> = HashMap()
+    private val inspectorOptions: MutableMap<Long, InspectorInternalOptions> = ConcurrentHashMap()
     private val coroutines = Coroutines()
 
     override fun onEnable(bot: Bot) {
@@ -56,12 +57,6 @@ object InspectorFeature : BotFeature {
                     InspectorStatisticUtils.addMemberCountStat(sender, isPunished)
                 }
             }
-        }
-    }
-
-    override fun onDisable() {
-        runBlocking {
-            InspectorStatisticUtils.saveAllStat()
         }
     }
 
