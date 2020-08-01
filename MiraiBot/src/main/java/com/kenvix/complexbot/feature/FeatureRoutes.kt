@@ -10,7 +10,7 @@ import com.kenvix.complexbot.feature.help.DebugCommand
 import com.kenvix.complexbot.feature.help.HelpCommand
 import com.kenvix.complexbot.feature.help.UpTimeCommand
 import com.kenvix.complexbot.feature.inspector.InspectorFeature
-import com.kenvix.complexbot.feature.inspector.RankingCommand
+import com.kenvix.complexbot.feature.inspector.GroupRankingCommand
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
 import com.kenvix.complexbot.feature.middleware.SwitchableCommand
@@ -37,11 +37,11 @@ fun Bot.featureRoutes() {
 
         command("enable", SwitchCommand, GroupMessageOnly, AdminPermissionRequired)
         command("disable", SwitchCommand, GroupMessageOnly, AdminPermissionRequired)
-        command("listcommands", ListCommand)
-        command("uptime", UpTimeCommand)
+        command("listcommands", ListCommand, SwitchableCommand)
+        command("uptime", UpTimeCommand, SwitchableCommand)
 
-        command("rank", RankingCommand, GroupMessageOnly)
-        command("排行", RankingCommand, GroupMessageOnly)
+        command("rank", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
+        command("排行", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
     }
 
     addFeature(InspectorFeature)

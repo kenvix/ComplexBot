@@ -208,16 +208,16 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
             override val config: ComplexBotConfig
                 get() = this@ComplexBotDriver.config.content
 
-            override suspend fun getGroupOptions(groupId: Long): GroupOptions
+            override fun getGroupOptions(groupId: Long): GroupOptions
                     = this@ComplexBotDriver.getGroupOptions(groupId)
 
-            override suspend fun saveGroupOptions(options: GroupOptions): UpdateResult
+            override fun saveGroupOptions(options: GroupOptions): UpdateResult
                     = this@ComplexBotDriver.saveGroupOptions(options)
 
-            override suspend fun setGroupOptions(options: GroupOptions)
+            override fun setGroupOptions(options: GroupOptions)
                     = this@ComplexBotDriver.setGroupOptions(options)
 
-            override suspend fun getAllGroupOptions(): List<GroupOptions>
+            override fun getAllGroupOptions(): List<GroupOptions>
                     = this@ComplexBotDriver.getAllGroupOptions()
         }
 
@@ -230,23 +230,23 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
         }
     }
 
-    suspend fun getGroupOptions(groupId: Long): GroupOptions = withContext(IO) {
-        groupOptionsCache[groupId]
+    fun getGroupOptions(groupId: Long): GroupOptions {
+        return groupOptionsCache[groupId]
     }
 
-    suspend fun getAllGroupOptions(): List<GroupOptions> {
-        return groupMongoCollection.find().toList()
+    fun getAllGroupOptions(): List<GroupOptions> = runBlocking {
+        groupMongoCollection.find().toList()
     }
 
     fun setGroupOptions(options: GroupOptions) {
         groupOptionsCache.put(options.groupId, options)
     }
 
-    suspend fun saveGroupOptions(options: GroupOptions): UpdateResult = withContext(IO) {
+    fun saveGroupOptions(options: GroupOptions): UpdateResult = runBlocking {
         groupMongoCollection.updateOneById(options._id, options)
     }
 
-    private suspend fun createGroupOptions(groupId: Long): GroupOptions = withContext(IO) {
+    private fun createGroupOptions(groupId: Long): GroupOptions = runBlocking {
         GroupOptions(groupId = groupId).also { groupMongoCollection.insertOne(it) }
     }
 

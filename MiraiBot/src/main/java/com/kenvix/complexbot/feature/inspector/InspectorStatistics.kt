@@ -3,18 +3,12 @@ package com.kenvix.complexbot.feature.inspector
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheStats
 import com.google.common.cache.LoadingCache
-import com.kenvix.android.utils.Coroutines
-import com.kenvix.complexbot.GroupOptions
 import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.Cached
 import com.kenvix.moecraftbot.ng.lib.CachedClasses
 import com.kenvix.moecraftbot.ng.lib.cacheLoader
-import com.kenvix.utils.exception.NotFoundException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.mamoe.mirai.contact.Member
 import org.bson.codecs.pojo.annotations.BsonId
@@ -25,7 +19,6 @@ import org.litote.kmongo.newId
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
-import kotlin.concurrent.schedule
 
 
 object InspectorStatisticUtils : Cached {
@@ -66,7 +59,12 @@ object InspectorStatisticUtils : Cached {
 
                 this.stats[member.id].also { userStatistic ->
                     if (userStatistic == null) {
-                        this.stats[member.id] = UserStatistic(member.id, member.nick, 1, if (isIllegal) 1 else 0)
+                        this.stats[member.id] = UserStatistic(
+                            member.id,
+                            member.nick,
+                            member.nameCard,
+                            if (isIllegal) 1 else 0
+                        )
                     } else {
                         userStatistic.countTotal++
                         if (isIllegal)
@@ -74,6 +72,9 @@ object InspectorStatisticUtils : Cached {
 
                         if (userStatistic.name != member.nick)
                             userStatistic.name = member.nick
+
+                        if (userStatistic.cardName != member.nameCard)
+                            userStatistic.cardName = member.nameCard
 
                         userStatistic.counts[today].also {
                             if (it == null) {
@@ -141,6 +142,7 @@ data class InspectorStatistic(
 data class UserStatistic(
     val qq: Long,
     var name: String,
+    var cardName: String? = null,
     var countTotal: Long = 0,
     var countIllegal: Long = 0,
     val counts: MutableMap<Int, Long> = HashMap(),

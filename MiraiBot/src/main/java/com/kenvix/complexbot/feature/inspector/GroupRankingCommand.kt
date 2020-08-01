@@ -7,14 +7,14 @@ import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.content
 
-object RankingCommand : BotCommandFeature {
+object GroupRankingCommand : BotCommandFeature {
     override val description: String = "本群总体水群排行榜 (可按日期查看)"
-    const val MaxOutputNum = 8
+    const val MaxOutputNum = 10
 
     override suspend fun onMessage(msg: MessageEvent) {
         val sender = msg.sender as Member
         val data = InspectorStatisticUtils.getStat(sender.group.id)
-        val replyText = StringBuilder("本群 (${sender.group.name})[${sender.group.id}] 水群排行\n")
+        val replyText = StringBuilder("本群 (${sender.group.name}) 水群排行\n")
         val command = parseCommandFromMessage(msg.message.content, false)
 
         val day = if (command.firstArgumentOrNull.isNullOrBlank()) {
@@ -28,12 +28,28 @@ object RankingCommand : BotCommandFeature {
             }.toInt()
         }
 
-        data.stats.asSequence().filterNot {
+        val availableStats = data.stats.filterNot {
             it.value.counts[day] == null
-        }.sortedByDescending {
-            it.value.counts[day] ?: 0
-        }.take(MaxOutputNum).forEachIndexed { index, entry ->
-            replyText.append("\n$index. ${entry.value.name}: ${entry.value.counts[day]}")
+        }
+
+        if (availableStats.isEmpty()) {
+            replyText.append("\n没有关于这一天的统计信息")
+        } else {
+            val availableStatsSequence = availableStats.asSequence()
+
+            availableStatsSequence.sortedByDescending {
+                it.value.counts[day] ?: 0
+            }.take(MaxOutputNum).forEachIndexed { index, entry ->
+                replyText.append("\n$index. ${entry.value.cardName.run {
+                    if (isNullOrBlank() || entry.value.cardName == entry.value.name)
+                        entry.value.name
+                    else
+                        this + " (${entry.value.name})"
+                }} : ${entry.value.counts[day]}")
+            }
+
+            val sum = availableStatsSequence.sumBy { it.value.counts[day]?.toInt() ?: 0 }
+            replyText.append("\n总日活：$sum (${availableStats.size} 人)")
         }
 
         msg.reply(replyText.toString())

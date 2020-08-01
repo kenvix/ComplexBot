@@ -3,6 +3,7 @@ package com.kenvix.complexbot.feature.switchcommand
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.callBridge
 import com.kenvix.complexbot.commands
+import com.kenvix.complexbot.feature.middleware.SwitchableCommand
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
@@ -16,7 +17,7 @@ object SwitchCommand : BotCommandFeature {
         val command = parseCommandFromMessage(msg.message.content, false)
 
         if (command.arguments.isNotEmpty() && (command.command == "disable" || command.command == "enable")) {
-            if (commands.containsKey(command.firstArgument)) {
+            if (commands[command.firstArgument]?.middlewares?.contains(SwitchableCommand) == true) {
                 callBridge.getGroupOptions((msg.sender as Member).group.id).run {
                     if (command.command == "disable") {
                         disabledCommands.add(command.firstArgument)
@@ -28,7 +29,7 @@ object SwitchCommand : BotCommandFeature {
                     callBridge.saveGroupOptions(this)
                 }
             } else {
-                msg.reply("不存在此命令：${command.firstArgument}")
+                msg.reply("不存在此命令或该命令不支持开关：${command.firstArgument}")
             }
         } else {
             msg.reply("使用方法：\n启用命令：.enable 命令\n" +
