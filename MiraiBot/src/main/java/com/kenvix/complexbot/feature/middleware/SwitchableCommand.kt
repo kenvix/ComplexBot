@@ -9,7 +9,8 @@ object SwitchableCommand : BotMiddleware {
     override suspend fun onMessage(msg: MessageEvent, command: String?): Boolean {
         if (command != null && msg.sender is Member) {
             val sender = msg.sender as Member
-            return !callBridge.getGroupOptions(sender.group.id).disabledCommands.contains(command)
+            val isDisabled = callBridge.getGroupOptions(sender.group.id).disabledCommands.contains(command)
+            return !isDisabled
         }
 
         return true

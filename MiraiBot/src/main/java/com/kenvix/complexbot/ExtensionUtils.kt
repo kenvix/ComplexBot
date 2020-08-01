@@ -40,7 +40,7 @@ fun MessagePacketSubscribersBuilder.command(command: String,
                         var success = true
                         if (it.middlewares != null) {
                             for (middle in it.middlewares) {
-                                success = success && middle.onMessage(this, command)
+                                success = success && middle.onMessage(this, requestedCommand)
                                 if (!success) break
                             }
                         }

@@ -21,7 +21,7 @@ object GroupRankingCommand : BotCommandFeature {
             replyText.append("今日统计信息。添加类似 20200729 格式的参数查询指定日期的统计")
             InspectorStatisticUtils.todayKey
         } else {
-            command.firstArgument.also {
+            command.firstArgument.trim().also {
                 if (it.length != 8)
                     throw UserInvalidUsageException("日期必须为类似 20200729 这样的格式")
                 replyText.append("在 $it 这一天的统计信息：")
