@@ -1,12 +1,9 @@
 import com.kenvix.complexbot.ComplexBotDriver
 import com.kenvix.utils.tools.CommonTools
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Unconfined
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.Test
 import java.io.IOException
 
@@ -84,8 +81,38 @@ class ComplexBotTest {
     @Test
     fun contextTest() = runBlocking {
         println(this.coroutineContext)
-        withContext(IO) { println(this.coroutineContext) }
-        withContext(Default) { println(this.coroutineContext) }
+        withContext(IO) {
+            println(this.coroutineContext)
+        }
+        withContext(Default) {
+            println(this.coroutineContext)
+        }
+    }
+
+    @Test
+    fun unconfinedTest() {
+        runBlocking {
+            launch(Unconfined) {
+                suspended()
+            }
+        }
+    }
+
+    @Test
+    fun ioTest() {
+        runBlocking {
+            launch(IO) {
+                suspended()
+            }
+        }
+    }
+
+    suspend fun suspended() {
+        for (i in 0..4) {
+            println("Before $i ${Thread.currentThread().name}")
+            delay(2000)
+            println("After $i ${Thread.currentThread().name}")
+        }
     }
 
     fun sleepNoException(time: Long) = kotlin.runCatching { Thread.sleep(time) }.getOrNull()

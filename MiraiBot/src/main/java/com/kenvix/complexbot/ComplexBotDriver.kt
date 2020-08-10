@@ -64,7 +64,8 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
     private var backendProcess: Process? = null
         @Synchronized get
         @Synchronized set
-    private var miraiComponent: ComplexBotMiraiComponent? = null
+    var miraiComponent: ComplexBotMiraiComponent? = null
+        private set
 
     lateinit var groupMongoCollection: CoroutineCollection<GroupOptions>
 
@@ -207,6 +208,9 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
 
             override val config: ComplexBotConfig
                 get() = this@ComplexBotDriver.config.content
+
+            override val driver: ComplexBotDriver
+                get() = this@ComplexBotDriver
 
             override fun getGroupOptions(groupId: Long): GroupOptions
                     = this@ComplexBotDriver.getGroupOptions(groupId)

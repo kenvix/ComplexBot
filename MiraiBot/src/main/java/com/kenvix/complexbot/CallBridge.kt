@@ -15,6 +15,7 @@ import net.mamoe.mirai.contact.Contact
 interface CallBridge {
     val backendClient: BackendBridge.Client
     val config: ComplexBotConfig
+    val driver: ComplexBotDriver
     fun getGroupOptions(groupId: Long): GroupOptions
     fun saveGroupOptions(options: GroupOptions): UpdateResult
     fun setGroupOptions(options: GroupOptions)

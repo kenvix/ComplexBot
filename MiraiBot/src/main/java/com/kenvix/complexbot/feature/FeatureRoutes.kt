@@ -5,17 +5,14 @@ import com.kenvix.complexbot.command
 import com.kenvix.complexbot.feature.friend.AutoAcceptFriendRequest
 import com.kenvix.complexbot.feature.friend.AutoAcceptGroupInvitation
 import com.kenvix.complexbot.feature.friend.WelcomeNewFeature
-import com.kenvix.complexbot.feature.help.DebugActiveDataCommand
-import com.kenvix.complexbot.feature.help.DebugCommand
-import com.kenvix.complexbot.feature.help.HelpCommand
-import com.kenvix.complexbot.feature.help.UpTimeCommand
+import com.kenvix.complexbot.feature.help.*
 import com.kenvix.complexbot.feature.inspector.InspectorFeature
 import com.kenvix.complexbot.feature.inspector.GroupRankingCommand
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
+import com.kenvix.complexbot.feature.middleware.CorePermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
 import com.kenvix.complexbot.feature.middleware.SwitchableCommand
 import com.kenvix.complexbot.feature.sex.LifePredictorCommand
-import com.kenvix.complexbot.feature.sex.SexCommand
 import com.kenvix.complexbot.feature.switchcommand.ListCommand
 import com.kenvix.complexbot.feature.switchcommand.SwitchCommand
 import net.mamoe.mirai.Bot
@@ -27,6 +24,7 @@ fun Bot.featureRoutes() {
         command("帮助", HelpCommand, SwitchableCommand)
         command("debug", DebugCommand, SwitchableCommand)
         command("debugactivedata", DebugActiveDataCommand, GroupMessageOnly, SwitchableCommand)
+        command("relogin", ReLoginCommand, CorePermissionRequired)
 
 //        command("sex", SexCommand, SwitchableCommand)
 //        command("文爱", SexCommand, SwitchableCommand)
