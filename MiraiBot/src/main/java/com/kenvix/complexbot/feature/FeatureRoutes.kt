@@ -40,8 +40,9 @@ fun Bot.featureRoutes() {
         command("uptime", UpTimeCommand, SwitchableCommand)
 
         command("rank", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
-        command("repeat", RepeatCommand, GroupMessageOnly, SwitchableCommand)
         command("排行", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
+
+        command("repeat", RepeatCommand, GroupMessageOnly, SwitchableCommand, AdminPermissionRequired)
     }
 
     addFeature(InspectorFeature)

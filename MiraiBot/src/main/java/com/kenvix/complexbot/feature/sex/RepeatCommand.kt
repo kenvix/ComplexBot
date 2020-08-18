@@ -20,8 +20,8 @@ object RepeatCommand : BotCommandFeature {
             msg.reply("用法：.repeat 复读次数 内容")
         } else {
             val num = command.firstArgument.toInt()
-            if (num > 50) {
-                msg.reply("不允许复读超过 50 次")
+            if (num > 10) {
+                msg.reply("不允许复读超过 10 次")
             } else {
                 val content = MessageChainBuilder().apply {
                     add(msg.message[PlainText.Key]!!.content.run content@ {
