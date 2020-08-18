@@ -305,12 +305,16 @@ object Defines : Logging {
                 logger.info("Starting driver ${this::activeDriver.name}")
 
                 synchronized(loadLock) {
-                    activeDriver.onEnable()
-                    loadLock.wait()
+                    try {
+                        activeDriver.onEnable()
+                        loadLock.wait()
 
-                    if (!activeDriver.isInitialized) {
-                        logger.error("Bot provider didn't call onBotProviderConnect")
-                        exitProcess(19)
+                        if (!activeDriver.isInitialized) {
+                            logger.error("Bot provider didn't call onBotProviderConnect")
+                            exitProcess(19)
+                        }
+                    } catch (e: InterruptedException) {
+                        logger.trace("setupDriver Interrupted. Application maybe going to shutdown")
                     }
                 }
             }, "Driver")

@@ -10,7 +10,7 @@ import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
-
+import numpy as np
 
 class AdPredictor:
     def __init__(self, init=True, stopWordsArray=None):
@@ -82,10 +82,11 @@ class AdPredictor:
     def get_type_string(self, type_int) -> str:
         return self.types.get(type_int, None)
 
-    def predict_ad(self, text: str) -> str:
+    def predict_ad(self, text: str):
         words = self.splitWords(text)
         document = " ".join(words)
         vector = self.vectorizer.transform([document])
         result = pd.DataFrame(vector.toarray())
-        resultPredicted = self.clf.predict(result)
-        return self.get_type_string(resultPredicted[0])
+        predictProba = self.clf.predict_proba(result)
+        resultPredicted = np.argmax(predictProba)
+        return self.get_type_string(resultPredicted), predictProba[0][resultPredicted]

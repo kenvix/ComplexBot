@@ -4,9 +4,7 @@ import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.At
-import net.mamoe.mirai.message.data.MessageChainBuilder
-import net.mamoe.mirai.message.data.content
+import net.mamoe.mirai.message.data.*
 import java.util.*
 import kotlin.math.absoluteValue
 
@@ -21,9 +19,11 @@ object LifePredictorCommand : BotCommandFeature {
         val command = parseCommandFromMessage(msg.message.content, false)
         if (command.firstArgumentOrNull.isNullOrBlank()) {
             msg.reply("来算一卦吧！示例食用方法：\n。算卦 写代码")
+        } else if (!msg.message.none { it is Image || it is RichMessage }) {
+            msg.reply("只有言语才有算卦的意义哦")
         } else {
             val result = (
-                    msg.sender.id xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
+                    msg.sender.id shl 15 xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
                             (command.firstArgument.hashCode() xor offsetStrHash).toLong()
                     ).rem(resultArray.size).toInt().absoluteValue
             msg.reply(MessageChainBuilder().apply {

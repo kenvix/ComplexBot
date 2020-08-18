@@ -3,6 +3,7 @@ package com.kenvix.complexbot.feature.inspector
 import com.kenvix.moecraftbot.ng.lib.Named
 import com.kenvix.moecraftbot.ng.lib.createNamedElementsMap
 import com.kenvix.utils.log.Logging
+import kotlinx.coroutines.delay
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
@@ -16,6 +17,7 @@ import net.mamoe.mirai.message.data.recall
 val punishments = createNamedElementsMap(
     Kick,
     Withdraw,
+    AtAdministrators,
     Mute(1),
     Mute(5),
     Mute(20),
@@ -27,25 +29,30 @@ val punishments = createNamedElementsMap(
     Mute(43199),
     Noop)
 
-abstract class AbstractPunishment : Named, Logging, Comparable<AbstractPunishment> {
+interface Punishment {
     abstract val description: String
-    override fun getLogTag(): String = "Punishment.$name"
     abstract val rank: Int
-
     /**
      * On message
      * @return boolean Is rule matched and should punish sender
      */
     abstract suspend fun punish(msg: MessageEvent, reason: String)
+}
 
-    protected suspend fun sendPunishmentMessage(msg: MessageEvent, reason: String) {
+abstract class AbstractPunishment : Named, Punishment, Logging, Comparable<AbstractPunishment> {
+
+    override fun getLogTag(): String = "Punishment.$name"
+
+    protected suspend fun sendPunishmentMessage(msg: MessageEvent, reason: String, extra: ((MessageChainBuilder) -> Unit)? = null) {
         val group = msg.subject as Group
         logger.info("${msg.sender.id}(${msg.sender.nameCardOrNick}) in ${group.id}(${group.name}): $reason")
 
         msg.reply(MessageChainBuilder().apply {
+            add("检测到违法用户：")
             add(At(msg.sender as Member))
             add(reason)
             add(" <$name>")
+            extra?.invoke(this)
         }.build())
     }
 
@@ -91,6 +98,28 @@ object Noop : AbstractPunishment() {
     }
 }
 
+object AtAdministrators : AbstractPunishment() {
+    override val name: String = "at"
+    override val description: String = "只呼叫全体管理员进行处理"
+    override val rank: Int = 5
+
+    override suspend fun punish(msg: MessageEvent, reason: String) {
+        sendPunishmentMessage(msg, reason) { builder ->
+            builder.add("\n请管理员处理。（以下为按照本群规则设置的自动呼叫）")
+        }
+
+        (msg.sender as Member).group.members.asSequence().filter {
+            it.permission.level in 1..2
+        }.map {
+            At(it)
+        }.chunked(5).forEach {  chunk ->
+            delay(200)
+            msg.reply(MessageChainBuilder().apply {
+                chunk.forEach { add(it) }
+            }.build())
+        }
+    }
+}
 
 class Mute(private val minute: Int) : AbstractPunishment() {
     override val name: String = "mute$minute"
