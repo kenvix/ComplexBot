@@ -105,7 +105,7 @@ object Defines : Logging {
     lateinit var pluginClassLoader: URLClassLoader
         private set
 
-    internal fun setupSystem(appCmds: CommandLine) {
+    internal fun setupSystem(appCmds: CommandLine = CommandLine.Builder().build()) {
         logger.info("Loading Application")
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
         CachedClasses

@@ -24,6 +24,8 @@ class ExtendedLoginSolver(private val callBridge: CallBridge) : LoginSolver(), L
 
     override suspend fun onSolvePicCaptcha(bot: Bot, data: ByteArray): String? {
         val fail = continuousFailCounter[bot]
+        logger.debug("Solving captcha ...")
+
         if (fail != null) {
             if (System.currentTimeMillis() - fail.beginTime <= 60_000)
                 fail.count++
@@ -37,7 +39,9 @@ class ExtendedLoginSolver(private val callBridge: CallBridge) : LoginSolver(), L
         }
 
         continuousFailCounter[bot] = ContinuousFail(System.currentTimeMillis(), 0)
-        return callBridge.backendClient.parseCaptchaFromBinary(ByteBuffer.wrap(data))
+        return callBridge.backendClient.parseCaptchaFromBinary(ByteBuffer.wrap(data)).also {
+            logger.trace("Captcha breaker recv: $it")
+        }
     }
 
     override suspend fun onSolveSliderCaptcha(bot: Bot, url: String): String? {

@@ -13,6 +13,7 @@ import com.kenvix.complexbot.feature.middleware.CorePermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
 import com.kenvix.complexbot.feature.middleware.SwitchableCommand
 import com.kenvix.complexbot.feature.sex.LifePredictorCommand
+import com.kenvix.complexbot.feature.sex.RepeatCommand
 import com.kenvix.complexbot.feature.switchcommand.ListCommand
 import com.kenvix.complexbot.feature.switchcommand.SwitchCommand
 import net.mamoe.mirai.Bot
@@ -39,6 +40,7 @@ fun Bot.featureRoutes() {
         command("uptime", UpTimeCommand, SwitchableCommand)
 
         command("rank", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
+        command("repeat", RepeatCommand, GroupMessageOnly, SwitchableCommand)
         command("排行", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
     }
 

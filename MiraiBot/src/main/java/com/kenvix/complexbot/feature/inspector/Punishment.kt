@@ -113,7 +113,7 @@ object AtAdministrators : AbstractPunishment() {
         }.map {
             At(it)
         }.chunked(5).forEach {  chunk ->
-            delay(200)
+            delay(350)
             msg.reply(MessageChainBuilder().apply {
                 chunk.forEach { add(it) }
             }.build())
