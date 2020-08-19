@@ -13,6 +13,7 @@ import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.content
 import net.mamoe.mirai.message.data.toMessage
 
@@ -90,34 +91,34 @@ object InspectorCommand : BotCommandFeature, Logging {
 
     private suspend fun sendHelp(group: Group, options: InspectorOptions) = withContext(IO) {
         val helpString = StringBuilder()
-        helpString.appendln("Inspector: QQ 群广告过滤器和消息监视器. 用法：")
-        helpString.appendln("列出本群已启用的规则和白名单用户：.inspector list")
-        helpString.appendln("启用或禁用 Inspector：.inspector enable|disable")
-        helpString.appendln("添加或删除过滤规则：.inspector add|del 过滤规则名 惩罚规则名")
-        helpString.appendln("添加或删除白名单：.inspector white|black 需要加白名单或取消加白名单的QQ号")
-        helpString.appendln("示例：添加或修改规则：.inspector add photoqrad kick")
-        helpString.appendln("示例：删除规则：.inspector del photoqrad")
-        helpString.appendln("示例：添加用户白名单：.inspector white 1234567890")
-        helpString.appendln("示例：取消用户白名单：.inspector black 1234567890")
-        helpString.appendln("===========================")
+        helpString.appendLine("Inspector: QQ 群广告过滤器和消息监视器. 用法：")
+        helpString.appendLine("列出本群已启用的规则和白名单用户：.inspector list")
+        helpString.appendLine("启用或禁用 Inspector：.inspector enable|disable")
+        helpString.appendLine("添加或删除过滤规则：.inspector add|del 过滤规则名 惩罚规则名")
+        helpString.appendLine("添加或删除白名单：.inspector white|black 需要加白名单或取消加白名单的QQ号")
+        helpString.appendLine("示例：添加或修改规则：.inspector add photoqrad kick")
+        helpString.appendLine("示例：删除规则：.inspector del photoqrad")
+        helpString.appendLine("示例：添加用户白名单：.inspector white 1234567890")
+        helpString.appendLine("示例：取消用户白名单：.inspector black 1234567890")
+        helpString.appendLine("===========================")
 
-        helpString.appendln("已安装下列消息过滤规则：规则名 帮助")
-        inspectorRules.forEach { (t, u) -> helpString.appendln("$t  ${u.description}") }
-        helpString.appendln("已安装下列惩罚规则：规则名 帮助")
-        punishments.forEach { (t, u) -> helpString.appendln("$t  ${u.description}") }
+        helpString.appendLine("已安装下列消息过滤规则：规则名 帮助")
+        inspectorRules.forEach { (t, u) -> helpString.appendLine("$t  ${u.description}") }
+        helpString.appendLine("已安装下列惩罚规则：规则名 帮助")
+        punishments.forEach { (t, u) -> helpString.appendLine("$t  ${u.description}") }
 
         if (!options.enabled)
-            helpString.appendln("注意：本群没有启用此功能，启用请输入：.inspector enable")
+            helpString.appendLine("注意：本群没有启用此功能，启用请输入：.inspector enable")
 
-        group.sendMessage(helpString.toString().toMessage())
+        group.sendMessage(PlainText(helpString.toString()))
     }
 
     private suspend fun sendList(group: Group, options: InspectorOptions) = withContext(IO) {
         val helpString = StringBuilder()
-        helpString.appendln("Inspector: QQ 群广告过滤器和消息监视器.")
+        helpString.appendLine("Inspector: QQ 群广告过滤器和消息监视器.")
 
         if (!options.enabled) {
-            helpString.appendln("注意：本群没有启用此功能，启用请输入：.inspector enable")
+            helpString.appendLine("注意：本群没有启用此功能，启用请输入：.inspector enable")
         } else {
             helpString.append("已启用。")
             if (group.botPermission.level >= 1)
@@ -126,12 +127,12 @@ object InspectorCommand : BotCommandFeature, Logging {
                 helpString.append("但Bot没有管理员权限，无法执行任何惩罚")
         }
 
-        helpString.appendln("===========================")
-        helpString.appendln("本群 (${group.id}) 白名单列表：")
-        options.white.forEach { helpString.appendln(it) }
-        helpString.appendln("===========================")
-        helpString.appendln("本群 (${group.id}) 已启用以下过滤规则及惩罚：")
-        options.rules.forEach { (t, u) -> helpString.appendln("$t  ${u}") }
+        helpString.appendLine("===========================")
+        helpString.appendLine("本群 (${group.id}) 白名单列表：")
+        options.white.forEach { helpString.appendLine(it) }
+        helpString.appendLine("===========================")
+        helpString.appendLine("本群 (${group.id}) 已启用以下过滤规则及惩罚：")
+        options.rules.forEach { (t, u) -> helpString.appendLine("$t  ${u}") }
 
         group.sendMessage(helpString.toString())
     }

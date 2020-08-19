@@ -42,7 +42,7 @@ object InspectorFeature : BotFeature {
                             }, rule, punishment)
                         }.filter {
                             kotlin.runCatching { it.result.await() }.getOrNull() == true
-                        }.maxBy {
+                        }.maxByOrNull {
                             it.punishment
                         }.also {
                             if (it != null) {

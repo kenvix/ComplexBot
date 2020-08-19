@@ -9,7 +9,7 @@ object ListCommand : BotCommandFeature {
 
     override suspend fun onMessage(msg: MessageEvent) {
         val str = StringBuilder("命令列表：\n")
-        commands.forEach { (t, u) -> str.appendln(".$t    ${u.handler.description}") }
+        commands.forEach { (t, u) -> str.appendLine(".$t    ${u.handler.description}") }
         msg.reply(str.toString())
     }
 }

@@ -84,7 +84,7 @@ fun Array<StackTraceElement>.getStringStackTrace(): String {
     val builder = StringBuilder()
 
     for (stackTrace in this) {
-        builder.appendln("at $stackTrace")
+        builder.appendLine("at $stackTrace")
     }
 
     return builder.toString()

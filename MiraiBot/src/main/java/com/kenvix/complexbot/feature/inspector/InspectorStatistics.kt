@@ -82,7 +82,7 @@ object InspectorStatisticUtils : Cached {
 
                                 if (userStatistic.counts.size > MaxRecordedStatDays) {
                                     userStatistic.counts
-                                        .minBy { entry -> entry.key }
+                                        .minByOrNull { entry -> entry.key }
                                         .also { entry ->
                                             if (entry != null)
                                                 userStatistic.counts.remove(entry.key)

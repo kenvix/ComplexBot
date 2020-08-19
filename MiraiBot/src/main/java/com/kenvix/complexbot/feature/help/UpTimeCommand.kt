@@ -13,9 +13,9 @@ object UpTimeCommand : BotCommandFeature {
     override suspend fun onMessage(msg: MessageEvent) {
         val text = StringBuilder()
 
-        text.appendln("当前时间: " + DebugCommand.formatter.format(Date(System.currentTimeMillis())))
+        text.appendLine("当前时间: " + DebugCommand.formatter.format(Date(System.currentTimeMillis())))
         val uptime = System.currentTimeMillis() - Defines.startedAt
-        text.appendln("启动于: " + DebugCommand.formatter.format(Date(Defines.startedAt)))
+        text.appendLine("启动于: " + DebugCommand.formatter.format(Date(Defines.startedAt)))
 
 
         val upDays = uptime / 86400_000
