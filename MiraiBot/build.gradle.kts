@@ -1,5 +1,6 @@
 plugins {
     java
+    idea
     kotlin("jvm") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     //id("org.beryx.jlink") version "2.17.2"
@@ -52,17 +53,17 @@ dependencies {
     implementation(group = "org.apache.commons", name = "commons-dbcp2", version = "2.7.0")
     implementation("org.litote.kmongo:kmongo-coroutine:4.0.0")
 
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-server-core:$ktor_version")
-
-    implementation("io.ktor:ktor-gson:$ktor_version")
-    implementation("io.ktor:ktor-network:$ktor_version")
-    implementation("io.ktor:ktor-network-tls:$ktor_version")
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-core-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("io.ktor:ktor-client-websockets:$ktor_version")
-    implementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
+//    implementation("io.ktor:ktor-server-cio:$ktor_version")
+//    implementation("io.ktor:ktor-server-core:$ktor_version")
+//
+//    implementation("io.ktor:ktor-gson:$ktor_version")
+//    implementation("io.ktor:ktor-network:$ktor_version")
+//    implementation("io.ktor:ktor-network-tls:$ktor_version")
+//    implementation("io.ktor:ktor-client-core:$ktor_version")
+//    implementation("io.ktor:ktor-client-core-jvm:$ktor_version")
+//    implementation("io.ktor:ktor-client-cio:$ktor_version")
+//    implementation("io.ktor:ktor-client-websockets:$ktor_version")
+//    implementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
 
     implementation("net.mamoe:mirai-core:$miraiCoreVersion")
     implementation("net.mamoe:mirai-core-qqandroid:$miraiCoreVersion")

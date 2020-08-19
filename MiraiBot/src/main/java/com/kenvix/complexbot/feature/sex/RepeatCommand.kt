@@ -29,6 +29,7 @@ object RepeatCommand : BotCommandFeature {
                     })
 
                     addAll(msg.message.filterNot { it is PlainText })
+                    addAll(msg.message.filterIsInstance<PlainText>().drop(1))
                 }.build()
 
                 (1 .. num).forEach { _ ->
