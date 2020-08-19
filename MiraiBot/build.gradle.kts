@@ -1,7 +1,7 @@
 plugins {
     java
     idea
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     //id("org.beryx.jlink") version "2.17.2"
     id("nu.studer.jooq") version "4.1"
@@ -53,8 +53,8 @@ dependencies {
     implementation(group = "org.apache.commons", name = "commons-dbcp2", version = "2.7.0")
     implementation("org.litote.kmongo:kmongo-coroutine:4.0.0")
 
-//    implementation("io.ktor:ktor-server-cio:$ktor_version")
-//    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-cio:$ktor_version")
+    implementation("io.ktor:ktor-server-core:$ktor_version")
 //
 //    implementation("io.ktor:ktor-gson:$ktor_version")
 //    implementation("io.ktor:ktor-network:$ktor_version")
