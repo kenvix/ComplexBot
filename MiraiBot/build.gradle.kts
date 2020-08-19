@@ -48,8 +48,8 @@ dependencies {
     // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
     implementation(group = "javax.persistence", name = "javax.persistence-api", version = "2.2")
     implementation(group = "org.jooq", name = "jooq", version = "3.11.5")
-    implementation(group = "org.xerial", name = "sqlite-jdbc", version = "3.25.2")
-    implementation(group = "mysql", name = "mysql-connector-java", version = "8.0.17")
+//    implementation(group = "org.xerial", name = "sqlite-jdbc", version = "3.25.2")
+//    implementation(group = "mysql", name = "mysql-connector-java", version = "8.0.17")
     implementation(group = "org.apache.commons", name = "commons-dbcp2", version = "2.7.0")
     implementation("org.litote.kmongo:kmongo-coroutine:4.0.0")
 
@@ -99,6 +99,7 @@ tasks {
             attributes(
                     mapOf(
                             "Implementation-Title" to project.name,
+                            "Implementation-Version" to project.version,
                             "Main-Class" to "com.kenvix.moecraftbot.ng.Main"
                     )
             )

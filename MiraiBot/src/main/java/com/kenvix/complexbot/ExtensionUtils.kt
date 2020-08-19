@@ -11,6 +11,7 @@ import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.content
 import org.slf4j.LoggerFactory
+import java.io.IOException
 import java.lang.NumberFormatException
 
 val commandPrefix: Set<String> = Defines.systemOptions.bot.commandPrefix
@@ -88,12 +89,13 @@ suspend fun MessageEvent.executeCatchingBusinessException(function: suspend (() 
                 logger.info("No permission to operate. ", exception)
             }
 
-            is BusinessLogicException -> {
+            is BusinessLogicException, is IllegalArgumentException, is IllegalStateException, is IOException -> {
                 sendExceptionMessage(exception)
                 logger.warn("An unhandled business exception is thrown. ", exception)
             }
 
-            is NotImplementedError -> {
+            is NotImplementedError, is UnsupportedOperationException -> {
+                this.reply("暂不支持此操作。(${exception.localizedMessage ?: ""})")
                 logger.warn("An Unimplemented method is called. ", exception)
             }
 
@@ -109,7 +111,7 @@ suspend fun MessageEvent.sendExceptionMessage(exception: Throwable) {
         if (exception.localizedMessage.isNullOrBlank())
             "操作失败：${exception.nameAndHashcode}"
         else
-            exception.localizedMessage
+            "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
     })
 }
 
