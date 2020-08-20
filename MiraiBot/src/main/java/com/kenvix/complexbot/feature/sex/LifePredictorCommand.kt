@@ -23,9 +23,10 @@ object LifePredictorCommand : BotCommandFeature {
             msg.reply("只有言语才有算卦的意义哦")
         } else {
             val result = (
-                    msg.sender.id shl 15 xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
+                    (msg.sender.id shl 0xC) xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
                             (command.firstArgument.hashCode() xor offsetStrHash).toLong()
                     ).rem(resultArray.size).toInt().absoluteValue
+
             msg.reply(MessageChainBuilder().apply {
                 add("你好，")
 

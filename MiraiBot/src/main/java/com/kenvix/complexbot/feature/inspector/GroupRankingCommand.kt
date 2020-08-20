@@ -9,7 +9,7 @@ import net.mamoe.mirai.message.data.content
 
 object GroupRankingCommand : BotCommandFeature {
     override val description: String = "本群总体水群排行榜 (可按日期查看)"
-    const val MaxOutputNum = 10
+    const val MaxOutputNum = 9
 
     override suspend fun onMessage(msg: MessageEvent) {
         val sender = msg.sender as Member
@@ -40,7 +40,7 @@ object GroupRankingCommand : BotCommandFeature {
             availableStatsSequence.sortedByDescending {
                 it.value.counts[day] ?: 0
             }.take(MaxOutputNum).forEachIndexed { index, entry ->
-                replyText.append("\n$index. ${entry.value.cardName.run {
+                replyText.append("\n${index + 1}. ${entry.value.cardName.run {
                     if (isNullOrBlank() || entry.value.cardName == entry.value.name)
                         entry.value.name
                     else

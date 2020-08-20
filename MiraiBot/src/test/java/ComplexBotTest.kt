@@ -13,6 +13,7 @@ import java.io.IOException
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
 
+@Deprecated("")
 class ComplexBotTest {
     @Test
     fun initTest() {

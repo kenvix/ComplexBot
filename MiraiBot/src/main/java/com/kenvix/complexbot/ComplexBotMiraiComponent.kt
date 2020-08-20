@@ -31,7 +31,7 @@ class ComplexBotMiraiComponent(
         loginSolver = ExtendedLoginSolver(callBridge)
         // networkLoggerSupplier = { SilentLogger } // 禁用网络层输出
         deviceInfo = { ExtendedDeviceInfo }
-        protocol = BotConfiguration.MiraiProtocol.ANDROID_WATCH
+        protocol = BotConfiguration.MiraiProtocol.ANDROID_PAD
         parentCoroutineContext = coroutines.ioScope.coroutineContext +
                 SupervisorJob() +
                 CoroutineName("Mirai") +
@@ -39,13 +39,15 @@ class ComplexBotMiraiComponent(
     }
 
     internal fun start() {
-        logger.trace("This bot provider is based on mirai project.")
-        logger.trace("See miral github: https://github.com/mamoe/mirai")
-        bot = getNewBotInstance()
+        synchronized(this) {
+            logger.trace("This bot provider is based on mirai project.")
+            logger.trace("See miral github: https://github.com/mamoe/mirai")
+            bot = getNewBotInstance()
 
-        coroutines.ioScope.launch {
-            bot.login()
-            initMirai()
+            coroutines.ioScope.launch {
+                bot.login()
+                initMirai()
+            }
         }
     }
 
@@ -81,7 +83,9 @@ class ComplexBotMiraiComponent(
     }
 
     override fun close() {
-        bot.close()
-        coroutines.close()
+        synchronized(this) {
+            bot.close()
+            coroutines.close()
+        }
     }
 }
