@@ -26,7 +26,7 @@ object GroupRankingCommand : BotCommandFeature {
                 if (it.length != 8)
                     throw UserInvalidUsageException("日期必须为类似 20200729 这样的格式")
                 replyText.append("在 $it 这一天的统计信息：")
-            }.toInt()
+            }.toInt() - 100
         }
 
         val availableStats = data.stats.filterNot {
