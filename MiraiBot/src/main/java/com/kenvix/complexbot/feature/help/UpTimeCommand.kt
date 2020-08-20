@@ -8,7 +8,7 @@ import java.util.*
 
 object UpTimeCommand : BotCommandFeature {
     override val description: String
-        get() = "运行时间"
+        get() = "查看运行时间"
 
     override suspend fun onMessage(msg: MessageEvent) {
         val text = StringBuilder()

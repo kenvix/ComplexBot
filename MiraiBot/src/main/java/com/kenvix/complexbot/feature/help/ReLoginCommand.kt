@@ -9,7 +9,7 @@ import net.mamoe.mirai.message.MessageEvent
 
 object ReLoginCommand : BotCommandFeature {
     override val description: String
-        get() = "重新登录 Mirai"
+        get() = "重新登录 Mirai（仅限核心操作员）"
 
     override suspend fun onMessage(msg: MessageEvent) {
         logger.info("正在停止服务并重新启动 Mirai")

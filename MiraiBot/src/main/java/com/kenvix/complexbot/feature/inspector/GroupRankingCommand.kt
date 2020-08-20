@@ -3,13 +3,14 @@ package com.kenvix.complexbot.feature.inspector
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
+import kotlinx.coroutines.delay
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.content
 
 object GroupRankingCommand : BotCommandFeature {
     override val description: String = "本群总体水群排行榜 (可按日期查看)"
-    const val MaxOutputNum = 7
+    const val MaxOutputNum = 10
 
     override suspend fun onMessage(msg: MessageEvent) {
         val sender = msg.sender as Member
@@ -36,22 +37,30 @@ object GroupRankingCommand : BotCommandFeature {
             replyText.append("\n没有关于这一天的统计信息")
         } else {
             val availableStatsSequence = availableStats.asSequence()
+            val sum = availableStatsSequence.sumBy { it.value.counts[day]?.toInt() ?: 0 }
+            replyText.append("\n总日活：$sum (${availableStats.size} 人)")
+            msg.reply(replyText.toString())
 
             availableStatsSequence.sortedByDescending {
                 it.value.counts[day] ?: 0
-            }.take(MaxOutputNum).forEachIndexed { index, entry ->
-                replyText.append("\n${index + 1}. ${entry.value.cardName.run {
+            }.take(MaxOutputNum).map { entry ->
+                ". ${entry.value.cardName.run {
                     if (isNullOrBlank() || entry.value.cardName == entry.value.name)
                         entry.value.name
                     else
                         this + " (${entry.value.name})"
-                }} : ${entry.value.counts[day]}")
+                }} : ${entry.value.counts[day]}\n"
+            }.chunked(5).forEachIndexed { chunkIndex, list ->
+                replyText.setLength(0)
+
+                list.forEachIndexed { itemIndex, s ->
+                    replyText.append(chunkIndex * list.size + itemIndex)
+                    replyText.append(s)
+                }
+
+                delay(350)
+                msg.reply(replyText.toString())
             }
-
-            val sum = availableStatsSequence.sumBy { it.value.counts[day]?.toInt() ?: 0 }
-            replyText.append("\n总日活：$sum (${availableStats.size} 人)")
         }
-
-        msg.reply(replyText.toString())
     }
 }

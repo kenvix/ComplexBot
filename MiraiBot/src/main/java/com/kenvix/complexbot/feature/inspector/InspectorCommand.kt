@@ -19,7 +19,7 @@ import net.mamoe.mirai.message.data.toMessage
 
 object InspectorCommand : BotCommandFeature, Logging {
     override val description: String
-        get() = "监视器选项"
+        get() = "广告拦截、消息监视和统计工具选项（仅限管理员）"
 
     @Throws(UserInvalidUsageException::class, NumberFormatException::class)
     override suspend fun onMessage(msg: MessageEvent) {
