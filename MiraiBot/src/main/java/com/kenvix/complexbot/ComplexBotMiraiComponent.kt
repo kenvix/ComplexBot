@@ -31,7 +31,7 @@ class ComplexBotMiraiComponent(
         loginSolver = ExtendedLoginSolver(callBridge)
         // networkLoggerSupplier = { SilentLogger } // 禁用网络层输出
         deviceInfo = { ExtendedDeviceInfo }
-        protocol = BotConfiguration.MiraiProtocol.ANDROID_PAD
+        protocol = BotConfiguration.MiraiProtocol.ANDROID_WATCH
         parentCoroutineContext = coroutines.ioScope.coroutineContext +
                 SupervisorJob() +
                 CoroutineName("Mirai") +

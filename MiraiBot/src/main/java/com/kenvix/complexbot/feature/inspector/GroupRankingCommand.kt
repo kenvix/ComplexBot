@@ -9,7 +9,7 @@ import net.mamoe.mirai.message.data.content
 
 object GroupRankingCommand : BotCommandFeature {
     override val description: String = "本群总体水群排行榜 (可按日期查看)"
-    const val MaxOutputNum = 9
+    const val MaxOutputNum = 7
 
     override suspend fun onMessage(msg: MessageEvent) {
         val sender = msg.sender as Member
