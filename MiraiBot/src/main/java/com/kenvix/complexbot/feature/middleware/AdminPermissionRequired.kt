@@ -15,6 +15,11 @@ object AdminPermissionRequired : BotMiddleware {
         if (msg.sender !is Member)
             return false
 
-        return (msg.sender as Member).isAdministrator()
+        if ((msg.sender as Member).isAdministrator()) {
+            return true
+        }
+
+        msg.reply("权限不足：只有管理员可以执行此指令")
+        return false
     }
 }
