@@ -78,6 +78,7 @@ public class SystemOptions {
     public static class System {
         public long cacheSize = 1000000000L;
         public int threadPoolMaxSize = 10;
+        public String uploadTempDir = "temp";
     }
 
     public static class HTTP {

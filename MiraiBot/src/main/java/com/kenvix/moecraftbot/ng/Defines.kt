@@ -130,6 +130,14 @@ object Defines : Logging {
         cachedThreadPool = ThreadPoolExecutor(1, systemOptions.system.threadPoolMaxSize,
             60L, TimeUnit.SECONDS, SynchronousQueue<Runnable>())
         cacheDirectory = File("cache")
+
+        if (!cacheDirectory.exists())
+            cacheDirectory.mkdirs()
+
+        uploadTempPath.toFile().also {
+            if (it.exists())
+                it.mkdirs()
+        }
     }
 
     internal fun setupPlugins() {

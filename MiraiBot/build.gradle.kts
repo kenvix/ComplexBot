@@ -73,7 +73,6 @@ dependencies {
     //ahocorasick 字符串关键词匹配算法
     implementation("org.ahocorasick:ahocorasick:0.4.0")
 
-
     implementation("com.google.zxing:core:3.4.0")
     implementation("com.google.zxing:javase:3.4.0")
 
