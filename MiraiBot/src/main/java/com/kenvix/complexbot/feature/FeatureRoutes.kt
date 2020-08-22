@@ -8,6 +8,7 @@ import com.kenvix.complexbot.feature.friend.WelcomeNewFeature
 import com.kenvix.complexbot.feature.help.*
 import com.kenvix.complexbot.feature.inspector.InspectorFeature
 import com.kenvix.complexbot.feature.inspector.GroupRankingCommand
+import com.kenvix.complexbot.feature.inspector.WhoCommand
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.CorePermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
@@ -41,6 +42,7 @@ fun Bot.featureRoutes() {
 
         command("rank", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
         command("排行", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
+        command("who", WhoCommand, GroupMessageOnly, SwitchableCommand)
 
         command("repeat", RepeatCommand, GroupMessageOnly, SwitchableCommand, AdminPermissionRequired)
     }

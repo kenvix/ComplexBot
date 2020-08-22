@@ -7,6 +7,10 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.text.SimpleDateFormat
 import java.time.Duration
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.ln
 import kotlin.math.pow
@@ -14,6 +18,58 @@ import kotlin.math.pow
 
 const val CHAT_TYPE_IDLE = 0
 const val CHAT_TYPE_AUTH = 0xa04
+
+typealias DateTime = OffsetDateTime
+fun DateTime.toEpochMilli() = toInstant().toEpochMilli()
+
+fun Int.hasFlag(flag: Int): Boolean = (this and flag) != 0
+fun Long.hasFlag(flag: Long): Boolean = (this and flag) != 0L
+
+/**
+ * 返回置 Flag 之后的值
+ */
+fun Int.flaggedOf(flag: Int) = this or flag
+
+/**
+ * 返回置 Flag 之后的值
+ */
+fun Long.flaggedOf(flag: Long): Long = this or flag
+
+/**
+ * 返回清除 Flag 之后的值
+ */
+fun Int.unflaggedOf(flag: Int): Int = this and (flag.inv())
+
+/**
+ * 返回清除 Flag 之后的值
+ */
+fun Long.unflaggedOf(flag: Long): Long = this and (flag.inv())
+
+class ExtendedThreadLocal<T>(inline val getter: (() -> T)) : ThreadLocal<T>() {
+    override fun initialValue(): T {
+        return getter()
+    }
+
+    operator fun invoke() = get()!!
+    override fun get(): T = super.get()!!
+}
+
+class ExtendedInheritableThreadLocal<T>(inline val getter: (() -> T)) : InheritableThreadLocal<T>() {
+    override fun initialValue(): T {
+        return getter()
+    }
+
+    operator fun invoke() = get()!!
+    override fun get(): T = super.get()!!
+}
+
+fun <T> threadLocal(getter: (() -> T)): ExtendedThreadLocal<T> {
+    return ExtendedThreadLocal(getter)
+}
+
+fun <T> inheritableThreadLocal(getter: (() -> T)): ExtendedInheritableThreadLocal<T> {
+    return ExtendedInheritableThreadLocal(getter)
+}
 
 fun <T: Named> importNamedElementsIntoMap(target: MutableMap<String, T>, vararg things: T) {
     things.forEach { target[it.name] = it }
@@ -36,6 +92,11 @@ fun StringBuilder.replace(oldStr: String, newStr: String): StringBuilder {
     return this
 }
 
+inline fun <T : Any, U : Collection<T>> U?.ifNotNullOrEmpty(then: ((U) -> Unit)) {
+    if (this != null && this.isNotEmpty())
+        then(this)
+}
+
 fun String.replacePlaceholders(placeholdersMap: Map<String, String>): String {
     val builder = StringBuilder(this)
     for ((key: String, value: String) in placeholdersMap) {
@@ -47,10 +108,39 @@ fun String.replacePlaceholders(placeholdersMap: Map<String, String>): String {
 
 fun String.replacePlaceholders(placeholder: Pair<String, String>) = this.replacePlaceholders(mapOf(placeholder))
 
-@JvmOverloads
-fun Date.format(format: String = "yyyy-MM-dd HH:mm:ss"): String {
-    return SimpleDateFormat(format).format(this)
+
+private val dateDefaultFormatter = threadLocal {
+    SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 }
+
+private val dateMilliFormatter = threadLocal {
+    SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+}
+
+fun Date.format(): String = dateDefaultFormatter().format(this)
+fun Date.formatMilli(): String = dateMilliFormatter().format(this)
+
+fun Date.toLocalDate() = toInstant().atZone(ZoneId.systemDefault()).toLocalDate()!!
+fun Date.toLocalTime() = toInstant().atZone(ZoneId.systemDefault()).toLocalTime()!!
+fun Date.toLocalDateTime() = toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()!!
+
+private val instantDefaultFormatter = DateTimeFormatter
+    .ofPattern("yyyy-MM-dd HH:mm:ss")
+    .withZone(ZoneId.systemDefault())
+private val instantMilliFormatter = DateTimeFormatter
+    .ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+    .withZone(ZoneId.systemDefault())
+private val instantNanosFormatter = DateTimeFormatter
+    .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS")
+    .withZone(ZoneId.systemDefault())
+private val instantNormalizedFormatter = DateTimeFormatter
+    .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'")
+    .withZone(ZoneId.systemDefault())
+
+fun Instant.format() = instantDefaultFormatter.format(this)!!
+fun Instant.formatMilli() = instantMilliFormatter.format(this)!!
+fun Instant.formatNanos() = instantNanosFormatter.format(this)!!
+fun Instant.formatNormalized() = instantNormalizedFormatter.format(this)!!
 
 @JvmOverloads
 fun getHumanReadableByteSizeCount(bytes: Long, si: Boolean = false): String {
@@ -90,6 +180,31 @@ fun Array<StackTraceElement>.getStringStackTrace(): String {
     return builder.toString()
 }
 
+
+inline fun stringPrintStream(printStream: ((PrintStream) -> Unit)): String {
+    return ByteArrayOutputStream().use { b ->
+        PrintStream(b).use { p ->
+            printStream(p)
+        }
+
+        b.toByteArray().toString(Charsets.UTF_8)
+    }
+}
+
+inline fun stringBuilder(next: ((StringBuilder) -> Unit)): String {
+    val builder = StringBuilder()
+    next(builder)
+
+    return builder.toString()
+}
+
+inline fun <T, R> T?.ifNotNull(then: ((T) -> R?)): R? {
+    if (this != null)
+        return then(this)
+
+    return null
+}
+
 inline fun <K, V> cacheLoader(crossinline loader: ((K) -> V)) = object : CacheLoader<K, V>() {
     override fun load(key: K): V = loader(key)
 }
@@ -105,3 +220,9 @@ val Throwable.nameAndHashcode
 
 val Boolean?.isTrue
     get() = this != null && this == true
+
+inline fun <reified E: Enum<E>> E.next(): E {
+    val values = enumValues<E>()
+    val nextOrdinal = (ordinal + 1) % values.size
+    return values[nextOrdinal]
+}

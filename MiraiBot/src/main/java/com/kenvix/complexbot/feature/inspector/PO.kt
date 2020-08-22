@@ -10,7 +10,13 @@ enum class JoinStatus(val statusId: Int) {
     Requested(0),
     Accepted(1),
     Denied(2),
-    Left(3)
+    Left(3);
+
+    companion object {
+        fun valueOf(value: Int): JoinStatus? {
+            return values().firstOrNull { it.statusId == value }
+        }
+    }
 }
 
 data class InspectorStatistic(
