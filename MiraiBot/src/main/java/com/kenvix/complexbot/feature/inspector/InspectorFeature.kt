@@ -4,6 +4,7 @@ import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.*
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
+import com.kenvix.moecraftbot.ng.Defines
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.contact.MemberPermission
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.MemberJoinEvent
 import net.mamoe.mirai.event.events.MemberJoinRequestEvent
@@ -66,7 +68,10 @@ object InspectorFeature : BotFeature {
             always {
                 inspectorOptions[this.group.id]?.also { inspectorOptions ->
                     var isPunished = false
-                    if (this.sender.id !in inspectorOptions.white) {
+                    if (this.sender.id !in inspectorOptions.white &&
+                        this.sender.permission == MemberPermission.MEMBER &&
+                        this.sender.id !in callBridge.config.bot.administratorIds
+                    ) {
                         inspectorOptions.rules.map { (rule, punishment) ->
                             RuleResult(coroutines.ioScope.async {
                                 rule.onMessage(this@always)
