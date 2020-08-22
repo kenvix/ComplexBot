@@ -64,17 +64,14 @@ object InspectorStatisticUtils : Cached {
                 eventId = event.eventId
             )
 
-            statCache[event.group.id]!!.also { statIdMapValue ->
-                statIdMapValue.joins[stat.qq] = stat
-            }
+            joins[stat.qq] = stat
         }
     }
 
-    suspend fun updateMemberJoinStatus(qq: Long, group: Long, status: Int, handledAt: Date? = null) {
+    suspend fun updateMemberJoinStatus(qq: Long, group: Long, status: Int) {
         getStat(group).also { statIdMapValue ->
             statIdMapValue.joins[qq]?.apply {
                 this.status = status
-                this.handledAt = handledAt
             }
         }
     }

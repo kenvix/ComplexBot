@@ -50,6 +50,6 @@ data class JoinStatistic(
     var handledAt: Date? = null,
     var status: Int = 0,
     val note: String = "",
-    val inviterId: Long = 0,
-    val inviterName: String? = null,
+    var inviterId: Long = 0,
+    var inviterName: String? = null,
 )
