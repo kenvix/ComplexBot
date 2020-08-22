@@ -36,7 +36,10 @@ object DocumentAd : InspectorRule {
                     val sender = msg.sender as Member
                     val stat = InspectorStatisticUtils.getStat(sender.group.id).stats[sender.id]
 
-                    if ((stat == null || stat.countLegal <= 3L) && beginPos > 0 && requiredMatchPattern.containsMatch(content)) {
+                    if (beginPos > 0 && requiredMatchPattern.containsMatch(content) &&
+                        (stat == null || stat.countLegal <= 30L ||
+                                stat.countIllegal >= 4L && stat.counts[InspectorStatisticUtils.todayKey] ?: 0 <= 5)
+                    ) {
                         blackMatchPattern.containsMatch(content.substring(beginPos + 8))
                     } else {
                         false

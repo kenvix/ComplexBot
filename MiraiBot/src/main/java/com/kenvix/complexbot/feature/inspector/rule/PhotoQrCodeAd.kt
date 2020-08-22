@@ -42,7 +42,11 @@ object PhotoQrCodeAd : InspectorRule {
 
         if (images.isNotEmpty()) {
             val stat = InspectorStatisticUtils.getStat(sender.group.id).stats[sender.id]
-            if (stat == null || stat.countLegal <= 2L || stat.countIllegal > 3L) { //Assume ad sender has low activity
+
+            if (stat == null ||
+                stat.countLegal <= 8L ||
+                (stat.countIllegal >= 4L && stat.counts[InspectorStatisticUtils.todayKey] ?: 0 <= 1)
+            ) { //Assume ad sender has low activity
                 return images.asFlow().map {
                     detectImage(it)
                 }.firstOrNull {
