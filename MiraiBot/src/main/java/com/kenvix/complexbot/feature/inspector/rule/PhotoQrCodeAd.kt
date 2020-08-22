@@ -42,13 +42,7 @@ object PhotoQrCodeAd : InspectorRule {
 
         if (images.isNotEmpty()) {
             val stat = InspectorStatisticUtils.getStat(sender.group.id).stats[sender.id]
-            if (stat == null || stat.countLegal <= 8L || stat.countIllegal > 3L) { //Assume ad sender has low activity
-                if (!msg.message.none { it is PlainText }
-                    && !AbstractBayesBackendAd.requiredMatchPattern.containsMatch(msg.message.content)
-                    && stat?.countLegal ?: 0 >= 3L) {
-                    return false
-                }
-
+            if (stat == null || stat.countLegal <= 2L || stat.countIllegal > 3L) { //Assume ad sender has low activity
                 return images.asFlow().map {
                     detectImage(it)
                 }.firstOrNull {
