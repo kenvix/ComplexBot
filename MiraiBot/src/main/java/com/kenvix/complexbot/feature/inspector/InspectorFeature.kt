@@ -11,8 +11,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.contact.nameCardOrNick
+import net.mamoe.mirai.event.events.MemberJoinEvent
+import net.mamoe.mirai.event.events.MemberJoinRequestEvent
+import net.mamoe.mirai.event.events.MemberLeaveEvent
+import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.event.subscribeGroupMessages
 import net.mamoe.mirai.event.subscribeMessages
+import org.litote.kmongo.MongoOperator
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 object InspectorFeature : BotFeature {
@@ -29,6 +36,27 @@ object InspectorFeature : BotFeature {
 
         bot.subscribeMessages {
             command("inspector", InspectorCommand, GroupMessageOnly, AdminPermissionRequired)
+        }
+
+        bot.subscribeAlways<MemberJoinRequestEvent> {
+            inspectorOptions[this.group.id]?.also {
+                logger.debug("Inspected member join request: ${group.id}(${group.name}) / $fromId($fromNick): $message")
+                InspectorStatisticUtils.putMemberJoinStat(this)
+            }
+        }
+
+        bot.subscribeAlways<MemberJoinEvent> {
+            inspectorOptions[this.group.id]?.also {
+                logger.debug("Inspected member join accepted:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
+                InspectorStatisticUtils.updateMemberJoinStatus(member.id, group.id, JoinStatus.Accepted.statusId)
+            }
+        }
+
+        bot.subscribeAlways<MemberLeaveEvent> {
+            inspectorOptions[this.group.id]?.also {
+                logger.debug("Inspected member join left:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
+                InspectorStatisticUtils.updateMemberJoinStatus(member.id, group.id, JoinStatus.Left.statusId)
+            }
         }
 
         bot.subscribeGroupMessages {

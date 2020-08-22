@@ -70,7 +70,7 @@ object PhotoQrCodeAd : InspectorRule {
             val bufferedImage = ImageIO.read(this@imageReq.byteStream())
 
             if (bufferedImage != null)
-                detectQRCode(bufferedImage) || flip(bufferedImage).run { detectQRCode(bufferedImage) }
+                detectQRCode(bufferedImage) || detectQRCode(bufferedImage.flip())
             else
                 false
         } ?: false
@@ -87,12 +87,14 @@ object PhotoQrCodeAd : InspectorRule {
         }
     }
 
-    private fun flip(image: BufferedImage) {
-        for (i in 0 until image.width) for (j in 0 until image.height / 2) {
-            val tmp = image.getRGB(i, j)
-            image.setRGB(i, j, image.getRGB(i, image.height - j - 1))
-            image.setRGB(i, image.height - j - 1, tmp)
+    fun BufferedImage.flip(): BufferedImage {
+        for (i in 0 until width) for (j in 0 until height / 2) {
+            val tmp = getRGB(i, j)
+            setRGB(i, j, getRGB(i, height - j - 1))
+            setRGB(i, height - j - 1, tmp)
         }
+
+        return this
     }
 
     private fun downloadCallOf(url: String) =

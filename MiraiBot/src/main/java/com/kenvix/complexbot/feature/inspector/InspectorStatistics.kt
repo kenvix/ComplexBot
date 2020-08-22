@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.mamoe.mirai.contact.Member
+import net.mamoe.mirai.event.events.MemberJoinRequestEvent
 import org.bson.codecs.pojo.annotations.BsonId
 import org.litote.kmongo.Id
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -50,6 +51,31 @@ object InspectorStatisticUtils : Cached {
 
     suspend fun getStat(groupId: Long): InspectorStatistic = withContext(Dispatchers.IO) {
         statCache[groupId]
+    }
+
+    suspend fun putMemberJoinStat(event: MemberJoinRequestEvent) {
+        getStat(event.group.id).run {
+            val stat = JoinStatistic(
+                qq = event.fromId,
+                name = event.fromNick,
+                requestedAt = Date(),
+                note = event.message,
+                status = JoinStatus.Requested.statusId,
+                eventId = event.eventId
+            )
+
+            statCache[event.group.id]!!.also { statIdMapValue ->
+                statIdMapValue.joins[stat.qq] = stat
+            }
+        }
+    }
+
+    suspend fun updateMemberJoinStatus(qq: Long, group: Long, status: Int) {
+        getStat(group).run {
+            statCache[group]!!.also { statIdMapValue ->
+                statIdMapValue.joins[qq]?.status = status
+            }
+        }
     }
 
     suspend fun addMemberCountStat(member: Member, isIllegal: Boolean = false) {
@@ -128,26 +154,4 @@ object InspectorStatisticUtils : Cached {
     override fun getStats(): List<CacheStats> {
         return listOf(statCache.stats())
     }
-}
-
-data class InspectorStatistic(
-    @BsonId
-    val _id: Id<InspectorStatistic> = newId(),
-    val groupId: Long = -1,
-    var updatedAt: Date = Date(),
-    val createdAt: Date = Date(),
-    val stats: MutableMap<Long, UserStatistic> = HashMap()
-)
-
-data class UserStatistic(
-    val qq: Long,
-    var name: String,
-    var cardName: String? = null,
-    var countTotal: Long = 0,
-    var countIllegal: Long = 0,
-    val counts: MutableMap<Int, Long> = HashMap(),
-    val createdAt: Date = Date()
-) {
-    val countLegal: Long
-        get() = countTotal - countIllegal
 }
