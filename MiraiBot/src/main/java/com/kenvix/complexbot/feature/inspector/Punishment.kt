@@ -30,20 +30,21 @@ val punishments = createNamedElementsMap(
     Noop)
 
 interface Punishment {
-    abstract val description: String
-    abstract val rank: Int
+    val description: String
+    val rank: Int
     /**
      * On message
      * @return boolean Is rule matched and should punish sender
      */
-    abstract suspend fun punish(msg: MessageEvent, reason: String)
+    suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule? = null)
 }
 
 abstract class AbstractPunishment : Named, Punishment, Logging, Comparable<AbstractPunishment> {
 
     override fun getLogTag(): String = "Punishment.$name"
 
-    protected suspend fun sendPunishmentMessage(msg: MessageEvent, reason: String, extra: ((MessageChainBuilder) -> Unit)? = null) {
+    protected suspend fun sendPunishmentMessage(msg: MessageEvent, reason: String, rule: InspectorRule? = null,
+                                                extra: ((MessageChainBuilder) -> Unit)? = null) {
         val group = msg.subject as Group
         logger.info("${msg.sender.id}(${msg.sender.nameCardOrNick}) in ${group.id}(${group.name}): $reason")
 
@@ -51,7 +52,7 @@ abstract class AbstractPunishment : Named, Punishment, Logging, Comparable<Abstr
             add("检测到违法用户：")
             add(At(msg.sender as Member))
             add(reason)
-            add(" <$name>")
+            add(" <规则名: ${rule?.name} | 惩罚: $name>")
             extra?.invoke(this)
         }.build())
     }
@@ -70,10 +71,10 @@ object Kick : AbstractPunishment() {
     override val description: String = "撤回消息并踢出用户"
     override val rank: Int = 99999999
 
-    override suspend fun punish(msg: MessageEvent, reason: String) {
+    override suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule?) {
         msg.source.recall()
         (msg.sender as Member).kick(reason)
-        sendPunishmentMessage(msg, reason)
+        sendPunishmentMessage(msg, reason, rule)
     }
 }
 
@@ -82,9 +83,9 @@ object Withdraw : AbstractPunishment() {
     override val description: String = "只撤回消息"
     override val rank: Int = 10
 
-    override suspend fun punish(msg: MessageEvent, reason: String) {
+    override suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule?) {
         msg.source.recall()
-        sendPunishmentMessage(msg, reason)
+        sendPunishmentMessage(msg, reason, rule)
     }
 }
 
@@ -93,8 +94,8 @@ object Noop : AbstractPunishment() {
     override val description: String = "只记录，不执行任何惩罚操作"
     override val rank: Int = 1
 
-    override suspend fun punish(msg: MessageEvent, reason: String) {
-        sendPunishmentMessage(msg, reason)
+    override suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule?) {
+        sendPunishmentMessage(msg, reason, rule)
     }
 }
 
@@ -103,8 +104,8 @@ object AtAdministrators : AbstractPunishment() {
     override val description: String = "只呼叫全体管理员进行处理"
     override val rank: Int = 5
 
-    override suspend fun punish(msg: MessageEvent, reason: String) {
-        sendPunishmentMessage(msg, reason) { builder ->
+    override suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule?) {
+        sendPunishmentMessage(msg, reason, rule) { builder ->
             builder.add("\n请管理员处理。（以下为按照本群规则设置的自动呼叫）")
         }
 
@@ -126,9 +127,9 @@ class Mute(private val minute: Int) : AbstractPunishment() {
     override val description: String = "禁言 $minute 分钟并撤回消息"
     override val rank: Int = minute + 1000
 
-    override suspend fun punish(msg: MessageEvent, reason: String) {
+    override suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule?) {
         msg.source.recall()
         (msg.sender as Member).mute(60 * minute)
-        sendPunishmentMessage(msg, reason)
+        sendPunishmentMessage(msg, reason, rule)
     }
 }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.MemberPermission
+import net.mamoe.mirai.contact.isOperator
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.MemberJoinEvent
 import net.mamoe.mirai.event.events.MemberJoinRequestEvent
@@ -21,6 +22,7 @@ import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.event.subscribeGroupMessages
 import net.mamoe.mirai.event.subscribeMessages
 import org.litote.kmongo.MongoOperator
+import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -28,6 +30,7 @@ object InspectorFeature : BotFeature {
     // Note: 犹豫要不要 @Synchronized，用了性能降低，不用可能发生设置不一致
     private val inspectorOptions: MutableMap<Long, InspectorInternalOptions> = ConcurrentHashMap()
     private val coroutines = Coroutines()
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun onEnable(bot: Bot) {
         runBlocking {
@@ -69,7 +72,7 @@ object InspectorFeature : BotFeature {
                 inspectorOptions[this.group.id]?.also { inspectorOptions ->
                     var isPunished = false
                     if (this.sender.id !in inspectorOptions.white &&
-                        this.sender.permission == MemberPermission.MEMBER &&
+                        !this.sender.permission.isOperator() &&
                         this.sender.id !in callBridge.config.bot.administratorIds
                     ) {
                         inspectorOptions.rules.map { (rule, punishment) ->
@@ -77,13 +80,15 @@ object InspectorFeature : BotFeature {
                                 rule.onMessage(this@always)
                             }, rule, punishment)
                         }.filter {
-                            kotlin.runCatching { it.result.await() }.getOrNull() == true
+                            kotlin.runCatching { it.result.await() }.onFailure { exception ->
+                                logger.warn("Inspector rule failed: ${it.rule.name}:${it.punishment.name} [Group ${this.group.id}]", exception)
+                            }.getOrNull() == true
                         }.maxByOrNull {
                             it.punishment
                         }.also {
                             if (it != null) {
                                 this@always.executeCatchingBusinessException {
-                                    it.punishment.punish(this@always, it.rule.punishReason)
+                                    it.punishment.punish(this@always, it.rule.punishReason, it.rule)
                                 }
                                 isPunished = true
                             }

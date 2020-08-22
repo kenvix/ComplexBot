@@ -7,7 +7,6 @@ import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.detector.Detector
 import com.kenvix.complexbot.feature.inspector.InspectorRule
 import com.kenvix.complexbot.feature.inspector.InspectorStatisticUtils
-import com.kenvix.complexbot.logger
 import com.kenvix.moecraftbot.ng.Defines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
@@ -17,10 +16,9 @@ import kotlinx.coroutines.withContext
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.Image
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.content
 import net.mamoe.mirai.message.data.queryUrl
 import okhttp3.Request
+import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 
@@ -30,6 +28,8 @@ object PhotoQrCodeAd : InspectorRule {
     override val version: Int = 1
     override val description: String = "二维码广告。（此策略较为粗糙，慎用）"
     override val punishReason: String = "疑似发送了不受欢迎的二维码广告。（此策略较为粗糙，若误报请说明）"
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val detectHints: Map<DecodeHintType, Any> = mapOf(
         DecodeHintType.TRY_HARDER to java.lang.Boolean.TRUE

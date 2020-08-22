@@ -18,7 +18,7 @@ val commandPrefix: Set<String> = Defines.systemOptions.bot.commandPrefix
 val commandPrefixLength = Defines.systemOptions.bot.commandPrefixLength
 val enabledFeatures = ArrayList<BotFeature>()
 lateinit var commands: HashMap<String, RegisteredBotCommand>
-val logger = LoggerFactory.getLogger("ComplexBot.ExtensionUtils")
+private val logger = LoggerFactory.getLogger("ComplexBot.ExtensionUtils")
 lateinit var callBridge: CallBridge
 
 fun MessagePacketSubscribersBuilder.command(command: String,
