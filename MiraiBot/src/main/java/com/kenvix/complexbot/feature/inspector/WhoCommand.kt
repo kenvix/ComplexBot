@@ -9,7 +9,7 @@ import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.PlainText
 
 object WhoCommand : BotCommandFeature {
-    override val description: String = "获取某人的加群信息和发言日志（后面跟要查询的QQ号或At某人）"
+    override val description: String = "获取某人的加群信息和发言日志（后面跟要查询的QQ号或At某人，例如.who 1145141919）"
 
     override suspend fun onMessage(msg: MessageEvent) {
         sendWhoIsMsg((msg.sender as Member).group.id, msg)
@@ -19,17 +19,15 @@ object WhoCommand : BotCommandFeature {
         msg.message.asSequence().also { msgSeq ->
             val stat = InspectorStatisticUtils.getStat(group)
 
-            msgSeq.filterIsInstance<At>().map {
+            (msgSeq.filterIsInstance<At>().map {
                 it.target
             } + msgSeq.filterIsInstance<PlainText>().joinToString(" ").run {
                 parseCommandFromMessage(this, true).arguments
             }.mapNotNull {
                 it.toLongOrNull()
+            }).ifEmpty {
+                sequenceOf(msg.sender.id)
             }.run {
-                ifEmpty {
-                    msg.reply("请指定一个查询目标。命令后面跟要查询的QQ号或At某人\n例如.who 1145141919")
-                }
-
                 val todayKey = InspectorStatisticUtils.todayKey
 
                 forEach { qq ->
@@ -50,7 +48,9 @@ object WhoCommand : BotCommandFeature {
                                 appendLine(speakStat.createdAt.format())
 
                                 appendLine("总发言数：${speakStat.countLegal} + ${speakStat.countIllegal} = ${speakStat.countTotal}")
-                                appendLine("今日发言数：${speakStat.counts[todayKey]}")
+                                appendLine("天数：${speakStat.counts.count()} | 今日发言：${speakStat.counts[todayKey] ?: 0}")
+                            } else {
+                                append("无发言信息统计")
                             }
 
                             if (joinStat != null) {
@@ -68,6 +68,8 @@ object WhoCommand : BotCommandFeature {
 
                                 append("加群备注：")
                                 appendLine(JoinStatus.valueOf(joinStat.note))
+                            } else {
+                                appendLine("无加群信息记录")
                             }
                         }
                     }.also { msg.reply(it.toString()) }

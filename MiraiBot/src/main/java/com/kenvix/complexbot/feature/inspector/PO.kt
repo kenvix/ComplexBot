@@ -49,5 +49,7 @@ data class JoinStatistic(
     val requestedAt: Date = Date(),
     var handledAt: Date? = null,
     var status: Int = 0,
-    val note: String = ""
+    val note: String = "",
+    val inviterId: Long = 0,
+    val inviterName: String? = null,
 )

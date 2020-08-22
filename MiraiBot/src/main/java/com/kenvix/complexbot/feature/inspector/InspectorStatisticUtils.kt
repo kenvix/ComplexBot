@@ -70,53 +70,52 @@ object InspectorStatisticUtils : Cached {
         }
     }
 
-    suspend fun updateMemberJoinStatus(qq: Long, group: Long, status: Int) {
-        getStat(group).run {
-            statCache[group]!!.also { statIdMapValue ->
-                statIdMapValue.joins[qq]?.status = status
+    suspend fun updateMemberJoinStatus(qq: Long, group: Long, status: Int, handledAt: Date? = null) {
+        getStat(group).also { statIdMapValue ->
+            statIdMapValue.joins[qq]?.apply {
+                this.status = status
+                this.handledAt = handledAt
             }
         }
     }
 
     suspend fun addMemberCountStat(member: Member, isIllegal: Boolean = false) {
         getStat(member.group.id).run {
-            statCache[member.group.id]!!.also { statIdMapValue ->
-                val today = todayKey
+            val today = todayKey
 
-                this.stats[member.id].also { userStatistic ->
-                    if (userStatistic == null) {
-                        this.stats[member.id] = UserStatistic(
-                            member.id,
-                            member.nick,
-                            member.nameCard,
-                            if (isIllegal) 1 else 0
-                        )
-                    } else {
-                        userStatistic.countTotal++
-                        if (isIllegal)
-                            userStatistic.countIllegal++
+            this.stats[member.id].also { userStatistic ->
+                if (userStatistic == null) {
+                    this.stats[member.id] = UserStatistic(
+                        member.id,
+                        member.nick,
+                        member.nameCard,
+                        if (isIllegal) 1 else 0
+                    )
+                } else {
+                    userStatistic.countTotal++
+                    if (isIllegal)
+                        userStatistic.countIllegal++
 
-                        if (userStatistic.name != member.nick)
-                            userStatistic.name = member.nick
+                    if (userStatistic.name != member.nick)
+                        userStatistic.name = member.nick
 
-                        if (userStatistic.cardName != member.nameCard)
-                            userStatistic.cardName = member.nameCard
+                    if (userStatistic.cardName != member.nameCard)
+                        userStatistic.cardName = member.nameCard
 
-                        userStatistic.counts[today].also {
-                            if (it == null) {
-                                userStatistic.counts[today] = 1
+                    userStatistic.counts[today].also {
+                        if (it == null) {
+                            userStatistic.counts[today] = 1
 
-                                if (userStatistic.counts.size > MaxRecordedStatDays) {
-                                    userStatistic.counts
-                                        .minByOrNull { entry -> entry.key }
-                                        .also { entry ->
-                                            if (entry != null)
-                                                userStatistic.counts.remove(entry.key)
-                                        }
-                                }
-                            } else {
-                                userStatistic.counts[today] = it + 1
+                            if (userStatistic.counts.size > MaxRecordedStatDays) {
+                                userStatistic.counts
+                                    .minByOrNull { entry -> entry.key }
+                                    .also { entry ->
+                                        if (entry != null)
+                                            userStatistic.counts.remove(entry.key)
+                                    }
                             }
+                        } else {
+                            userStatistic.counts[today] = it + 1
                         }
                     }
                 }

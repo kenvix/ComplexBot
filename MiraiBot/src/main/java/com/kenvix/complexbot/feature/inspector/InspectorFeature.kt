@@ -48,7 +48,7 @@ object InspectorFeature : BotFeature {
         bot.subscribeAlways<MemberJoinEvent> {
             inspectorOptions[this.group.id]?.also {
                 logger.debug("Inspected member join accepted:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
-                InspectorStatisticUtils.updateMemberJoinStatus(member.id, group.id, JoinStatus.Accepted.statusId)
+                InspectorStatisticUtils.updateMemberJoinStatus(member.id, group.id, JoinStatus.Accepted.statusId, Date())
             }
         }
 
