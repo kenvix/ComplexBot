@@ -5,6 +5,7 @@ import com.kenvix.complexbot.*
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
 import com.kenvix.moecraftbot.ng.Defines
+import com.kenvix.moecraftbot.ng.lib.asFlow
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -22,6 +23,7 @@ import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.event.subscribeGroupMessages
 import net.mamoe.mirai.event.subscribeMessages
 import org.litote.kmongo.MongoOperator
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -75,21 +77,25 @@ object InspectorFeature : BotFeature {
                         !this.sender.permission.isOperator() &&
                         this.sender.id !in callBridge.config.bot.administratorIds
                     ) {
-                        inspectorOptions.rules.map { (rule, punishment) ->
-                            RuleResult(coroutines.ioScope.async {
-                                rule.onMessage(this@always)
-                            }, rule, punishment)
-                        }.filter {
-                            kotlin.runCatching { it.result.await() }.onFailure { exception ->
-                                logger.warn("Inspector rule failed: ${it.rule.name}:${it.punishment.name} [Group ${this.group.id}]", exception)
-                            }.getOrNull() == true
-                        }.maxByOrNull {
-                            it.punishment
-                        }.also {
+                        inspectorOptions.rules.asFlow().map { (rule, punishment) ->
+                            kotlin.runCatching {
+                                RuleResult(rule.onMessage(this@always), rule, punishment)
+                            }.onFailure { exception ->
+                                logger.warn("Inspector rule failed: ${rule.name}:${punishment.name} [Group ${this.group.id}]", exception)
+                            }.getOrNull()
+                        }.filterNotNull().filter {
+                            it.result
+                        }.run {
+                            if (count() > 1)
+                                toList().maxByOrNull { it.punishment.rank }
+                            else
+                                first()
+                        }.also { //TODO
                             if (it != null) {
                                 this@always.executeCatchingBusinessException {
                                     it.punishment.punish(this@always, it.rule.punishReason, it.rule)
                                 }
+
                                 isPunished = true
                             }
                         }
@@ -110,22 +116,24 @@ object InspectorFeature : BotFeature {
     }
 
     private data class RuleResult(
-            val result: Deferred<Boolean>,
+            val result: Boolean,
             val rule: InspectorRule,
-            val punishment: AbstractPunishment
+            val punishment: Punishment
     )
 
     private data class InspectorInternalOptions(
             val options: InspectorOptions,
-            val rules: Map<InspectorRule, AbstractPunishment>
+            val rules: Map<InspectorRule, Punishment>
     ) {
         val white: Set<Long>
             get() = options.white
 
-        constructor(options: InspectorOptions): this(options, options.rules.filter { entry ->
+        constructor(options: InspectorOptions): this(options, options.rules.asSequence().filter { entry ->
             entry.key in inspectorRules && entry.value in punishments
         }.map { entry ->
             (inspectorRules[entry.key] ?: error("")) to (punishments[entry.value] ?: error(""))
+        }.sortedBy {
+            it.second.rank
         }.toMap())
     }
 }

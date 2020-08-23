@@ -29,7 +29,7 @@ val punishments = createNamedElementsMap(
     Mute(43199),
     Noop)
 
-interface Punishment {
+interface Punishment : Named, Comparable<Punishment>, Logging {
     val description: String
     val rank: Int
     /**
@@ -39,7 +39,7 @@ interface Punishment {
     suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule? = null)
 }
 
-abstract class AbstractPunishment : Named, Punishment, Logging, Comparable<AbstractPunishment> {
+abstract class AbstractPunishment : Punishment {
 
     override fun getLogTag(): String = "Punishment.$name"
 
@@ -61,7 +61,7 @@ abstract class AbstractPunishment : Named, Punishment, Logging, Comparable<Abstr
         return "Punishment($name: $description) Lv.$rank"
     }
 
-    override fun compareTo(other: AbstractPunishment): Int {
+    override fun compareTo(other: Punishment): Int {
         return this.rank.compareTo(other.rank)
     }
 }

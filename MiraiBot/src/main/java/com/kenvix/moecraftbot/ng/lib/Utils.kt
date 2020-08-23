@@ -3,6 +3,8 @@ package com.kenvix.moecraftbot.ng.lib
 
 import com.google.common.cache.CacheLoader
 import com.kenvix.complexbot.GroupOptions
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.text.SimpleDateFormat
@@ -225,4 +227,13 @@ inline fun <reified E: Enum<E>> E.next(): E {
     val values = enumValues<E>()
     val nextOrdinal = (ordinal + 1) % values.size
     return values[nextOrdinal]
+}
+
+/**
+ * Creates a [Flow] instance that wraps the original map returning its entries when being iterated.
+ */
+fun <K, V> Map<out K, V>.asFlow(): Flow<Map.Entry<K, V>> = flow {
+    forEach {
+        emit(it)
+    }
 }

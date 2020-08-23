@@ -1,9 +1,11 @@
 import com.kenvix.complexbot.ComplexBotDriver
+import com.kenvix.moecraftbot.ng.lib.asFlow
 import com.kenvix.utils.tools.CommonTools
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Unconfined
+import kotlinx.coroutines.flow.asFlow
 import org.junit.Test
 import java.io.IOException
 
@@ -17,7 +19,9 @@ import java.io.IOException
 class ComplexBotTest {
     @Test
     fun initTest() {
-
+        mapOf<Any, Any>().asSequence()
+        mapOf<Any, Any>().asFlow()
+        listOf<Any>().asFlow()
     }
 
     @Test

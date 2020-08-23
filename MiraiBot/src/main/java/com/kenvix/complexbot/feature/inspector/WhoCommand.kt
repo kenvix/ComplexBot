@@ -28,7 +28,6 @@ object WhoCommand : BotCommandFeature {
             }).ifEmpty {
                 sequenceOf(msg.sender.id)
             }.run {
-                val todayKey = InspectorStatisticUtils.todayKey
 
                 forEach { qq ->
                     StringBuilder().apply {
@@ -48,7 +47,12 @@ object WhoCommand : BotCommandFeature {
                                 appendLine(speakStat.createdAt.format())
 
                                 appendLine("总发言数：${speakStat.countLegal} + ${speakStat.countIllegal} = ${speakStat.countTotal}")
-                                appendLine("天数：${speakStat.counts.count()} | 今日发言：${speakStat.counts[todayKey] ?: 0}")
+                                append("从七天前到今日发言：")
+                                speakStat.counts.forEach { speak ->
+                                    append(speak.value)
+                                    append(", ")
+                                }
+                                appendLine()
                             } else {
                                 append("无发言信息统计")
                             }
