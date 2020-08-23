@@ -83,14 +83,9 @@ object InspectorFeature : BotFeature {
                             }.onFailure { exception ->
                                 logger.warn("Inspector rule failed: ${rule.name}:${punishment.name} [Group ${this.group.id}]", exception)
                             }.getOrNull()
-                        }.filterNotNull().filter {
-                            it.result
-                        }.run {
-                            if (count() > 1)
-                                toList().maxByOrNull { it.punishment.rank }
-                            else
-                                first()
-                        }.also { //TODO
+                        }.filter {
+                            it != null && it.result
+                        }.take(1).collect {
                             if (it != null) {
                                 this@always.executeCatchingBusinessException {
                                     it.punishment.punish(this@always, it.rule.punishReason, it.rule)

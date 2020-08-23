@@ -16,8 +16,8 @@ object LifePredictorCommand : BotCommandFeature {
     private val offsetStrHash = offsetStr.hashCode()
     
     private val starGods = arrayOf("天刑", "朱雀", "金匮", "天德", "白虎", "玉堂", "截路空亡", "截路", "司命", "勾陈", "青龙", "明堂")
-    private val fiveElements = arrayOf("涧下水", "涧下水", "城头土", "城头土", "白腊金", "白腊金", "杨柳木", "杨柳木", "井泉水", "井泉水", "房上土", "房上土")
-    private val shaFangs = arrayOf("煞南", "煞东", "煞北", "煞西", "煞南", "煞东", "煞北", "煞西", "煞南", "煞东", "煞北", "煞西")
+    private val fiveElements = arrayOf("涧下水", "城头土", "白腊金", "杨柳木", "井泉水", "房上土")
+    private val shaFangs = arrayOf("煞南", "煞东", "煞北", "煞西")
     private val goodGods = arrayOf("贵人 喜神", "帝旺 金匮 福德", "三合 大进 日禄 宝光", "天福 五合",
             "玉堂 驿马 少微", "六合 长生", "右弼", "罗纹 交贵", "比肩 中兵", "喜神 青龙", "三合 福星 明堂 国印")
     private val badGods = arrayOf("天兵 天刑", "日破 日刑 朱雀", "六戊", "白虎 地兵 旬空", "不遇", "狗食 路空",
