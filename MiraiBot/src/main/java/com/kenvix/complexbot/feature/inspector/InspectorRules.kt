@@ -7,6 +7,8 @@ val inspectorRules = createNamedElementsMap(
         DocumentAd,
         PhotoQrCodeAd,
         PSSisterAd,
+        FraudAd,
+        SellAd,
         UselessApp,
         DebugRule
 )

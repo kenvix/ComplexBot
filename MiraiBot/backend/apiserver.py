@@ -8,10 +8,13 @@ from PIL import Image
 from thrift.server import TNonblockingServer
 from thrift.transport import TSocket
 
+from backend.ttypes import TextClassificationResult, RPCException
 from backend import BackendBridge
 from captchabreaker.modelv2 import CaptchaNN
 from captchabreaker.utils import CaptchaBreaker
 from adfilter.model import AdPredictor
+
+import traceback
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s][%(levelname)s][%(threadName)-10s] %(message)s')
 
@@ -21,17 +24,30 @@ class APITransmitHandler(BackendBridge.Iface):
         self.captchaBreaker = captchaBreaker
         self.adPredictor = adPredictor
 
-    def parseCaptchaFromFile(self, path) -> str:
-        logging.debug("Received file request: %s" % path)
-        img = Image.open(path)
-        predict = self.captchaBreaker.predict(img)
-        return predict
+    def parseCaptchaFromFile(self, path):
+        try:
+            logging.debug("Received file request: %s" % path)
+            img = Image.open(path)
+            predict = self.captchaBreaker.predict(img)
+            return predict
+        except Exception as e:
+            traceback.print_exc()
+            raise RPCException(message=str(e), name=type(e).__name__)
 
-    def parseCaptchaFromBinary(self, data) -> str:
-        return self.captchaBreaker.predict(Image.frombytes('RGB', (224, 224), data, 'jpeg'))
+    def parseCaptchaFromBinary(self, data):
+        try:
+            return self.captchaBreaker.predict(Image.frombytes('RGB', (224, 224), data, 'jpeg'))
+        except Exception as e:
+            traceback.print_exc()
+            raise RPCException(message=str(e), name=type(e).__name__)
 
     def classificateTextMessage(self, text):
-        return self.adPredictor.predict_ad(text)
+        try:
+            p = self.adPredictor.predict_ad(text)
+            return TextClassificationResult(p[0], p[1])
+        except Exception as e:
+            traceback.print_exc()
+            raise RPCException(message=str(e), name=type(e).__name__)
 
     def ping(self, data):
         return data
@@ -40,10 +56,10 @@ class APITransmitHandler(BackendBridge.Iface):
         return "NotImplemented"
 
     def getAboutInfo(self):
-        return "PyBotBackend v0.1 @ Python " + python_version()
+        return "PyBotBackend v0.5 @ Python " + python_version()
 
     def getBackendVersionCode(self):
-        return 1
+        return 3
 
 
 class APIServer:

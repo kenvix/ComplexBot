@@ -1,13 +1,6 @@
 package com.kenvix.complexbot.feature.inspector.rule
 
-import com.kenvix.complexbot.callBridge
 import com.kenvix.complexbot.feature.inspector.InspectorRule
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import net.mamoe.mirai.contact.Member
-import net.mamoe.mirai.contact.nameCardOrNick
-import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.content
 
 object PSSisterAd : InspectorRule.Placeholder {
     override val name: String = "pssisterad"

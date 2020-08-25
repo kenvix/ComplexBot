@@ -100,10 +100,11 @@ object InspectorCommand : BotCommandFeature, Logging {
         helpString.appendLine("示例：删除规则：.inspector del photoqrad")
         helpString.appendLine("示例：添加用户白名单：.inspector white 1234567890")
         helpString.appendLine("示例：取消用户白名单：.inspector black 1234567890")
-        helpString.appendLine("===========================")
+        helpString.appendLine("==============")
 
         helpString.appendLine("已安装下列消息过滤规则：规则名 帮助")
         inspectorRules.forEach { (t, u) -> helpString.appendLine("$t  ${u.description}") }
+        helpString.appendLine("==============")
         helpString.appendLine("已安装下列惩罚规则：规则名 帮助")
         punishments.forEach { (t, u) -> helpString.appendLine("$t  ${u.description}") }
 
@@ -127,12 +128,12 @@ object InspectorCommand : BotCommandFeature, Logging {
                 helpString.append("但Bot没有管理员权限，无法执行任何惩罚")
         }
 
-        helpString.appendLine("===========================")
+        helpString.appendLine("==============")
         helpString.appendLine("本群 (${group.id}) 白名单列表：")
         options.white.forEach { helpString.appendLine(it) }
-        helpString.appendLine("===========================")
+        helpString.appendLine("==============")
         helpString.appendLine("本群 (${group.id}) 已启用以下过滤规则及惩罚：")
-        options.rules.forEach { (t, u) -> helpString.appendLine("$t  ${u}") }
+        options.rules.forEach { (t, u) -> helpString.appendLine("$t : $u") }
 
         group.sendMessage(helpString.toString())
     }

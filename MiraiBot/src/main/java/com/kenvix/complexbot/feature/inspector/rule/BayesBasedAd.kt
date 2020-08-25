@@ -22,7 +22,9 @@ object BayesBasedAd : InspectorRule.Actual {
     override val description: String = "内部使用。基于贝叶斯分类模块的广告"
     override val punishReason: String = ""
 
-    val blackKeywords = "资料|学习墙|学姐|学习群|PS|免费领|兼职|招聘|网络|QQ|招聘|有意者|到货|本店|代购|扣扣|客服|微店|兼" +
+    const val MinProba = 0.62
+
+    const val BlackKeywords = "资料|学习墙|学姐|学习群|PS|免费领|兼职|招聘|网络|QQ|招聘|有意者|到货|本店|代购|扣扣|客服|微店|兼" +
             "职|兼值|淘宝|小姐|妓女|包夜|狼友|技师|推油|胸推|毒龙|口爆|楼凤|足交|口暴|口交|桑拿|吞精|咪咪|婊子|乳方|操逼|全职|" +
             "性伴侣|网购|网络工作|代理|专业|帮忙点一下|帮忙点下|请点击进入|详情请进入|私人侦探|私家侦探|针孔摄象|调查婚外情|信用卡提现" +
             "|无抵押贷款|广告代理|原音铃声|借腹生子|代孕|代生孩子|代开发票|腾讯客服电话|销售热线|免费订购热线|低价出" +
@@ -31,19 +33,24 @@ object BayesBasedAd : InspectorRule.Actual {
             "|阿波罗网|六合彩|替考试|出售|答案|救市|股市|圈钱|崩盘|资金|证监会|贷款|秋招|招聘|训练营|首冲|手冲|上线"
 
     val requiredMatchPattern = Trie.builder()
-        .addKeywords(blackKeywords.split('|'))
+        .addKeywords(BlackKeywords.split('|'))
         .stopOnHit()
         .build()
 
     override suspend fun onMessage(msg: MessageEvent, relatedPlaceholders: List<InspectorRule.Placeholder>): InspectorRule? = withContext(Dispatchers.IO) {
-        val sender = msg.sender as Member
         msg.message.content.let { text ->
             if (requiredMatchPattern.containsMatch(text)) {
-                when (callBridge.backendClient.classificateTextMessage(msg.sender.nameCardOrNick + " " + text)) {
-                    "pssisterad" -> PSSisterAd
-                    "fraudad" -> FraudAd
-                    "sellad" -> SellAd
-                    else -> null
+                val result = callBridge.backendClient.classificateTextMessage(text)
+
+                if (result.proba >= MinProba) {
+                    when (result.name) {
+                        "pssisterad" -> PSSisterAd
+                        "fraudad" -> FraudAd
+                        "sellad" -> SellAd
+                        else -> null
+                    }
+                } else {
+                    null
                 }
             } else {
                 null
