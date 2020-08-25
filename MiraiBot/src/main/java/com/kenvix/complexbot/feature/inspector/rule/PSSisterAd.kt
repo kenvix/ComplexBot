@@ -4,6 +4,7 @@ import com.kenvix.complexbot.callBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.mamoe.mirai.contact.Member
+import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.content
 
@@ -17,7 +18,7 @@ object PSSisterAd : AbstractBayesBackendAd() {
         val sender = msg.sender as Member
         msg.message.content.let { text ->
             if (requiredMatchPattern.containsMatch(text)) {
-                when (callBridge.backendClient.classificateTextMessage(text)) {
+                when (callBridge.backendClient.classificateTextMessage(msg.sender.nameCardOrNick + " " + text)) {
                     "pssisterad" -> true
                     "fraudad" -> true
                     "sellad" -> true

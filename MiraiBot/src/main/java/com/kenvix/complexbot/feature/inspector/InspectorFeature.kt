@@ -4,16 +4,14 @@ import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.*
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
-import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.asFlow
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
-import net.mamoe.mirai.contact.MemberPermission
 import net.mamoe.mirai.contact.isOperator
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.MemberJoinEvent
@@ -22,10 +20,7 @@ import net.mamoe.mirai.event.events.MemberLeaveEvent
 import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.event.subscribeGroupMessages
 import net.mamoe.mirai.event.subscribeMessages
-import org.litote.kmongo.MongoOperator
-import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 object InspectorFeature : BotFeature {
@@ -81,7 +76,8 @@ object InspectorFeature : BotFeature {
                             kotlin.runCatching {
                                 RuleResult(rule.onMessage(this@always), rule, punishment)
                             }.onFailure { exception ->
-                                logger.warn("Inspector rule failed: ${rule.name}:${punishment.name} [Group ${this.group.id}]", exception)
+                                if (exception !is CancellationException && exception.cause == null)
+                                    logger.warn("Inspector rule failed: ${rule.name}:${punishment.name} [Group ${this.group.id}(${group.name})]", exception)
                             }.getOrNull()
                         }.filter {
                             it != null && it.result

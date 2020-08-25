@@ -64,14 +64,16 @@ object PhotoQrCodeAd : InspectorRule {
         val request = downloadCallOf(url)
         logger.trace("Trying to detect QRCode AD form url $url")
 
-        request.execute().body?.run imageReq@ {
-            val bufferedImage = ImageIO.read(this@imageReq.byteStream())
+        request.execute().use { response ->
+            response.body?.run imageReq@ {
+                val bufferedImage = ImageIO.read(this@imageReq.byteStream())
 
-            if (bufferedImage != null)
-                detectQRCode(bufferedImage) || detectQRCode(bufferedImage.flip())
-            else
-                false
-        } ?: false
+                if (bufferedImage != null)
+                    detectQRCode(bufferedImage) || detectQRCode(bufferedImage.flip())
+                else
+                    false
+            } ?: false
+        }
     }
 
     private suspend fun detectQRCode(bufferedImage: BufferedImage) = withContext(Dispatchers.IO) {
