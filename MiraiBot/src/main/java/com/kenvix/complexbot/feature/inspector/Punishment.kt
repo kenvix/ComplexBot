@@ -133,3 +133,13 @@ class Mute(private val minute: Int) : AbstractPunishment() {
         sendPunishmentMessage(msg, reason, rule)
     }
 }
+
+object PlaceholderPunishment : AbstractPunishment() {
+    override val description: String = "placeholder"
+    override val rank: Int = 0
+    override val name: String = "placeholder"
+
+    override suspend fun punish(msg: MessageEvent, reason: String, rule: InspectorRule?) {
+        throw IllegalAccessError("A placeholder punishment should not be called")
+    }
+}

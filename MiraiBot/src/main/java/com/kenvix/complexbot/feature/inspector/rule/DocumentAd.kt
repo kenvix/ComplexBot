@@ -9,8 +9,9 @@ import net.mamoe.mirai.message.data.RichMessage
 import net.mamoe.mirai.message.data.firstIsInstanceOrNull
 import org.ahocorasick.trie.Trie
 
-object DocumentAd : InspectorRule {
+object DocumentAd : InspectorRule.Actual {
     override val name: String = "documentad"
+
     override val version: Int = 1
     override val description: String = "基于腾讯文档的盗号诈骗消息"
     override val punishReason: String = "疑似被盗号并利用腾讯文档发送了诈骗消息，请勿相信"
@@ -29,7 +30,14 @@ object DocumentAd : InspectorRule {
         .stopOnHit()
         .build()
 
-    override suspend fun onMessage(msg: MessageEvent): Boolean {
+    override suspend fun onMessage(
+        msg: MessageEvent,
+        relatedPlaceholders: List<InspectorRule.Placeholder>
+    ): InspectorRule? {
+        return if (check(msg)) this else null
+    }
+
+    private suspend fun check(msg: MessageEvent): Boolean {
         return msg.message.firstIsInstanceOrNull<RichMessage>()?.let { appMessage ->
             val content = appMessage.content
             content.indexOf("title").let {  beginPos ->

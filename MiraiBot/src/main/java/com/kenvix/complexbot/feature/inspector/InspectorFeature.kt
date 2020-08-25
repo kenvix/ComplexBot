@@ -6,10 +6,7 @@ import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
 import com.kenvix.moecraftbot.ng.lib.asFlow
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.isOperator
@@ -72,19 +69,25 @@ object InspectorFeature : BotFeature {
                         !this.sender.permission.isOperator() &&
                         this.sender.id !in callBridge.config.bot.administratorIds
                     ) {
-                        inspectorOptions.rules.asFlow().map { (rule, punishment) ->
+                        inspectorOptions.actualRules.asFlow().map { (rule, placeHolders) ->
                             kotlin.runCatching {
-                                RuleResult(rule.onMessage(this@always), rule, punishment)
+                                val ruleResult = rule.onMessage(this@always, placeHolders)
+                                RuleResult(ruleResult, ruleResult?.let {
+                                    if (inspectorOptions.rules[it] != null)
+                                        inspectorOptions.rules[it]
+                                    else
+                                        null
+                                })
                             }.onFailure { exception ->
                                 if (exception !is CancellationException && exception.cause == null)
-                                    logger.warn("Inspector rule failed: ${rule.name}:${punishment.name} [Group ${this.group.id}(${group.name})]", exception)
+                                    logger.warn("Inspector rule failed: ${rule.name} [Group ${this.group.id}(${group.name})]", exception)
                             }.getOrNull()
                         }.filter {
-                            it != null && it.result
+                            it?.rule != null
                         }.take(1).collect {
                             if (it != null) {
                                 this@always.executeCatchingBusinessException {
-                                    it.punishment.punish(this@always, it.rule.punishReason, it.rule)
+                                    it.punishment?.punish(this@always, it.rule!!.punishReason, it.rule)
                                 }
 
                                 isPunished = true
@@ -107,9 +110,8 @@ object InspectorFeature : BotFeature {
     }
 
     private data class RuleResult(
-            val result: Boolean,
-            val rule: InspectorRule,
-            val punishment: Punishment
+            val rule: InspectorRule?,
+            val punishment: Punishment?
     )
 
     private data class InspectorInternalOptions(
@@ -119,10 +121,25 @@ object InspectorFeature : BotFeature {
         val white: Set<Long>
             get() = options.white
 
-        constructor(options: InspectorOptions): this(options, options.rules.asSequence().filter { entry ->
+        val actualRules by lazy {
+            rules.asSequence().filter {
+                it.key is InspectorRule.Placeholder
+            }.groupBy(keySelector = {
+                (it.key as InspectorRule.Placeholder).actualRule
+            }, valueTransform = {
+                it.key as InspectorRule.Placeholder
+            }) + rules.asSequence().filter {
+                it.key is InspectorRule.Actual
+            }.map {
+                it.key as InspectorRule.Actual to emptyList<InspectorRule.Placeholder>()
+            }.toMap()
+        }
+
+        constructor(options: InspectorOptions) : this(options, options.rules.asSequence().filter { entry ->
             entry.key in inspectorRules && entry.value in punishments
         }.map { entry ->
-            (inspectorRules[entry.key] ?: error("")) to (punishments[entry.value] ?: error(""))
+            (inspectorRules[entry.key] ?: error("Rule not found ${entry.key}")) to
+                    ((punishments[entry.value] ?: error("Punishment not found: ${entry.value}")))
         }.sortedBy {
             it.second.rank
         }.toMap())

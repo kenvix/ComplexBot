@@ -7,7 +7,7 @@ import net.mamoe.mirai.message.data.RichMessage
 import net.mamoe.mirai.message.data.firstIsInstanceOrNull
 import org.ahocorasick.trie.Trie
 
-object UselessApp : InspectorRule {
+object UselessApp : InspectorRule.Actual {
     override val version: Int = 1
     override val description: String = "无用QQ小程序"
     override val punishReason: String = "请勿分享无用QQ小程序"
@@ -29,21 +29,23 @@ object UselessApp : InspectorRule {
         .stopOnHit()
         .build()
 
-    override suspend fun onMessage(msg: MessageEvent): Boolean {
-        return msg.message.firstIsInstanceOrNull<RichMessage>()?.let { appMessage ->
-            val content = appMessage.content.trim()
-            if (searchBeginPattern.containsMatch(content)) {
-                content.indexOf("title").let {  beginPos ->
-                    if (beginPos > 0)
-                        !whiteMatchPattern.containsMatch(content.substring(beginPos, beginPos.run {
-                            if (content.length > beginPos + 16) beginPos + 16 else content.length
-                        }))
-                    else
-                        false
+    override suspend fun onMessage(msg: MessageEvent, relatedPlaceholders: List<InspectorRule.Placeholder>): InspectorRule? {
+        return if (
+            msg.message.firstIsInstanceOrNull<RichMessage>()?.let { appMessage ->
+                val content = appMessage.content.trim()
+                if (searchBeginPattern.containsMatch(content)) {
+                    content.indexOf("title").let {  beginPos ->
+                        if (beginPos > 0)
+                            !whiteMatchPattern.containsMatch(content.substring(beginPos, beginPos.run {
+                                if (content.length > beginPos + 16) beginPos + 16 else content.length
+                            }))
+                        else
+                            false
+                    }
+                } else {
+                    false
                 }
-            } else {
-                false
-            }
-        } ?: false
+            } == true
+        ) this else null
     }
 }

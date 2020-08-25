@@ -25,7 +25,8 @@ class AdModelTrainer:
         for i in range(1, len(AdPredictor.Types)):
             name = AdPredictor.Types[i]
             allAdText = open(r"./data/data-%s.txt" % name, 'r', encoding='utf-8').read()
-            self.dataset[i] = allAdText.split('\n\n')
+            self.dataset[i] = allAdText.replace('\r\n', '\n').split('\n\n')
+
 
     def generate_matrix(self):
         self.predictor = AdPredictor()

@@ -23,8 +23,16 @@ import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 
 
-object PhotoQrCodeAd : InspectorRule {
+object PhotoQrCodeAd : InspectorRule.Actual {
     override val name: String = "photoqrcodead"
+
+    override suspend fun onMessage(
+        msg: MessageEvent,
+        relatedPlaceholders: List<InspectorRule.Placeholder>
+    ): InspectorRule? {
+        return if (check(msg)) this else null
+    }
+
     override val version: Int = 1
     override val description: String = "二维码广告。（此策略较为粗糙，慎用）"
     override val punishReason: String = "疑似发送了不受欢迎的二维码广告。（此策略较为粗糙，若误报请说明）"
@@ -36,7 +44,7 @@ object PhotoQrCodeAd : InspectorRule {
     )
 
     @Suppress("SimplifyBooleanWithConstants")
-    override suspend fun onMessage(msg: MessageEvent): Boolean {
+    private suspend fun check(msg: MessageEvent): Boolean {
         val sender = msg.sender as Member
         val images = msg.message.filterIsInstance<Image>()
 

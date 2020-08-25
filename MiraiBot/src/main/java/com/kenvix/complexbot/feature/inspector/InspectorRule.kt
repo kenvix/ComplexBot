@@ -15,11 +15,17 @@ interface InspectorRule : Named {
     val description: String
     val punishReason: String
 
-    /**
-     * On message
-     * @return boolean Is rule matched and should punish sender
-     * @throws Exception Once a exception was thrown, will NOT punish
-     */
-    @Throws(Exception::class)
-    suspend fun onMessage(msg: MessageEvent): Boolean
+    interface Actual : InspectorRule {
+        /**
+         * On message
+         * @return A not null result stands for a certain rule matched and should punish sender
+         * @throws Exception Once a exception was thrown, will NOT punish and log it
+         */
+        @Throws(Exception::class)
+        suspend fun onMessage(msg: MessageEvent, relatedPlaceholders: List<Placeholder> = emptyList()): InspectorRule?
+    }
+
+    interface Placeholder : InspectorRule {
+        val actualRule: Actual
+    }
 }
