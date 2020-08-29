@@ -37,7 +37,10 @@ object BayesBasedAd : InspectorRule.Actual {
         .stopOnHit()
         .build()
 
-    override suspend fun onMessage(msg: MessageEvent, relatedPlaceholders: List<InspectorRule.Placeholder>): InspectorRule? = withContext(Dispatchers.IO) {
+    override suspend fun onMessage(
+        msg: MessageEvent,
+        relatedPlaceholders: List<InspectorRule.Placeholder>
+    ): InspectorRule? = withContext(Dispatchers.IO) {
         msg.message.content.let { text ->
             if (requiredMatchPattern.containsMatch(text)) {
                 val result = callBridge.backendClient.classificateTextMessage(text)
