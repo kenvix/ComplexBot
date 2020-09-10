@@ -53,7 +53,7 @@ object PhotoQrCodeAd : InspectorRule.Actual {
 
             if (stat == null ||
                 stat.countLegal <= 8L ||
-                (stat.countIllegal >= 4L && stat.counts[InspectorStatisticUtils.todayKey] ?: 0 <= 1)
+                (stat.countIllegal >= 4L && stat.counts[InspectorStatisticUtils.todayKey] ?: 0 <= 2)
             ) { //Assume ad sender has low activity
                 return images.asFlow().map {
                     detectImage(it)

@@ -1,20 +1,15 @@
 package com.kenvix.moecraftbot.ng.lib
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.kenvix.android.utils.Coroutines
 import org.apache.thrift.TServiceClient
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.protocol.TProtocol
-import org.apache.thrift.transport.TFramedTransport
-import org.apache.thrift.transport.TNonblockingServerSocket
-import org.apache.thrift.transport.TNonblockingSocket
-import org.apache.thrift.transport.TSocket
 import org.newsclub.net.unix.AFUNIXSocket
 import org.newsclub.net.unix.AFUNIXSocketAddress
 import org.slf4j.Logger
 import com.kenvix.utils.exception.NotSupportedException
+import kotlinx.coroutines.*
+import org.apache.thrift.transport.*
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.File
@@ -45,21 +40,23 @@ class BackendConnector <T: TServiceClient> (
     lateinit var client: T
         private set
 
-    private lateinit var socket: Closeable
+    private lateinit var transportSocket: TTransport
+    private lateinit var socket: TTransport
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+    private val coroutine = Coroutines()
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun connect() = withContext(Dispatchers.IO) {
+    suspend fun connect(keepSocketAlive: Boolean = true) = withContext(Dispatchers.IO) {
         logger.info("Connecting to backend on $backendHost:$backendPort")
 
         socket = if (backendHost.startsWith("unix:")) {
             // Unstable, test only.
             logger.warn("Unix socket backend is used for test only.")
 
-            AFUNIXSocket.newInstance().apply {
+            TSocket(AFUNIXSocket.newInstance().apply {
                 soTimeout = readTimeout
                 connect(AFUNIXSocketAddress(File(backendHost.substring("unix:".length))), connectTimeout)
-            }
+            })
         } else {
 //            Socket(backendHost, backendPort).apply {
 //                soTimeout = readTimeout
@@ -76,7 +73,7 @@ class BackendConnector <T: TServiceClient> (
 //            }
         }
 
-        val transportSocket = socket.let {
+        transportSocket = socket.let {
             when (it) {
                 is TSocket -> it
                 is Socket -> TSocket(it)
@@ -85,6 +82,7 @@ class BackendConnector <T: TServiceClient> (
                 else -> throw IllegalArgumentException("Unknown socket type")
             }
         }
+
 
         val transport = TFramedTransport(transportSocket)
         val protocol = TBinaryProtocol(transport)
@@ -101,7 +99,31 @@ class BackendConnector <T: TServiceClient> (
                 throw e
         }
 
+        if (keepSocketAlive && socket is Socket)
+            keepSocketAlive()
+
         client
+    }
+
+    private fun keepSocketAlive() {
+        coroutine.ioScope.launch {
+            while (isActive) {
+                if (transportSocket.isOpen) {
+                    delay(300)
+                } else {
+                    try {
+                        logger.warn("Connection to backend lost, reconnecting ...")
+                        connect(true)
+                        delay(100)
+
+                        break
+                    } catch (e: Exception) {
+                        logger.error("Reconnection failed, retrying after 3s ...", e)
+                        delay(3000)
+                    }
+                }
+            }
+        }
     }
 
     override fun close() {
@@ -128,6 +150,7 @@ class BackendConnector <T: TServiceClient> (
 
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun closeAndWait() = withContext(Dispatchers.IO) {
+        coroutine.close()
         socket.close()
     }
 }
