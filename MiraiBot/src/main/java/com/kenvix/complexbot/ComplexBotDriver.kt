@@ -14,6 +14,7 @@ import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.rpc.thrift.BackendBridge
 import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
 import com.kenvix.moecraftbot.ng.Defines
+import com.kenvix.moecraftbot.ng.lib.BackendConnector
 import com.kenvix.moecraftbot.ng.lib.Cached
 import com.kenvix.moecraftbot.ng.lib.CachedClasses
 import com.kenvix.moecraftbot.ng.lib.cacheLoader
@@ -56,10 +57,7 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
         get() = "$backendDir/main.py"
     private val coroutine = Coroutines()
 
-    private var backendSocket: Socket? = null
-
-    var backendClient: BackendBridge.Client? = null
-        private set
+    private lateinit var backend: BackendConnector<BackendBridge.Client>
 
     private var backendProcess: Process? = null
         @Synchronized get
@@ -157,30 +155,13 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
         }
 
         logger.info("Connecting to backend on $backendHost:$backendPort")
-        backendSocket = Socket().apply {
-            keepAlive = true
-            connect(InetSocketAddress(backendHost, backendPort), SocketTimeout)
-       }
+        backend = BackendConnector(BackendBridge.Client::class.java, backendHost, backendPort)
 
-        val transportSocket = TSocket(backendSocket)
-        val transport = TFramedTransport(transportSocket)
-        val protocol = TBinaryProtocol(transport)
-        backendClient = BackendBridge.Client(protocol)
-        transportSocket.setTimeout(1000)
-
-        if (backendClient!!.ping("hello") == "hello") {
-            logger.info("Backend connected")
-        } else {
-            throw IllegalStateException("Unrecognized backend reply. expected hello")
-        }
+        backend.connect()
     }
 
     internal suspend fun stopBackend() = withContext(IO) {
-        if (backendSocket != null) {
-            logger.info("Closing backend connection (port ${backendSocket!!.port})")
-            backendSocket!!.close()
-            backendSocket = null
-        }
+        backend.closeAndWait()
 
         if (backendProcess != null) {
             if (backendProcess!!.isAlive) {
@@ -204,7 +185,7 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
 
         callBridge = object : CallBridge {
             override val backendClient: BackendBridge.Client
-                get() = this@ComplexBotDriver.backendClient!!
+                get() = this@ComplexBotDriver.backend.client
 
             override val config: ComplexBotConfig
                 get() = this@ComplexBotDriver.config.content

@@ -79,6 +79,9 @@ dependencies {
     implementation("com.google.guava:guava:29.0-jre")
 
     implementation("org.apache.commons:commons-collections4:4.4")
+
+    //UNIX SOCKET (TEST ONLY)
+    compileOnly("com.kohlschutter.junixsocket:junixsocket-core:2.3.2")
 }
 
 configure<JavaPluginConvention> {
