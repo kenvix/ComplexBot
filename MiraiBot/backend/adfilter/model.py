@@ -11,7 +11,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
-from gensim.models import Word2Vec
 
 
 class AdPredictor:
@@ -25,8 +24,6 @@ class AdPredictor:
     }
 
     def __init__(self, init=True, stopWordsArray=None):
-        self.word2vec = None
-
         if init:
             self.vectorizer = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b", binary=True, ngram_range=(1, 2))
             self.clf = MultinomialNB(alpha=1, fit_prior=True)

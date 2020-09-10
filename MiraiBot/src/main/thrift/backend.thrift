@@ -1,8 +1,8 @@
 namespace java com.kenvix.complexbot.rpc.thrift
 
 struct TextClassificationResult {
-    string name;
-    double proba;
+    1: string name;
+    2: double proba;
 }
 
 exception RPCException {
@@ -21,7 +21,7 @@ service BackendBridge {
     string parseCaptchaFromFile(1:string path) throws (1: RPCException e)
     string parseCaptchaFromBinary(1:binary data) throws (1: RPCException e)
 
-    TextClassificationResult classificateTextMessage(1:string text) throws (1: RPCException e)
+    string classificateTextMessage(1: string text) throws (1: RPCException e)
 
     string ocrFromFile(1:string path) throws (1: RPCException e)
     string ocrFromBinary(1:binary data) throws (1: RPCException e)

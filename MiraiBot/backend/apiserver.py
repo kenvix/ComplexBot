@@ -44,7 +44,7 @@ class APITransmitHandler(BackendBridge.Iface):
     def classificateTextMessage(self, text):
         try:
             p = self.adPredictor.predict_ad(text)
-            return TextClassificationResult(p[0], p[1])
+            return str(p[0]) + "|" + str(p[1])
         except Exception as e:
             traceback.print_exc()
             raise RPCException(message=str(e), name=type(e).__name__)
@@ -88,7 +88,7 @@ def main(host='127.0.0.1', port=48519):
     model_path = "captcha-breaker-v%d.pth" % CaptchaNN.version()
     net = CaptchaNN()
     net = net.to(torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
-    net.load_state_dict(torch.load(model_path))
+    net.load_state_dict(torch.load(model_path,map_location='cuda' if torch.cuda.is_available() else 'cpu'))
     net.eval()
     captchaBreaker = CaptchaBreaker(net)
 
