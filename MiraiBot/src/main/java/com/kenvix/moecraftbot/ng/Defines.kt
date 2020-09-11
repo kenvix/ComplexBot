@@ -168,7 +168,7 @@ object Defines : Logging {
     }
 
     internal fun setupSQLDatabase() {
-        System.getProperties().setProperty("org.jooq.no-logo", "true")
+        System.setProperty("org.jooq.no-logo", "true")
         dataSource = BasicDataSource()
 
         when(systemOptions.database.type.toLowerCase()) {

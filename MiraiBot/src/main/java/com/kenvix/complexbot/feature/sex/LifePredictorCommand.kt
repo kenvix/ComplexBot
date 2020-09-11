@@ -12,7 +12,7 @@ object LifePredictorCommand : BotCommandFeature {
     private val resultArray = arrayOf("大凶", "凶", "小凶", "凶多于吉", "吉多于凶", "小吉", "吉", "大吉")
     override val description: String
         get() = "算卦"
-    private val offsetStr = System.getProperties()["complexbot.lifepredictor.offsetstr"] ?: "M O E C R A F T"
+    private val offsetStr = System.getProperty("complexbot.lifepredictor.offsetstr", "M O E C R A F T")
     private val offsetStrHash = offsetStr.hashCode()
     
     private val starGods = arrayOf("天刑", "朱雀", "金匮", "天德", "白虎", "玉堂", "截路空亡", "截路", "司命", "勾陈", "青龙", "明堂")

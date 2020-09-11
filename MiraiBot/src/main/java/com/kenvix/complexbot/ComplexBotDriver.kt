@@ -7,7 +7,6 @@
 package com.kenvix.complexbot
 
 import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
 import com.google.common.cache.CacheStats
 import com.google.common.cache.LoadingCache
 import com.kenvix.android.utils.Coroutines
@@ -18,28 +17,27 @@ import com.kenvix.moecraftbot.ng.lib.BackendConnector
 import com.kenvix.moecraftbot.ng.lib.Cached
 import com.kenvix.moecraftbot.ng.lib.CachedClasses
 import com.kenvix.moecraftbot.ng.lib.cacheLoader
-import com.kenvix.utils.exception.NotFoundException
 import com.kenvix.utils.log.LoggingOutputStream
 import com.mongodb.client.result.UpdateResult
-import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import org.apache.commons.collections4.map.ReferenceMap
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TFramedTransport
 import org.apache.thrift.transport.TSocket
-import org.bson.types.ObjectId
-import org.litote.kmongo.Id
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.eq
 import org.slf4j.LoggerFactory
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.InputStreamReader
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.file.Paths
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.HashMap
+
 
 class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
     override val driverName: String get() = "ComplexBot"
@@ -111,20 +109,13 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
     }
 
     private fun loadComplexBotOptions() {
-        if (System.getProperties().contains("complexbot.backend.port"))
-            backendPort = System.getProperties().getProperty("complexbot.backend.port").toInt()
-
-        if (System.getProperties().contains("complexbot.backend.host"))
-            backendHost = System.getProperties().getProperty("complexbot.backend.host")
-
-        if (System.getProperties().contains("complexbot.backend.dir"))
-            backendDir = System.getProperties().getProperty("complexbot.backend.dir")
-
-        if (System.getProperties().getProperty("complexbot.backend.noinstance")?.toBoolean() == true)
+        backendPort = System.getProperty("complexbot.backend.port", "${backendPort}").toInt()
+        backendHost = System.getProperty("complexbot.backend.host", backendHost)
+        backendDir = System.getProperty("complexbot.backend.dir", backendDir)
+        if (System.getProperty("complexbot.backend.noinstance", "false").toBoolean()) {
             backendDir = null
-
-        if (System.getProperties().contains("complexbot.backend.runtime.filename"))
-            backendRuntimeFileName = System.getProperties().getProperty("complexbot.backend.runtime.filename")
+        }
+        backendRuntimeFileName = System.getProperty("complexbot.backend.runtime.filename", backendRuntimeFileName)
     }
 
     internal suspend fun loadBackend() = withContext(IO) {
