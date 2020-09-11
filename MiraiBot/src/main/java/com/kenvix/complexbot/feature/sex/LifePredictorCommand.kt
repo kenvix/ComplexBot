@@ -26,7 +26,7 @@ object LifePredictorCommand : BotCommandFeature {
     override suspend fun onMessage(msg: MessageEvent) {
         val command = parseCommandFromMessage(msg.message.content, false)
         if (command.firstArgumentOrNull.isNullOrBlank()) {
-            msg.reply("来算一卦吧！示例食用方法：\n。算卦 写代码")
+            msg.reply("来算一卦吧！示例食用方法：\n.算卦 写代码")
         } else if (!msg.message.none { it is Image || it is RichMessage }) {
             msg.reply("只有言语才有算卦的意义哦")
         } else {
