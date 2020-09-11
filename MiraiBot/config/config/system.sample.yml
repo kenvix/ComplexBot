@@ -1,0 +1,44 @@
+proxy:
+  enable: false
+  host:
+  port:
+  auth: false
+  username:
+  password:
+  scope:
+    bot: false
+    driver: false
+    other: false
+  type: http
+bot:
+  commandPrefix: !!set {"."}
+  commandPrefixLength: 1
+  helpMessage:
+auth:
+  groups: []
+  admins: []
+  successMessage:
+  welcomeMessage:
+  disallowOneTgAccountToMultipleSiteUser: true
+  disallowSiteUserToMultipleOneTgAccount: true
+system:
+  threadPoolMaxSize: 10
+  cacheSize: 1000000000
+  uploadTempDir: temp
+database:
+  type: none
+mongo:
+  authSource: ComplexBot
+  name: ComplexBot
+  user: ComplexBot
+  password: ComplexBot
+  host: complexbot-mongodb
+  port: 27017
+  needAuth: true
+http:
+  enable: false
+  port: 54121
+  host: 0.0.0.0
+  corsOrigin:
+messagePush:
+  key:

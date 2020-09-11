@@ -1,0 +1,11 @@
+bot:
+  name: XXXX
+  password: XXXX
+  qq: 123456789
+  administratorIds:
+    - 23456789
+  acceptAllFriendRequest: true
+  acceptAllGroupInvitation: true
+mirai:
+  authKey: da2s41d5asdasdas
+  port: 10822
