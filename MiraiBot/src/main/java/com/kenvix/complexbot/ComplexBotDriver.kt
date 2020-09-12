@@ -56,6 +56,7 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
     private val backendScriptFile: String
         get() = "$backendDir/main.py"
     private val coroutine = Coroutines()
+    private var currentContext: Map<Long, Context> = HashMap()
 
     private lateinit var backend: BackendConnector<BackendBridge.Client>
 
@@ -189,6 +190,9 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
 
             override val config: ComplexBotConfig
                 get() = this@ComplexBotDriver.config.content
+
+            override val context: Map<Long, Context>
+                get() = currentContext
 
             override val driver: ComplexBotDriver
                 get() = this@ComplexBotDriver

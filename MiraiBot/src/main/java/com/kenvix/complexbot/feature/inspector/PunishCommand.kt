@@ -4,9 +4,9 @@ import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.feature.inspector.rule.ManualPunishmentRule
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Group
+import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.QuoteReply
+import net.mamoe.mirai.message.data.*
 
 object PunishCommand : BotCommandFeature {
     override val description: String = "回复某句消息来快速对该消息的发送者执行某个惩罚（仅限管理员）"
@@ -19,13 +19,22 @@ object PunishCommand : BotCommandFeature {
             val punish = punishments[command.firstArgumentOrNull?.toLowerCase()] ?: Withdraw
 
             quotes.forEach {
+                val target = (msg.subject as Group).members[it.source.fromId]
+
                 punish.punish(
                     msg.subject as Group,
-                    (msg.subject as Group).members[it.source.fromId],
+                    target,
                     "Manual Operation",
                     it.source,
                     ManualPunishmentRule
                 )
+
+                msg.message.recall()
+                msg.reply(MessageChainBuilder().apply {
+                    append("对 ")
+                    append(At(target))
+                    append("执行惩罚 ${punish.name} 成功")
+                }.build())
             }
         } else {
             msg.reply("命令用法错误：此命令必须回复一条消息。被回复人为被惩罚者\n" +

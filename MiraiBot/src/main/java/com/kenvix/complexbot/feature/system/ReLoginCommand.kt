@@ -1,4 +1,4 @@
-package com.kenvix.complexbot.feature.help
+package com.kenvix.complexbot.feature.system
 
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.callBridge

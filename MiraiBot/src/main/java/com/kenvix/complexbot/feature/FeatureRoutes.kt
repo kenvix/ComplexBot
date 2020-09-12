@@ -18,6 +18,8 @@ import com.kenvix.complexbot.feature.sex.LifePredictorCommand
 import com.kenvix.complexbot.feature.sex.RepeatCommand
 import com.kenvix.complexbot.feature.switchcommand.ListCommand
 import com.kenvix.complexbot.feature.switchcommand.SwitchCommand
+import com.kenvix.complexbot.feature.system.ReLoginCommand
+import com.kenvix.complexbot.feature.system.UpTimeCommand
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.subscribeMessages
 
