@@ -32,7 +32,7 @@ fun MessagePacketSubscribersBuilder.command(command: String,
         commands = HashMap()
         this.always {
             val plainMsg = this.message.filterIsInstance<PlainText>().joinToString("").trim()
-            if (plainMsg.substring(0, commandPrefixLength) in commandPrefix) {
+            if (plainMsg.isNotEmpty() && plainMsg.substring(0, commandPrefixLength) in commandPrefix) {
 
                 executeCatchingBusinessException {
                     val requestedCommand = plainMsg.run {
