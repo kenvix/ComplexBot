@@ -32,14 +32,14 @@ object LifePredictorCommand : BotCommandFeature {
         } else {
             // Millis << 27 ~ 1.5day
             val code = msg.sender.id xor 0xDEAD_BEEFL xor (System.currentTimeMillis() shr 27) xor
-                    ((command.firstArgument.hashCode() xor offsetStrHash).toLong() shl 13)
+                    ((command.firstArgument.hashCode() xor offsetStrHash).toLong())
 
             val result: Int       = code.rem(resultArray.size).toInt().absoluteValue
-            val starGod: Int      = (code and 0x0000F0L).rem(starGods.size).absoluteValue.toInt()
-            val fiveElement: Int  = (code and 0x000F00L).rem(fiveElements.size).absoluteValue.toInt()
-            val shaFang: Int      = (code and 0x00F000L).rem(shaFangs.size).absoluteValue.toInt()
-            val goodGod: Int      = (code and 0x0F0000L).rem(goodGods.size).absoluteValue.toInt()
-            val badGod: Int       = (code and 0xF00000L).rem(badGods.size).absoluteValue.toInt()
+            val starGod: Int      = (code and 0x00F0F0L).rem(starGods.size).absoluteValue.toInt()
+            val fiveElement: Int  = (code and 0x0F0F00L).rem(fiveElements.size).absoluteValue.toInt()
+            val shaFang: Int      = (code and 0x00F0F0L).rem(shaFangs.size).absoluteValue.toInt()
+            val goodGod: Int      = (code and 0x0F00F0L).rem(goodGods.size).absoluteValue.toInt()
+            val badGod: Int       = (code and 0xF0000FL).rem(badGods.size).absoluteValue.toInt()
 
             msg.reply(MessageChainBuilder().apply {
                 add("你好，")

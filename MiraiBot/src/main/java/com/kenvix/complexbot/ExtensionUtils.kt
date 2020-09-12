@@ -9,7 +9,10 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.content
+import net.mamoe.mirai.message.data.firstIsInstance
+import net.mamoe.mirai.message.data.firstIsInstanceOrNull
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.lang.NumberFormatException
@@ -28,9 +31,11 @@ fun MessagePacketSubscribersBuilder.command(command: String,
     if (!::commands.isInitialized) {
         commands = HashMap()
         this.always {
-            if (this.message.content.trim().substring(0, commandPrefixLength) in commandPrefix) {
+            val plainMsg = this.message.filterIsInstance<PlainText>().joinToString("").trim()
+            if (plainMsg.substring(0, commandPrefixLength) in commandPrefix) {
+
                 executeCatchingBusinessException {
-                    val requestedCommand = this.message.content.run {
+                    val requestedCommand = plainMsg.run {
                         val spacePos = this.indexOf(' ')
                         if (spacePos == -1)
                             substring(commandPrefixLength)

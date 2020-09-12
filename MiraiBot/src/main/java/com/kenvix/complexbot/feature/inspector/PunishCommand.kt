@@ -29,12 +29,8 @@ object PunishCommand : BotCommandFeature {
                     ManualPunishmentRule
                 )
 
-                msg.message.recall()
-                msg.reply(MessageChainBuilder().apply {
-                    append("对 ")
-                    append(At(target))
-                    append("执行惩罚 ${punish.name} 成功")
-                }.build())
+                if ((msg.sender as Member).permission.level >= 1)
+                    msg.message.recall()
             }
         } else {
             msg.reply("命令用法错误：此命令必须回复一条消息。被回复人为被惩罚者\n" +

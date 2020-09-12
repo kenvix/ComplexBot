@@ -155,9 +155,7 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
             }
         }
 
-        logger.info("Connecting to backend on $backendHost:$backendPort")
         backend = BackendConnector(BackendBridge.Client::class.java, backendHost, backendPort)
-
         backend.connect()
     }
 

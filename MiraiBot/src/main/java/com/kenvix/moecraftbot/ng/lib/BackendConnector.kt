@@ -15,10 +15,7 @@ import java.io.Closeable
 import java.io.File
 import java.lang.IllegalArgumentException
 import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.ParameterizedType
-import java.net.InetSocketAddress
 import java.net.Socket
-import java.nio.channels.Channel
 import java.nio.channels.SocketChannel
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
@@ -44,6 +41,12 @@ class BackendConnector <T: TServiceClient> (
     private lateinit var socket: TTransport
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     private val coroutine = Coroutines()
+
+    /**
+     * Ping RTT
+     */
+    var rtt: Long = 0
+        private set
 
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun connect(keepSocketAlive: Boolean = true) = withContext(Dispatchers.IO) {
@@ -91,7 +94,9 @@ class BackendConnector <T: TServiceClient> (
 //        transportSocket.setTimeout(connectTimeout)
 
         try {
+            val begin = System.nanoTime()
             ping()
+            rtt = System.nanoTime() - begin
         } catch (e: Exception) {
             if (e is NoSuchMethodException || e is IllegalAccessException)
                 logger.debug("Backend has no ping(String) method or inaccessible, ignored connection test.")
@@ -102,25 +107,34 @@ class BackendConnector <T: TServiceClient> (
         if (keepSocketAlive && socket is Socket)
             keepSocketAlive()
 
+        logger.info("Connected to backend $backendHost:$backendPort with RTT $rtt ns")
         client
     }
 
     private fun keepSocketAlive() {
         coroutine.ioScope.launch {
             while (isActive) {
-                if (transportSocket.isOpen) {
-                    delay(300)
-                } else {
-                    try {
-                        logger.warn("Connection to backend lost, reconnecting ...")
-                        connect(true)
-                        delay(100)
+                try {
+                    if (transportSocket.isOpen && pingWithRTT() != -1L) {
+                        delay(rtt shr 6)
+                    } else {
+                        try {
+                            logger.warn("Connection to backend lost, reconnecting ...")
+                            connect(true)
+                            delay(100)
 
-                        break
-                    } catch (e: Exception) {
-                        logger.error("Reconnection failed, retrying after 3s ...", e)
-                        delay(3000)
+                            break
+                        } catch (e: Exception) {
+                            logger.error("Reconnection failed, retrying after 3s ...", e)
+                            delay(3000)
+                        }
                     }
+                } catch (e: NotSupportedException) {
+                    logger.warn("Keep alive is not supported.", e)
+                    break
+                } catch (e: NoSuchMethodException) {
+                    logger.warn("Keep alive is not supported.", e)
+                    break
                 }
             }
         }
@@ -131,11 +145,11 @@ class BackendConnector <T: TServiceClient> (
     }
 
     @Throws(NoSuchMethodException::class, NotSupportedException::class)
-    fun ping() {
+    suspend fun ping() = withContext(Dispatchers.IO) {
         val pingMethod = clientClass.getMethod("ping", String::class.java)
 
         try {
-            if (pingMethod.invoke(client, "hello") == "hello") {
+            if (pingMethod.invoke(client, "h") == "h") {
                 logger.info("Backend connected")
             } else {
                 throw NotSupportedException("Not supported client: Unrecognized backend reply. expected hello")
@@ -145,6 +159,21 @@ class BackendConnector <T: TServiceClient> (
                 throw e.targetException
             else
                 throw e
+        }
+    }
+
+    suspend fun pingWithRTT(): Long = withContext(Dispatchers.IO) {
+        try {
+            val begin = System.nanoTime()
+            ping()
+            (System.nanoTime() - begin).also {
+                rtt = (0.85 * rtt + 0.15 * rtt).toLong()
+            }
+        } catch (e: Exception) {
+            if (e is NoSuchMethodException || e is NotSupportedException)
+                throw e
+
+            -1L
         }
     }
 
