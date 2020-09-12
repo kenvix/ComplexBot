@@ -8,6 +8,7 @@ import com.kenvix.complexbot.feature.friend.WelcomeNewFeature
 import com.kenvix.complexbot.feature.help.*
 import com.kenvix.complexbot.feature.inspector.InspectorFeature
 import com.kenvix.complexbot.feature.inspector.GroupRankingCommand
+import com.kenvix.complexbot.feature.inspector.PunishCommand
 import com.kenvix.complexbot.feature.inspector.WhoCommand
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.CorePermissionRequired
@@ -37,6 +38,7 @@ fun Bot.featureRoutes() {
 
         command("enable", SwitchCommand, GroupMessageOnly, AdminPermissionRequired)
         command("disable", SwitchCommand, GroupMessageOnly, AdminPermissionRequired)
+        command("p", PunishCommand, GroupMessageOnly, AdminPermissionRequired)
         command("listcommands", ListCommand, SwitchableCommand)
         command("uptime", UpTimeCommand, SwitchableCommand)
 
