@@ -360,24 +360,22 @@ object Defines : Logging {
 
     private fun shutdownSystem() {
         logger.info("Shutdown system ...")
-        synchronized(loadLock) {
-            if (this::activeDriver.isInitialized)
-                activeDriver.onDisable()
+        if (this::activeDriver.isInitialized)
+            activeDriver.onDisable()
 
-            shutdownHandler(Unit)
+        shutdownHandler(Unit)
 
-            if (this::driverThread.isInitialized)
-                driverThread.interrupt()
+        if (this::driverThread.isInitialized)
+            driverThread.interrupt()
 
-            if (this::dslContext.isInitialized)
-                dslContext.close()
+        if (this::dslContext.isInitialized)
+            dslContext.close()
 
-            if (this::dataSource.isInitialized)
-                dataSource.close()
+        if (this::dataSource.isInitialized)
+            dataSource.close()
 
-            if (this::cachedThreadPool.isInitialized)
-                cachedThreadPool.shutdown()
-        }
+        if (this::cachedThreadPool.isInitialized)
+            cachedThreadPool.shutdown()
     }
 
     @FunctionalInterface
