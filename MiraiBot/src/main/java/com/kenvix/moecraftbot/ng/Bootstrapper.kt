@@ -158,7 +158,7 @@ object Bootstrapper : Logging {
         val cmd = parser.parse(ops, args)
 
         if (cmd.hasOption("nogui"))
-            System.getProperties().setProperty("nogui", "1")
+            System.setProperty("nogui", "1")
 
         //TODO: Log Level
         if (cmd.hasOption('v')) {
