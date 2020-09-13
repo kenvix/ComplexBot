@@ -156,7 +156,12 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
         }
 
         backend = BackendConnector(BackendBridge.Client::class.java, backendHost, backendPort)
-        backend.connect()
+        try {
+            backend.connect()
+        } catch (t: Throwable) {
+            logger.error("Unable to connect to Backend", t)
+            System.exit(1)
+        }
     }
 
     internal suspend fun stopBackend() = withContext(IO) {
