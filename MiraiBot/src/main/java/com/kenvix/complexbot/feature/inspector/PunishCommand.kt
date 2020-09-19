@@ -14,24 +14,42 @@ object PunishCommand : BotCommandFeature {
     override suspend fun onMessage(msg: MessageEvent) {
         try {
             val quotes = msg.message.filterIsInstance<QuoteReply>()
+            val ats = msg.message.filterIsInstance<At>()
+            val group = (msg.subject as Group)
 
             if (quotes.isNotEmpty()) {
-                val command = parseCommandFromMessage(msg.message.filterIsInstance<PlainText>().joinToString(" "))
-                val punish = punishments[command.firstArgumentOrNull?.toLowerCase()] ?: Withdraw
+                val punish = getPunishment(msg)
 
                 quotes.forEach {
-                    val target = (msg.subject as Group).members[it.source.fromId]
+                    val target = group.members[it.source.fromId]
 
                     punish.punish(
-                        msg.subject as Group,
+                        group,
                         target,
-                        "Manual Operation",
+                        "管理员手动操作 [Reply]",
                         it.source,
                         ManualPunishmentRule
                     )
 
-                    if ((msg.sender as Member).permission.level == 0)
-                        msg.message.recall()
+                    if ((msg.sender as Member).permission.level == 0 && group.botPermission.level >= 1)
+                        msg.message.runCatching { recall() }
+                }
+            } else if (ats.isNotEmpty()) {
+                val punish = getPunishment(msg)
+
+                ats.forEach {
+                    val target = group.members[it.target]
+
+                    punish.punish(
+                        group,
+                        target,
+                        "管理员手动操作 [At]",
+                        null,
+                        ManualPunishmentRule
+                    )
+
+                    if ((msg.sender as Member).permission.level == 0 && group.botPermission.level >= 1)
+                        msg.message.runCatching { recall() }
                 }
             } else {
                 msg.reply("命令用法错误：此命令必须回复一条消息。被回复人为被惩罚者\n" +
@@ -40,5 +58,10 @@ object PunishCommand : BotCommandFeature {
         } catch (e: Exception) {
             msg.reply(e.toString())
         }
+    }
+
+    private fun getPunishment(msg: MessageEvent): AbstractPunishment {
+        val command = parseCommandFromMessage(msg.message.filterIsInstance<PlainText>().joinToString(" "))
+        return punishments[command.firstArgumentOrNull?.toLowerCase()] ?: Withdraw
     }
 }

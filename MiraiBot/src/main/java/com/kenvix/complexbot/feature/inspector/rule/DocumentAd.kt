@@ -46,8 +46,11 @@ object DocumentAd : InspectorRule.Actual {
                     val stat = InspectorStatisticUtils.getStat(sender.group.id).stats[sender.id]
 
                     if (beginPos > 0 && requiredMatchPattern.containsMatch(content) &&
-                        (stat == null || stat.countLegal <= 30L ||
-                                stat.countIllegal >= 4L && stat.counts[InspectorStatisticUtils.todayKey] ?: 0 <= 5)
+                        (
+                                stat == null || stat.countLegal <= 10L ||
+                                (stat.countIllegal >= 4L && stat.counts[InspectorStatisticUtils.todayKey] ?: 0 <= 5) ||
+                                (stat.counts[InspectorStatisticUtils.todayKey] ?: 0 <= 1)
+                        )
                     ) {
                         blackMatchPattern.containsMatch(content.substring(beginPos.run {
                             if (content.length > beginPos + 10) this + 7 else this
