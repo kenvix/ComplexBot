@@ -12,7 +12,7 @@ object LifePredictorCommand : BotCommandFeature {
     private val resultArray = arrayOf("大凶", "凶", "小凶", "凶多于吉", "吉多于凶", "小吉", "吉", "大吉")
     override val description: String
         get() = "算卦"
-    private val offsetStr = System.getProperties()["complexbot.lifepredictor.offsetstr"] ?: "M O E C R A F T"
+    private val offsetStr = System.getProperty("complexbot.lifepredictor.offsetstr", "M O E C R A F T")
     private val offsetStrHash = offsetStr.hashCode()
     
     private val starGods = arrayOf("天刑", "朱雀", "金匮", "天德", "白虎", "玉堂", "截路空亡", "截路", "司命", "勾陈", "青龙", "明堂")
@@ -26,7 +26,7 @@ object LifePredictorCommand : BotCommandFeature {
     override suspend fun onMessage(msg: MessageEvent) {
         val command = parseCommandFromMessage(msg.message.content, false)
         if (command.firstArgumentOrNull.isNullOrBlank()) {
-            msg.reply("来算一卦吧！示例食用方法：\n。算卦 写代码")
+            msg.reply("来算一卦吧！示例食用方法：\n.算卦 写代码")
         } else if (!msg.message.none { it is Image || it is RichMessage }) {
             msg.reply("只有言语才有算卦的意义哦")
         } else {
