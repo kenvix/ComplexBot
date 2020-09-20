@@ -2,6 +2,7 @@
 
 package com.kenvix.moecraftbot.ng
 
+import com.kenvix.moecraftbot.ng.lib.ApplicationPhase
 import com.kenvix.moecraftbot.ng.lib.Sideloader
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
 import org.apache.commons.cli.*
@@ -74,6 +75,7 @@ object Bootstrapper : Logging {
             Defines.setupHttpServer()
 
             Defines.setupDriver()
+            Defines.setupEnd()
         } catch (e: InvalidConfigException) {
             showErrorAndExit("There are some errors in your bot config file. Please correct them", 3, e, true)
         } catch (exception: IOException) {

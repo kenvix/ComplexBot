@@ -94,10 +94,14 @@ object Defines : Logging {
     val shutdownHandler: EventSet<Unit> = eventSetOf()
 
     @JvmStatic
+    var applicationPhase: ApplicationPhase = ApplicationPhase.NotInitialized
+        @Synchronized get
+        @Synchronized private set
+
+    @JvmStatic
     lateinit var cachedThreadPool: ExecutorService
         private set
 
-    private val loadLock = java.lang.Object()
     private val consoleInputHandlers: MutableList<ConsoleReadSupported> = LinkedList()
 
     val startedAt = System.currentTimeMillis()
@@ -105,7 +109,13 @@ object Defines : Logging {
     lateinit var pluginClassLoader: URLClassLoader
         private set
 
+    private fun checkSetupPhase() {
+        if (applicationPhase != ApplicationPhase.Initializing)
+            throw IllegalStateException("Must call setupSystem first and setupXXX() cannot be called twice")
+    }
+
     internal fun setupSystem(appCmds: CommandLine = CommandLine.Builder().build()) {
+        applicationPhase = ApplicationPhase.Initializing
         logger.info("Loading Application")
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
         CachedClasses
@@ -141,6 +151,8 @@ object Defines : Logging {
     }
 
     internal fun setupPlugins() {
+        checkSetupPhase()
+
         val pluginDir = File("plugins")
         if (!pluginDir.exists())
             pluginDir.mkdirs()
@@ -154,6 +166,8 @@ object Defines : Logging {
     }
 
     internal fun setupDriverPre() {
+        checkSetupPhase()
+
         //Load bot driver
         val driverName = appCmds.getOptionValue('d') ?: "demobot"
 
@@ -168,6 +182,8 @@ object Defines : Logging {
     }
 
     internal fun setupSQLDatabase() {
+        checkSetupPhase()
+
         System.setProperty("org.jooq.no-logo", "true")
         dataSource = BasicDataSource()
 
@@ -223,6 +239,8 @@ object Defines : Logging {
     }
 
     internal fun setupMongoDatabase() = runBlocking {
+        checkSetupPhase()
+
         val address = ServerAddress(systemOptions.mongo.host, systemOptions.mongo.port)
         val conn = ConnectionString("mongodb://${address.host}:" +
                 "${address.port}/${systemOptions.mongo.name}?w=majority")
@@ -250,6 +268,8 @@ object Defines : Logging {
     }
 
     internal fun setupNetwork() {
+        checkSetupPhase()
+
         if (systemOptions.proxy.enable) {
             logger.info("Proxy enabled: ${systemOptions.proxy.type}://${systemOptions.proxy.host}:${systemOptions.proxy.port}")
 
@@ -304,26 +324,24 @@ object Defines : Logging {
     }
 
     internal fun setupHttpServer() {
+        checkSetupPhase()
+    }
 
+    internal fun setupEnd() {
+        checkSetupPhase()
+        applicationPhase = ApplicationPhase.Running
     }
 
     internal fun setupDriver() {
+        checkSetupPhase()
         if (!this::driverThread.isInitialized) {
             driverThread = Thread({
                 logger.info("Starting driver ${this::activeDriver.name}")
 
-                synchronized(loadLock) {
-                    try {
-                        activeDriver.onEnable()
-                        loadLock.wait()
-
-                        if (!activeDriver.isInitialized) {
-                            logger.error("Bot provider didn't call onBotProviderConnect")
-                            exitProcess(19)
-                        }
-                    } catch (e: InterruptedException) {
-                        logger.trace("setupDriver Interrupted. Application maybe going to shutdown")
-                    }
+                try {
+                    activeDriver.onEnable()
+                } catch (e: InterruptedException) {
+                    logger.trace("setupDriver Interrupted. Application maybe going to shutdown")
                 }
             }, "Driver")
 
@@ -359,23 +377,38 @@ object Defines : Logging {
     }
 
     private fun shutdownSystem() {
+        if (applicationPhase == ApplicationPhase.Stopping || applicationPhase == ApplicationPhase.Stopping)
+            throw IllegalStateException("Already Stopping application. Should not be stopped twice or more")
+
         logger.info("Shutdown system ...")
-        if (this::activeDriver.isInitialized)
-            activeDriver.onDisable()
+        kotlin.runCatching {
+            if (this::activeDriver.isInitialized)
+                activeDriver.onDisable()
+        }.onFailure { logger.error("Shutdown Driver failed", it) }
 
-        shutdownHandler(Unit)
+        kotlin.runCatching {
+            shutdownHandler(Unit)
+        }.onFailure { logger.error("Shutdown Handler failed", it) }
 
-        if (this::driverThread.isInitialized)
-            driverThread.interrupt()
+        kotlin.runCatching {
+            if (this::driverThread.isInitialized)
+                driverThread.interrupt()
+        }.onFailure { logger.error("Shutdown driverThread failed", it) }
 
-        if (this::dslContext.isInitialized)
-            dslContext.close()
+        kotlin.runCatching {
+            if (this::dslContext.isInitialized)
+                dslContext.close()
+        }.onFailure { logger.error("Shutdown dslContext failed", it) }
 
-        if (this::dataSource.isInitialized)
-            dataSource.close()
+        kotlin.runCatching {
+            if (this::dataSource.isInitialized)
+                dataSource.close()
+        }.onFailure { logger.error("Shutdown dataSource failed", it) }
 
-        if (this::cachedThreadPool.isInitialized)
-            cachedThreadPool.shutdown()
+        kotlin.runCatching {
+            if (this::cachedThreadPool.isInitialized)
+                cachedThreadPool.shutdown()
+        }.onFailure { logger.error("Shutdown cachedThreadPool failed", it) }
     }
 
     @FunctionalInterface
