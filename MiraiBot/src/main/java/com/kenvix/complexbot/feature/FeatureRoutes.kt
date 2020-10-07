@@ -4,11 +4,13 @@ import com.kenvix.complexbot.addFeature
 import com.kenvix.complexbot.command
 import com.kenvix.complexbot.feature.friend.AutoAcceptFriendRequest
 import com.kenvix.complexbot.feature.friend.AutoAcceptGroupInvitation
-import com.kenvix.complexbot.feature.friend.AutoAcceptJoinGroupOptionCommand
+import com.kenvix.complexbot.feature.friend.AutoAcceptJoinGroupRequest
 import com.kenvix.complexbot.feature.friend.WelcomeNewFeature
-import com.kenvix.complexbot.feature.help.*
-import com.kenvix.complexbot.feature.inspector.InspectorFeature
+import com.kenvix.complexbot.feature.help.DebugActiveDataCommand
+import com.kenvix.complexbot.feature.help.DebugCommand
+import com.kenvix.complexbot.feature.help.HelpCommand
 import com.kenvix.complexbot.feature.inspector.GroupRankingCommand
+import com.kenvix.complexbot.feature.inspector.InspectorFeature
 import com.kenvix.complexbot.feature.inspector.PunishCommand
 import com.kenvix.complexbot.feature.inspector.WhoCommand
 import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
@@ -48,7 +50,6 @@ fun Bot.featureRoutes() {
         command("rank", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
         command("排行", GroupRankingCommand, GroupMessageOnly, SwitchableCommand)
         command("who", WhoCommand, GroupMessageOnly, SwitchableCommand)
-        command("autoaccept", AutoAcceptJoinGroupOptionCommand, AdminPermissionRequired, GroupMessageOnly, SwitchableCommand)
 
         command("repeat", RepeatCommand, GroupMessageOnly, SwitchableCommand, AdminPermissionRequired)
     }
@@ -58,4 +59,5 @@ fun Bot.featureRoutes() {
 
     addFeature(AutoAcceptFriendRequest)
     addFeature(AutoAcceptGroupInvitation)
+    addFeature(AutoAcceptJoinGroupRequest)
 }

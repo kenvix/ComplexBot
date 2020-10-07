@@ -4,7 +4,6 @@ import com.kenvix.complexbot.feature.inspector.InspectorRule
 import com.kenvix.complexbot.feature.inspector.InspectorStatisticUtils
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.LightApp
 import net.mamoe.mirai.message.data.RichMessage
 import net.mamoe.mirai.message.data.firstIsInstanceOrNull
 import org.ahocorasick.trie.Trie

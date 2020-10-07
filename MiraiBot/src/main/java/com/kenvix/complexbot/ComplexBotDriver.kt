@@ -23,18 +23,11 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.apache.thrift.protocol.TBinaryProtocol
-import org.apache.thrift.transport.TFramedTransport
-import org.apache.thrift.transport.TSocket
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.eq
 import org.slf4j.LoggerFactory
-import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.InputStreamReader
-import java.net.InetSocketAddress
-import java.net.Socket
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 

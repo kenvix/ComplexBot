@@ -1,7 +1,6 @@
 package com.kenvix.complexbot.feature.friend
 
 import com.kenvix.complexbot.BotCommandFeature
-import com.kenvix.complexbot.InspectorOptions
 import com.kenvix.complexbot.callBridge
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import com.kenvix.moecraftbot.ng.lib.bot.BotCommandQueryData
@@ -60,6 +59,11 @@ object AutoAcceptJoinGroupOptionCommand : BotCommandFeature, Logging {
                 } catch (e: Exception) {
                     group.sendMessage("更新规则失败，请检查正则表达式是否有语法错误：$e")
                 }
+            }
+
+            "test" -> {
+                val str = command.arguments.drop(1).joinToString(" ")
+                group.sendMessage("Result: " + AutoAcceptJoinGroupRequest.isMatched(group.id, str))
             }
 
             "get" -> {

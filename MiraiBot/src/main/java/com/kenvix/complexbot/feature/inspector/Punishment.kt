@@ -4,10 +4,13 @@ import com.kenvix.moecraftbot.ng.lib.Named
 import com.kenvix.moecraftbot.ng.lib.createNamedElementsMap
 import com.kenvix.utils.log.Logging
 import kotlinx.coroutines.delay
-import net.mamoe.mirai.Bot
-import net.mamoe.mirai.contact.*
+import net.mamoe.mirai.contact.Group
+import net.mamoe.mirai.contact.Member
+import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.At
+import net.mamoe.mirai.message.data.MessageChainBuilder
+import net.mamoe.mirai.message.data.MessageSource
 
 val punishments = createNamedElementsMap(
     Kick,

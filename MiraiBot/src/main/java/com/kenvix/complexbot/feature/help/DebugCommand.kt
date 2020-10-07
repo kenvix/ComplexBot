@@ -1,7 +1,6 @@
 package com.kenvix.complexbot.feature.help
 
 import com.kenvix.complexbot.BotCommandFeature
-import com.kenvix.complexbot.CallBridge
 import com.kenvix.complexbot.callBridge
 import com.kenvix.moecraftbot.ng.Defines
 import net.mamoe.mirai.contact.Friend

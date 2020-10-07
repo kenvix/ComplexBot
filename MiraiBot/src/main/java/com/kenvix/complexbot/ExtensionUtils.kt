@@ -10,12 +10,8 @@ import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.content
-import net.mamoe.mirai.message.data.firstIsInstance
-import net.mamoe.mirai.message.data.firstIsInstanceOrNull
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import java.lang.NumberFormatException
 
 val commandPrefix: Set<String> = Defines.systemOptions.bot.commandPrefix
 val commandPrefixLength = Defines.systemOptions.bot.commandPrefixLength

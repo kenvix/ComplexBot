@@ -15,7 +15,6 @@ import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.content
-import net.mamoe.mirai.message.data.toMessage
 
 object InspectorCommand : BotCommandFeature, Logging {
     override val description: String

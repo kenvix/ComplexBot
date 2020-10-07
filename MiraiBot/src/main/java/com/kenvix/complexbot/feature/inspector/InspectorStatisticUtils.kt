@@ -12,14 +12,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.event.events.MemberJoinRequestEvent
-import org.bson.codecs.pojo.annotations.BsonId
-import org.litote.kmongo.Id
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.eq
-import org.litote.kmongo.newId
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.HashMap
 
 
 object InspectorStatisticUtils : Cached {

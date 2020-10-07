@@ -1,7 +1,6 @@
 package com.kenvix.complexbot.feature.middleware
 
 import com.kenvix.complexbot.BotMiddleware
-import com.kenvix.complexbot.callBridge
 import com.kenvix.complexbot.isBotSystemAdministrator
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.contact.isAdministrator

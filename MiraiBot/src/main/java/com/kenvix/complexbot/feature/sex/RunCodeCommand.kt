@@ -2,7 +2,6 @@ package com.kenvix.complexbot.feature.sex
 
 import com.kenvix.complexbot.BotCommandFeature
 import net.mamoe.mirai.message.MessageEvent
-import java.nio.ByteBuffer
 
 object RunCodeCommand : BotCommandFeature {
     override val description: String

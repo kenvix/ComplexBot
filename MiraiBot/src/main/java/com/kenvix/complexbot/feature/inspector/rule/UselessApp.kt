@@ -2,7 +2,6 @@ package com.kenvix.complexbot.feature.inspector.rule
 
 import com.kenvix.complexbot.feature.inspector.InspectorRule
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.LightApp
 import net.mamoe.mirai.message.data.RichMessage
 import net.mamoe.mirai.message.data.firstIsInstanceOrNull
 import org.ahocorasick.trie.Trie

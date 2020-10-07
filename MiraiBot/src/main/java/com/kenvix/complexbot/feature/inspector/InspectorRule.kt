@@ -8,7 +8,6 @@ package com.kenvix.complexbot.feature.inspector
 
 import com.kenvix.moecraftbot.ng.lib.Named
 import net.mamoe.mirai.message.MessageEvent
-import java.lang.Exception
 
 interface InspectorRule : Named {
     val version: Int

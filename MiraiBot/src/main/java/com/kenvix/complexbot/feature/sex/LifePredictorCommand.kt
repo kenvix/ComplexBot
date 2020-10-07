@@ -5,7 +5,6 @@ import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.*
-import java.util.*
 import kotlin.math.absoluteValue
 
 object LifePredictorCommand : BotCommandFeature {

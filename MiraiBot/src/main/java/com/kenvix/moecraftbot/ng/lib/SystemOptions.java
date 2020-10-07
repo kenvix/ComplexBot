@@ -6,7 +6,6 @@
 
 package com.kenvix.moecraftbot.ng.lib;
 
-import java.util.List;
 import java.util.Set;
 
 public class SystemOptions {

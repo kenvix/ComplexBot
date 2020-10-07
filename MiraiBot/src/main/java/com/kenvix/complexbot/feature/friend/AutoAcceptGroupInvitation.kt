@@ -12,7 +12,6 @@ import com.kenvix.complexbot.isBotSystemAdministrator
 import com.kenvix.utils.log.Logging
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent
-import net.mamoe.mirai.event.events.FriendAddEvent
 import net.mamoe.mirai.event.events.MemberJoinRequestEvent
 import net.mamoe.mirai.event.subscribeAlways
 

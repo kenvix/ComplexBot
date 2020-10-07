@@ -6,7 +6,10 @@ import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.At
+import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.QuoteReply
+import net.mamoe.mirai.message.data.recall
 
 object PunishCommand : BotCommandFeature {
     override val description: String = "回复某句消息来快速对该消息的发送者执行某个惩罚（仅限管理员）"

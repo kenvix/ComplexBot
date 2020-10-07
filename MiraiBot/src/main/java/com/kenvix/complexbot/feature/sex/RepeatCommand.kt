@@ -6,7 +6,6 @@ import kotlinx.coroutines.delay
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.MessageChainBuilder
 import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.content
 
 object RepeatCommand : BotCommandFeature {
     override val description: String = "复读某句话（只限管理员）"
