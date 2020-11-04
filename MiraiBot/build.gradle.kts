@@ -1,7 +1,7 @@
 plugins {
     java
     idea
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.4.10"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     //id("org.beryx.jlink") version "2.17.2"
     id("nu.studer.jooq") version "4.1"
@@ -31,6 +31,7 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinx_coroutines_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinx_coroutines_version")
 
     implementation("io.github.cdimascio:java-dotenv:5.1.4")
     implementation("org.apache.thrift:libthrift:0.13.0")
@@ -51,7 +52,7 @@ dependencies {
 //    implementation(group = "org.xerial", name = "sqlite-jdbc", version = "3.25.2")
 //    implementation(group = "mysql", name = "mysql-connector-java", version = "8.0.17")
     implementation(group = "org.apache.commons", name = "commons-dbcp2", version = "2.7.0")
-    implementation("org.litote.kmongo:kmongo-coroutine:4.0.0")
+    implementation("org.litote.kmongo:kmongo-coroutine:4.1.3")
 
     implementation("io.ktor:ktor-server-cio:$ktor_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
