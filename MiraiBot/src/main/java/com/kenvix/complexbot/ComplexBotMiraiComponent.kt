@@ -34,8 +34,8 @@ class ComplexBotMiraiComponent(
             "pad" -> BotConfiguration.MiraiProtocol.ANDROID_PAD
             "watch" -> BotConfiguration.MiraiProtocol.ANDROID_WATCH
             else -> {
-                logger.warn("Unrecognized config mirai.protocol: ${callBridge.config.mirai.protocol ?: "NULL"} using default 'phone'")
-                BotConfiguration.MiraiProtocol.ANDROID_PHONE
+                logger.warn("Unrecognized config mirai.protocol: ${callBridge.config.mirai.protocol ?: "NULL"} using default 'pad'")
+                BotConfiguration.MiraiProtocol.ANDROID_PAD
             }
         }
         logger.debug("Using mirai qq protocol $protocol")

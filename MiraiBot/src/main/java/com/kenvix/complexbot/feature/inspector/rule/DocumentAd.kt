@@ -16,7 +16,7 @@ object DocumentAd : InspectorRule.Actual {
     override val punishReason: String = "疑似被盗号并利用腾讯文档发送了诈骗消息，请勿相信"
 
     private const val blackKeywords = "教务处|通知|正式|成绩|最新|学院|管理|兼职|招聘|刷单|有意者|代购|扣扣|客服|微店|" +
-            "兼职|兼值|淘宝|贷款|各系|各单位|各部门|各校|各班|:\"|：\""
+            "兼职|兼值|淘宝|名单|贷款|各系|各单位|各部门|各校|各班|:\"|：\"|，\"|、\""
     private const val requiredKeywords = "腾讯文档|在线文档"
 
     private val blackMatchPattern: Trie = Trie.builder()

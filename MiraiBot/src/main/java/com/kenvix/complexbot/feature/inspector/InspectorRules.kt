@@ -10,5 +10,6 @@ val inspectorRules = createNamedElementsMap(
         FraudAd,
         SellAd,
         UselessApp,
+        EmojiFlooding,
         DebugRule
 )
