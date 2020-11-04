@@ -29,7 +29,17 @@ class ComplexBotMiraiComponent(
         loginSolver = ExtendedLoginSolver(callBridge)
         // networkLoggerSupplier = { SilentLogger } // 禁用网络层输出
         deviceInfo = { ExtendedDeviceInfo }
-        protocol = BotConfiguration.MiraiProtocol.ANDROID_WATCH
+        protocol = when (callBridge.config.mirai.protocol.toLowerCase()) {
+            "phone" -> BotConfiguration.MiraiProtocol.ANDROID_PHONE
+            "pad" -> BotConfiguration.MiraiProtocol.ANDROID_PAD
+            "watch" -> BotConfiguration.MiraiProtocol.ANDROID_WATCH
+            else -> {
+                logger.warn("Unrecognized config mirai.protocol: ${callBridge.config.mirai.protocol ?: "NULL"} using default 'phone'")
+                BotConfiguration.MiraiProtocol.ANDROID_PHONE
+            }
+        }
+        logger.debug("Using mirai qq protocol $protocol")
+
         parentCoroutineContext = coroutines.ioScope.coroutineContext +
                 SupervisorJob() +
                 CoroutineName("Mirai") +

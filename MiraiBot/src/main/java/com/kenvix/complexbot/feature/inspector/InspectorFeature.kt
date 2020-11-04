@@ -59,7 +59,7 @@ object InspectorFeature : BotFeature {
 
         bot.subscribeAlways<MemberLeaveEvent> {
             inspectorOptions[this.group.id]?.also {
-                logger.debug("Inspected member join left:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
+                logger.debug("Inspected member left:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
                 InspectorStatisticUtils.updateMemberJoinStatus(member.id, group.id, JoinStatus.Left.statusId)
             }
         }
