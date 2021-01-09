@@ -2,8 +2,10 @@ package com.kenvix.complexbot.feature.inspector.rule
 
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
+import com.google.zxing.Reader
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.detector.Detector
 import com.kenvix.complexbot.feature.inspector.InspectorRule
 import com.kenvix.complexbot.feature.inspector.InspectorStatisticUtils
@@ -89,8 +91,11 @@ object PhotoQrCodeAd : InspectorRule.Actual {
     private suspend fun detectQRCode(bufferedImage: BufferedImage) = withContext(Dispatchers.IO) {
         try {
             val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(bufferedImage)))
-            Detector(binaryBitmap.blackMatrix).detect(detectHints)
-            true
+            val qrReader: Reader = QRCodeReader()
+            val result = qrReader.decode(binaryBitmap)
+            result.text?.run {
+                startsWith("http://") || startsWith("https://")
+            } ?: false
         } catch (e: Throwable) {
             logger.debug("QRCode ad detector returned false: $e")
             false
