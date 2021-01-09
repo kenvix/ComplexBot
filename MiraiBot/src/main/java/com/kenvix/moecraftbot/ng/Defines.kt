@@ -4,7 +4,7 @@ import com.kenvix.moecraftbot.mirai.lib.bot.AbstractDriver
 import com.kenvix.moecraftbot.ng.lib.*
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
 import com.kenvix.utils.event.EventSet
-import com.kenvix.utils.event.eventSetOf
+import com.kenvix.utils.lang.DirectBufferPool
 import com.kenvix.utils.log.Logging
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
@@ -91,7 +91,11 @@ object Defines : Logging {
     lateinit var mongoDatabase: CoroutineDatabase
         private set
 
-    val shutdownHandler: EventSet<Unit> = eventSetOf()
+    @JvmStatic
+    lateinit var commonBufferPool: DirectBufferPool
+        private set
+
+    val shutdownHandler: EventSet<Unit> = EventSet()
 
     @JvmStatic
     var applicationPhase: ApplicationPhase = ApplicationPhase.NotInitialized
@@ -118,6 +122,9 @@ object Defines : Logging {
         applicationPhase = ApplicationPhase.Initializing
         logger.info("Loading Application")
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
+        runBlocking {
+            commonBufferPool = DirectBufferPool.of(1 shl 22, 8)
+        }
         CachedClasses
         ExceptionHandler.registerGlobalExceptionHandler()
 

@@ -17,6 +17,7 @@ import com.kenvix.complexbot.feature.middleware.AdminPermissionRequired
 import com.kenvix.complexbot.feature.middleware.CorePermissionRequired
 import com.kenvix.complexbot.feature.middleware.GroupMessageOnly
 import com.kenvix.complexbot.feature.middleware.SwitchableCommand
+import com.kenvix.complexbot.feature.session.SessionDispatcher
 import com.kenvix.complexbot.feature.sex.LifePredictorCommand
 import com.kenvix.complexbot.feature.sex.RepeatCommand
 import com.kenvix.complexbot.feature.switchcommand.ListCommand
@@ -54,6 +55,7 @@ fun Bot.featureRoutes() {
         command("repeat", RepeatCommand, GroupMessageOnly, SwitchableCommand, AdminPermissionRequired)
     }
 
+    addFeature(SessionDispatcher)
     addFeature(InspectorFeature)
     addFeature(WelcomeNewFeature)
 

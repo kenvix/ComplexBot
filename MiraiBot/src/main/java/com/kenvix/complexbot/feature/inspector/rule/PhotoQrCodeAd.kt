@@ -20,6 +20,11 @@ import net.mamoe.mirai.message.data.queryUrl
 import okhttp3.Request
 import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
+import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
 import javax.imageio.ImageIO
 
 
@@ -69,18 +74,15 @@ object PhotoQrCodeAd : InspectorRule.Actual {
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun detectImage(image: Image) = withContext(Dispatchers.IO) {
         val url = image.queryUrl()
-        val request = downloadCallOf(url)
         logger.trace("Trying to detect QRCode AD form url $url")
 
-        request.execute().use { response ->
-            response.body?.run imageReq@ {
-                val bufferedImage = ImageIO.read(this@imageReq.byteStream())
+        downloadCallOf(url) { stream ->
+            val bufferedImage = ImageIO.read(stream)
 
-                if (bufferedImage != null)
-                    detectQRCode(bufferedImage) || detectQRCode(bufferedImage.flip())
-                else
-                    false
-            } ?: false
+            if (bufferedImage != null)
+                detectQRCode(bufferedImage) || detectQRCode(bufferedImage.flip())
+            else
+                false
         }
     }
 
@@ -105,11 +107,16 @@ object PhotoQrCodeAd : InspectorRule.Actual {
         return this
     }
 
-    private fun downloadCallOf(url: String) =
-        Request.Builder()
+    private suspend fun downloadCallOf(url: String, then: (suspend (InputStream) -> Boolean)) = withContext(Dispatchers.IO) {
+        val req = Request.Builder()
             .url(url)
             .build()
-            .run {
-                Defines.okHttpClient.newCall(this)
-            }
+            .run { Defines.okHttpClient.newCall(this) }
+            .execute()
+
+        if (req.body != null)
+            then(BufferedInputStream(req.body!!.byteStream(), 1 shl 16))
+        else
+            false
+    }
 }

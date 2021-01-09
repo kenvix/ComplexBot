@@ -151,3 +151,13 @@ data class RegisteredBotCommand(
 fun isBotSystemAdministrator(qq: Long): Boolean {
     return callBridge.config.bot.administratorIds != null && qq in callBridge.config.bot.administratorIds
 }
+
+
+private const val SessionQQIdMask: Long = 0xF_FFFF_FFFFL
+private const val SessionGroupIdMask: Long = 0xFFFF_FFFFL
+private val SessionGroupLshOffset: Int = java.lang.Long.numberOfLeadingZeros(SessionGroupIdMask)
+private const val SessionTTLMillis: Int = 10 * 60 * 1000
+
+fun getSessionKey(qq: Long, group: Long): Long {
+    return (group and SessionGroupIdMask shl SessionGroupLshOffset) xor (qq and SessionQQIdMask)
+}

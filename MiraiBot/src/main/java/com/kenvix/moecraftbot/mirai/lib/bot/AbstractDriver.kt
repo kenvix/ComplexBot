@@ -14,9 +14,6 @@ import com.kenvix.moecraftbot.ng.lib.bot.BotCommandQueryData
 import com.kenvix.moecraftbot.ng.lib.bot.BotInfo
 import com.kenvix.moecraftbot.ng.lib.exception.InvalidConfigException
 import com.kenvix.moecraftbot.ng.lib.exception.WrongBotCommandTargetException
-import com.kenvix.moecraftbot.ng.lib.nameAndHashcode
-import com.kenvix.utils.log.warning
-import java.util.*
 
 /**
  * The AbstractBotProvider is the base of all Drivers.

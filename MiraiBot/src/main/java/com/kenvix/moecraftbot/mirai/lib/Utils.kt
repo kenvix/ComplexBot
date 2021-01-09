@@ -1,9 +1,9 @@
+@file:Suppress("unused")
 package com.kenvix.moecraftbot.mirai.lib
 
 import com.kenvix.complexbot.commandPrefixLength
 import com.kenvix.moecraftbot.ng.lib.bot.BotCommandQueryData
 import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
-import com.kenvix.moecraftbot.ng.lib.exception.UserViolationException
 import com.kenvix.moecraftbot.ng.lib.exception.WrongBotCommandTargetException
 
 /**

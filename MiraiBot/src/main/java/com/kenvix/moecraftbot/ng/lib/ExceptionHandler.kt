@@ -1,13 +1,13 @@
 package com.kenvix.moecraftbot.ng.lib
 
-import com.kenvix.utils.event.eventSetOf
+import com.kenvix.utils.event.EventSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
 object ExceptionHandler : Thread.UncaughtExceptionHandler {
     val logger = LoggerFactory.getLogger("ExceptionHandler")
-    val handlers = eventSetOf<WrappedException>()
+    val handlers = EventSet<WrappedException>()
 
     fun registerGlobalExceptionHandler() {
         Thread.setDefaultUncaughtExceptionHandler(this)
