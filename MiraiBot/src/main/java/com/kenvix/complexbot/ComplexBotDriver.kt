@@ -19,10 +19,8 @@ import com.kenvix.moecraftbot.ng.lib.CachedClasses
 import com.kenvix.moecraftbot.ng.lib.cacheLoader
 import com.kenvix.utils.log.LoggingOutputStream
 import com.mongodb.client.result.UpdateResult
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.eq
 import org.slf4j.LoggerFactory
@@ -129,12 +127,14 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
             logger.trace("Work Dir: " + Paths.get(backendDir!!).toAbsolutePath())
             logger.trace("$ $backendRuntimeFileName $backendArgs")
 
-            backendProcess = processBuilder.start()!!.apply {
-                launch(IO) { inputStream.transferTo(LoggingOutputStream(LoggerFactory.getLogger("Backend.Out"))) }
-                launch(IO) { errorStream.transferTo(LoggingOutputStream(LoggerFactory.getLogger("Backend.Err"))) }
-                launch(IO) {
-                    if (waitFor(10, TimeUnit.SECONDS))
-                        throw IllegalStateException("Backend process exited unexpectedly with code ${exitValue()}")
+            backendProcess = runInterruptible(IO) {
+                processBuilder.start()!!.apply {
+                    launch(IO) { inputStream.transferTo(LoggingOutputStream(LoggerFactory.getLogger("Backend.Out"))) }
+                    launch(IO) { errorStream.transferTo(LoggingOutputStream(LoggerFactory.getLogger("Backend.Err"))) }
+                    launch(IO) {
+                        if (waitFor(10, TimeUnit.SECONDS))
+                            throw IllegalStateException("Backend process exited unexpectedly with code ${exitValue()}")
+                    }
                 }
             }
         }
@@ -150,12 +150,14 @@ class ComplexBotDriver : AbstractDriver<ComplexBotConfig>(), Cached {
             if (backendProcess!!.isAlive) {
                 logger.info("Stopping backend process (PID ${backendProcess!!.pid()}) in 10 seconds")
                 backendProcess!!.destroy()
-                if (!backendProcess!!.waitFor(10, TimeUnit.SECONDS)) {
-                    logger.warn("Backend process not responded, Force killing")
-                    backendProcess!!.destroyForcibly()
-                    backendProcess!!.waitFor()
-                } else {
-                    logger.info("Backend process exited with code ${backendProcess!!.exitValue()}")
+                runInterruptible {
+                    if (!backendProcess!!.waitFor(10, TimeUnit.SECONDS)) {
+                        logger.warn("Backend process not responded, Force killing")
+                        backendProcess!!.destroyForcibly()
+                        backendProcess!!.waitFor()
+                    } else {
+                        logger.info("Backend process exited with code ${backendProcess!!.exitValue()}")
+                    }
                 }
             }
 

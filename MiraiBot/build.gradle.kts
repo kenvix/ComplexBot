@@ -1,7 +1,7 @@
 plugins {
     java
     idea
-    kotlin("jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.30"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     //id("org.beryx.jlink") version "2.17.2"
     id("nu.studer.jooq") version "4.1"
