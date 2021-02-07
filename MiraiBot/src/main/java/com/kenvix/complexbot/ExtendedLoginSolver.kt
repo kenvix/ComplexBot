@@ -34,7 +34,7 @@ class ExtendedLoginSolver(private val callBridge: CallBridge) : LoginSolver(), L
 
             if (fail.count >= MaxContinuousFailCountPerMinute) {
                 logger.info("Captcha breaker keep failing, please manual solve captcha")
-                return standardLoginSolver.onSolvePicCaptcha(bot, data)
+                return standardLoginSolver!!.onSolvePicCaptcha(bot, data)
             }
         }
 
@@ -45,10 +45,10 @@ class ExtendedLoginSolver(private val callBridge: CallBridge) : LoginSolver(), L
     }
 
     override suspend fun onSolveSliderCaptcha(bot: Bot, url: String): String? {
-        return standardLoginSolver.onSolveSliderCaptcha(bot, url)
+        return standardLoginSolver!!.onSolveSliderCaptcha(bot, url)
     }
 
     override suspend fun onSolveUnsafeDeviceLoginVerify(bot: Bot, url: String): String? {
-        return standardLoginSolver.onSolveUnsafeDeviceLoginVerify(bot, url)
+        return standardLoginSolver!!.onSolveUnsafeDeviceLoginVerify(bot, url)
     }
 }

@@ -7,8 +7,11 @@ import com.kenvix.moecraftbot.ng.lib.exception.UserViolationException
 import com.kenvix.moecraftbot.ng.lib.nameAndHashcode
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.PermissionDeniedException
-import net.mamoe.mirai.event.MessagePacketSubscribersBuilder
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.MessageEventSubscribersBuilder
+import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.event.events.OtherClientMessageEvent
+import net.mamoe.mirai.event.events.UserMessageEvent
 import net.mamoe.mirai.message.data.PlainText
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -20,7 +23,7 @@ lateinit var commands: HashMap<String, RegisteredBotCommand>
 private val logger = LoggerFactory.getLogger("ComplexBot.ExtensionUtils")
 lateinit var callBridge: CallBridge
 
-fun MessagePacketSubscribersBuilder.command(command: String,
+fun MessageEventSubscribersBuilder.command(command: String,
                                             handler: BotCommandFeature,
                                             vararg middleware: BotMiddleware
 ) {
@@ -75,6 +78,11 @@ interface BotFeature {
 fun Bot.addFeature(handler: BotFeature) {
     enabledFeatures.add(handler)
     handler.onEnable(this)
+}
+
+suspend fun MessageEvent.reply(message: String) = when(this) {
+    is GroupMessageEvent -> this.group.sendMessage(message)
+    else -> this.sender.sendMessage(message)
 }
 
 suspend fun MessageEvent.executeCatchingBusinessException(function: suspend (() -> Unit)): Boolean {
@@ -149,7 +157,7 @@ data class RegisteredBotCommand(
 }
 
 fun isBotSystemAdministrator(qq: Long): Boolean {
-    return callBridge.config.bot.administratorIds != null && qq in callBridge.config.bot.administratorIds
+    return qq in callBridge.config.bot.administratorIds
 }
 
 

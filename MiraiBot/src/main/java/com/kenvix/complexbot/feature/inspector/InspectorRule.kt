@@ -7,7 +7,7 @@
 package com.kenvix.complexbot.feature.inspector
 
 import com.kenvix.moecraftbot.ng.lib.Named
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 interface InspectorRule : Named {
     val version: Int

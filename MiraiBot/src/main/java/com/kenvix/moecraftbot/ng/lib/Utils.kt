@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
@@ -15,6 +16,8 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.ln
 import kotlin.math.pow
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 const val CHAT_TYPE_IDLE = 0
@@ -98,6 +101,36 @@ inline fun <T : Any, U : Collection<T>> U?.ifNotNullOrEmpty(then: ((U) -> Unit))
         then(this)
 }
 
+fun getRandomByteArray(length: Int): ByteArray = ByteArray(length) { Random.nextInt(0..255).toByte() }
+
+private fun Byte.fixToString(): String {
+    return when (val b = this.toInt() and 0xff) {
+        in 0..15 -> "0${this.toString(16).toUpperCase()}"
+        else -> b.toString(16).toUpperCase()
+    }
+}
+
+@JvmSynthetic
+operator fun ByteArray.get(rangeStart: Int, rangeEnd: Int): String = buildString {
+    for (it in rangeStart..rangeEnd) {
+        append(this@get[it].fixToString())
+    }
+}
+
+fun generateUUID(md5: ByteArray): String {
+    return "${md5[0, 3]}-${md5[4, 5]}-${md5[6, 7]}-${md5[8, 9]}-${md5[10, 15]}"
+}
+
+private val defaultRanges: Array<CharRange> = arrayOf('a'..'z', 'A'..'Z', '0'..'9')
+private val intCharRanges: Array<CharRange> = arrayOf('0'..'9')
+
+fun getRandomString(length: Int, vararg charRanges: CharRange): String =
+    CharArray(length) { charRanges[Random.Default.nextInt(0..charRanges.lastIndex)].random() }.concatToString()
+
+
+fun getRandomIntString(length: Int): String =
+    getRandomString(length, *intCharRanges)
+
 fun String.replacePlaceholders(placeholdersMap: Map<String, String>): String {
     val builder = StringBuilder(this)
     for ((key: String, value: String) in placeholdersMap) {
@@ -109,6 +142,17 @@ fun String.replacePlaceholders(placeholdersMap: Map<String, String>): String {
 
 fun String.replacePlaceholders(placeholder: Pair<String, String>) = this.replacePlaceholders(mapOf(placeholder))
 
+@JvmOverloads
+fun ByteArray.md5(offset: Int = 0, length: Int = size - offset): ByteArray {
+    checkOffsetAndLength(offset, length)
+    return MessageDigest.getInstance("MD5").apply { update(this@md5, offset, length) }.digest()
+}
+
+fun ByteArray.checkOffsetAndLength(offset: Int, length: Int) {
+    require(offset >= 0) { "offset shouldn't be negative: $offset" }
+    require(length >= 0) { "length shouldn't be negative: $length" }
+    require(offset + length <= this.size) { "offset ($offset) + length ($length) > array.size (${this.size})" }
+}
 
 private val dateDefaultFormatter = threadLocal {
     SimpleDateFormat("yyyy-MM-dd HH:mm:ss")

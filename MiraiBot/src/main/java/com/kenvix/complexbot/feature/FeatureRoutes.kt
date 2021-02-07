@@ -28,7 +28,7 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.subscribeMessages
 
 fun Bot.featureRoutes() {
-    subscribeMessages {
+    eventChannel.subscribeMessages {
         command("help", HelpCommand, SwitchableCommand)
         command("帮助", HelpCommand, SwitchableCommand)
         command("debug", DebugCommand, SwitchableCommand)

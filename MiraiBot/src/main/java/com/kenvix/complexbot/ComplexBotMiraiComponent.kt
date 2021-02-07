@@ -7,7 +7,7 @@ import com.kenvix.utils.log.Logging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import net.mamoe.mirai.Bot
-import net.mamoe.mirai.closeAndJoin
+import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.network.WrongPasswordException
 import net.mamoe.mirai.utils.BotConfiguration
 import kotlin.coroutines.CoroutineContext
@@ -21,14 +21,14 @@ class ComplexBotMiraiComponent(
     lateinit var bot: Bot
         private set
 
-    private fun getNewBotInstance() = Bot(
+    private fun getNewBotInstance() = BotFactory.newBot(
         qq = qq,
         password = password
     ) {
         // 覆盖默认的配置
         loginSolver = ExtendedLoginSolver(callBridge)
         // networkLoggerSupplier = { SilentLogger } // 禁用网络层输出
-        deviceInfo = { ExtendedDeviceInfo }
+        deviceInfo = { newExtendedDeviceInfo() }
         protocol = when (callBridge.config.mirai.protocol.toLowerCase()) {
             "phone" -> BotConfiguration.MiraiProtocol.ANDROID_PHONE
             "pad" -> BotConfiguration.MiraiProtocol.ANDROID_PAD
@@ -61,7 +61,7 @@ class ComplexBotMiraiComponent(
 
     private suspend fun initMirai() = withContext(IO) {
         bot.featureRoutes()
-        logger.info("Mirai Bot setup success: ${bot.nick}(${bot.selfQQ})")
+        logger.info("Mirai Bot setup success: ${bot.nick}(${bot.id})")
     }
 
     private fun onException(coroutineContext: CoroutineContext, exception: Throwable) {
