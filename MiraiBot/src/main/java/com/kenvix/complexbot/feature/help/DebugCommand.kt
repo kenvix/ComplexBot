@@ -7,7 +7,7 @@ import net.mamoe.mirai.contact.Friend
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.contact.isFriend
 import net.mamoe.mirai.contact.isMuted
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import java.text.SimpleDateFormat
 import java.util.*
 

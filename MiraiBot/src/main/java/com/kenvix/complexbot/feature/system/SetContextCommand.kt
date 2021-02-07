@@ -2,7 +2,7 @@ package com.kenvix.complexbot.feature.system
 
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.content
 
 object SetContextCommand : BotCommandFeature {

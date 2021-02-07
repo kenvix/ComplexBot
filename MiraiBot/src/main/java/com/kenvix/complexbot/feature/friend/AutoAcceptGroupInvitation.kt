@@ -17,7 +17,7 @@ import net.mamoe.mirai.event.subscribeAlways
 
 object AutoAcceptGroupInvitation : BotFeature, Logging {
     override fun onEnable(bot: Bot) {
-        bot.subscribeAlways<BotInvitedJoinGroupRequestEvent> {
+        bot.eventChannel.subscribeAlways<BotInvitedJoinGroupRequestEvent> {
             if (callBridge.config.bot.acceptAllGroupInvitation || isBotSystemAdministrator(invitorId)) {
                 this.accept()
                 logger.info("Accepted to join group $groupId($groupName) by invitor $invitorId($invitorNick)")
@@ -27,7 +27,7 @@ object AutoAcceptGroupInvitation : BotFeature, Logging {
             }
         }
 
-        bot.subscribeAlways<MemberJoinRequestEvent> {
+        bot.eventChannel.subscribeAlways<MemberJoinRequestEvent> {
             logger.trace("Member join: $this")
         }
     }

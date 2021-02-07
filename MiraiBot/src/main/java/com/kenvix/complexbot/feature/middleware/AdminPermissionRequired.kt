@@ -4,7 +4,7 @@ import com.kenvix.complexbot.BotMiddleware
 import com.kenvix.complexbot.isBotSystemAdministrator
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.contact.isAdministrator
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object AdminPermissionRequired : BotMiddleware {
     override suspend fun onMessage(msg: MessageEvent, command: String?): Boolean {

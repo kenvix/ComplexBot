@@ -1,7 +1,7 @@
 package com.kenvix.complexbot.feature.props
 
 import com.kenvix.complexbot.BotCommandFeature
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object SetPropCommand : BotCommandFeature {
     override val description: String = "设置属性"

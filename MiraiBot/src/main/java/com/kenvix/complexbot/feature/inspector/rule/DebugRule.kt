@@ -7,7 +7,7 @@
 package com.kenvix.complexbot.feature.inspector.rule
 
 import com.kenvix.complexbot.feature.inspector.InspectorRule
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.content
 
 object DebugRule : InspectorRule.Actual {

@@ -3,7 +3,7 @@ package com.kenvix.complexbot.feature.props
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.callBridge
 import net.mamoe.mirai.contact.Member
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object GetPropCommand : BotCommandFeature {
     override val description: String = "获取属性"

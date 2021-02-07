@@ -10,7 +10,7 @@ import com.kenvix.complexbot.callBridge
 import com.kenvix.complexbot.feature.inspector.InspectorRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.content
 import org.ahocorasick.trie.Trie
 import org.slf4j.LoggerFactory

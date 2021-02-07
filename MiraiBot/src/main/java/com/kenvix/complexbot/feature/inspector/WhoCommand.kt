@@ -4,7 +4,7 @@ import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import com.kenvix.moecraftbot.ng.lib.format
 import net.mamoe.mirai.contact.Member
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.PlainText
 

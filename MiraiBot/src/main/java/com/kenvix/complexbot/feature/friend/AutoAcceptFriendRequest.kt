@@ -16,14 +16,14 @@ import net.mamoe.mirai.event.subscribeAlways
 
 object AutoAcceptFriendRequest : BotFeature {
     override fun onEnable(bot: Bot) {
-        bot.subscribeAlways<NewFriendRequestEvent> {
+        bot.eventChannel.subscribeAlways<NewFriendRequestEvent> {
             if (callBridge.config.bot.acceptAllFriendRequest  || isBotSystemAdministrator(this.fromId))
                 this.accept()
             else
                 this.reject(false)
         }
 
-        bot.subscribeAlways<FriendAddEvent> {
+        bot.eventChannel.subscribeAlways<FriendAddEvent> {
             friend.sendMessage("添加好友成功。输入 .help 查看使用帮助")
         }
     }

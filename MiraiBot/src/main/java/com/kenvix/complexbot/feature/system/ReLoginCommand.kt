@@ -4,7 +4,7 @@ import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.callBridge
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import org.slf4j.LoggerFactory
 
 object ReLoginCommand : BotCommandFeature {

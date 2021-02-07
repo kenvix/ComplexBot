@@ -3,7 +3,7 @@ package com.kenvix.complexbot.feature.sex
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import kotlinx.coroutines.delay
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.MessageChainBuilder
 import net.mamoe.mirai.message.data.PlainText
 

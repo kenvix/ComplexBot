@@ -1,7 +1,7 @@
 package com.kenvix.complexbot.feature.props
 
 import com.kenvix.complexbot.BotCommandFeature
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object ListPropCommand : BotCommandFeature {
     override val description: String = "列出所有可用属性"

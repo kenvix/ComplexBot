@@ -21,10 +21,10 @@ object AutoAcceptJoinGroupRequest : BotFeature, Logging {
     internal val patternCache: MutableMap<Long, Pattern> = ConcurrentHashMap()
 
     override fun onEnable(bot: Bot) {
-        bot.subscribeMessages {
+        bot.eventChannel.subscribeMessages {
             command("autoaccept", AutoAcceptJoinGroupOptionCommand, AdminPermissionRequired, GroupMessageOnly, SwitchableCommand)
         }
-        bot.subscribeAlways<MemberJoinRequestEvent> {
+        bot.eventChannel.subscribeAlways<MemberJoinRequestEvent> {
             logger.trace("Member join requested: ${this.fromId}($fromNick)[$message] in group $groupId($groupName)")
             if (isMatched(groupId, message)) {
                 logger.info("Matched user ${this.fromId}($fromNick)[$message] in group $groupId($groupName)")

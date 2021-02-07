@@ -3,7 +3,7 @@ package com.kenvix.complexbot.feature.help
 import com.kenvix.complexbot.BotCommandFeature
 import net.mamoe.mirai.LowLevelAPI
 import net.mamoe.mirai.contact.Member
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object DebugActiveDataCommand : BotCommandFeature {
     override val description: String

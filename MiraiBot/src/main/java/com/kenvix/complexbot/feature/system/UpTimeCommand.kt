@@ -3,7 +3,7 @@ package com.kenvix.complexbot.feature.system
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.feature.help.DebugCommand
 import com.kenvix.moecraftbot.ng.Defines
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import java.time.LocalTime
 import java.util.*
 

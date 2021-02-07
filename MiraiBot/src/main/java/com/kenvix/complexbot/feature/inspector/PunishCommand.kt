@@ -5,7 +5,7 @@ import com.kenvix.complexbot.feature.inspector.rule.ManualPunishmentRule
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.QuoteReply

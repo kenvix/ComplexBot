@@ -2,7 +2,7 @@ package com.kenvix.complexbot.feature.switchcommand
 
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.commands
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object ListCommand : BotCommandFeature {
     override val description: String = "列出命令列表"

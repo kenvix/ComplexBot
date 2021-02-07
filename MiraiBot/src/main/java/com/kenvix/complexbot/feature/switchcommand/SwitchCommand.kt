@@ -6,7 +6,7 @@ import com.kenvix.complexbot.commands
 import com.kenvix.complexbot.feature.middleware.SwitchableCommand
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Member
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.content
 
 object SwitchCommand : BotCommandFeature {

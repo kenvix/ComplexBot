@@ -36,18 +36,18 @@ object InspectorFeature : BotFeature {
                 .forEach { applyInspectorOptions(it.groupId, it.inspector) }
         }
 
-        bot.subscribeMessages {
+        bot.eventChannel.subscribeMessages {
             command("inspector", InspectorCommand, GroupMessageOnly, AdminPermissionRequired)
         }
 
-        bot.subscribeAlways<MemberJoinRequestEvent> {
+        bot.eventChannel.subscribeAlways<MemberJoinRequestEvent> {
             inspectorOptions[this.group.id]?.also {
                 logger.debug("Inspected member join request: ${group.id}(${group.name}) / $fromId($fromNick): $message")
                 InspectorStatisticUtils.putMemberJoinStat(this)
             }
         }
 
-        bot.subscribeAlways<MemberJoinEvent> event@ {
+        bot.eventChannel.subscribeAlways<MemberJoinEvent> event@ {
             inspectorOptions[this.group.id]?.also {
                 logger.debug("Inspected member join accepted:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
                 InspectorStatisticUtils.getStat(group.id).joins[member.id]?.run stat@ {
@@ -57,14 +57,14 @@ object InspectorFeature : BotFeature {
             }
         }
 
-        bot.subscribeAlways<MemberLeaveEvent> {
+        bot.eventChannel.subscribeAlways<MemberLeaveEvent> {
             inspectorOptions[this.group.id]?.also {
                 logger.debug("Inspected member left:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
                 InspectorStatisticUtils.updateMemberJoinStatus(member.id, group.id, JoinStatus.Left.statusId)
             }
         }
 
-        bot.subscribeGroupMessages {
+        bot.eventChannel.subscribeGroupMessages {
             always {
                 inspectorOptions[this.group.id]?.also { inspectorOptions ->
                     var isPunished = false

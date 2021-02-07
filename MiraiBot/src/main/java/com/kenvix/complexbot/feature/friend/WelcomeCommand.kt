@@ -1,7 +1,7 @@
 package com.kenvix.complexbot.feature.friend
 
 import com.kenvix.complexbot.BotCommandFeature
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object WelcomeCommand : BotCommandFeature {
     override val description: String
