@@ -4,6 +4,7 @@ import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.callBridge
 import com.kenvix.complexbot.commands
 import com.kenvix.complexbot.feature.middleware.SwitchableCommand
+import com.kenvix.complexbot.reply
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.event.events.MessageEvent

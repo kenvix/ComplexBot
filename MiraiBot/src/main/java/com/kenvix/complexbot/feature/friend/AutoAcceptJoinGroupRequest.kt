@@ -29,7 +29,7 @@ object AutoAcceptJoinGroupRequest : BotFeature, Logging {
             if (isMatched(groupId, message)) {
                 logger.info("Matched user ${this.fromId}($fromNick)[$message] in group $groupId($groupName)")
 
-                if (group.botPermission.isOperator())
+                if (group?.botPermission?.isOperator() == true)
                     this.accept()
             }
         }

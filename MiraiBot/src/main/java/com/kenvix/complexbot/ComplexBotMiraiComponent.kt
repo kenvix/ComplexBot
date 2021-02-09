@@ -2,6 +2,7 @@ package com.kenvix.complexbot
 
 import com.kenvix.android.utils.Coroutines
 import com.kenvix.complexbot.feature.featureRoutes
+import com.kenvix.moecraftbot.ng.Defines
 import com.kenvix.moecraftbot.ng.lib.error
 import com.kenvix.utils.log.Logging
 import kotlinx.coroutines.*
@@ -20,6 +21,13 @@ class ComplexBotMiraiComponent(
 
     lateinit var bot: Bot
         private set
+
+    init {
+        Defines.shutdownHandler += {
+            if (this::bot.isInitialized)
+                this.bot.close()
+        }
+    }
 
     private fun getNewBotInstance() = BotFactory.newBot(
         qq = qq,

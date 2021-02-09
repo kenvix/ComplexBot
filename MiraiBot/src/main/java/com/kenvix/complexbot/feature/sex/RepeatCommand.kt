@@ -1,10 +1,12 @@
 package com.kenvix.complexbot.feature.sex
 
 import com.kenvix.complexbot.BotCommandFeature
+import com.kenvix.complexbot.reply
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import kotlinx.coroutines.delay
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.MessageChainBuilder
+import net.mamoe.mirai.message.data.MessageKey
 import net.mamoe.mirai.message.data.PlainText
 
 object RepeatCommand : BotCommandFeature {
@@ -12,7 +14,7 @@ object RepeatCommand : BotCommandFeature {
 
     override suspend fun onMessage(msg: MessageEvent) {
         val command = parseCommandFromMessage(
-            msg.message[PlainText.Key]?.content ?: "", true
+            msg.message[MessageKey]?.content ?: "", true
         )
 
         if (command.firstArgumentOrNull.isNullOrBlank()) {
@@ -24,7 +26,7 @@ object RepeatCommand : BotCommandFeature {
             } else {
                 val content = MessageChainBuilder().apply {
                     add(msg.message[PlainText.Key]!!.content.run content@ {
-                        substring( indexOf(command.firstArgument) + command.firstArgument.length)
+                        substring(indexOf(command.firstArgument) + command.firstArgument.length)
                     })
 
                     addAll(msg.message.filterNot { it is PlainText })

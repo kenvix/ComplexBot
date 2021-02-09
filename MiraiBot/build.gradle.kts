@@ -21,9 +21,9 @@ repositories {
     mavenCentral()
     jcenter()
     google()
-    maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
-    maven(url = "https://repo.spring.io/libs-milestone")
-    maven(url = "https://repo.spring.io/plugins-release")
+//    maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
+//    maven(url = "https://repo.spring.io/libs-milestone")
+//    maven(url = "https://repo.spring.io/plugins-release")
 }
 
 dependencies {

@@ -2,11 +2,11 @@ package com.kenvix.complexbot.feature.help
 
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.callBridge
+import com.kenvix.complexbot.reply
 import com.kenvix.moecraftbot.ng.Defines
 import net.mamoe.mirai.contact.Friend
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.contact.isFriend
-import net.mamoe.mirai.contact.isMuted
 import net.mamoe.mirai.event.events.MessageEvent
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,7 +40,7 @@ object DebugCommand : BotCommandFeature {
             when(this) {
                 is Friend -> "Friend: $id($nick)\nAvatar: $avatarUrl"
                 is Member -> "Member: $id($nick)\nAvatar: $avatarUrl\nSpecialTitle: $specialTitle | " +
-                        "NameCard: $nameCard\nMute $isMuted, $muteTimeRemaining\nPermission: ${this.permission}" +
+                        "NameCard: $nameCard\nPermission: ${this.permission}" +
                         " | isFriend: ${this.isFriend} \nGroup ${group.id}(${group.name})"
                 else -> "Unknown"
             }

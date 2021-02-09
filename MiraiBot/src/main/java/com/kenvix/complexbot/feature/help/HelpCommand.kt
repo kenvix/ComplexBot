@@ -1,6 +1,7 @@
 package com.kenvix.complexbot.feature.help
 
 import com.kenvix.complexbot.BotCommandFeature
+import com.kenvix.complexbot.reply
 import net.mamoe.mirai.event.events.MessageEvent
 
 object HelpCommand : BotCommandFeature {

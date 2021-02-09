@@ -2,14 +2,15 @@ package com.kenvix.complexbot.feature.inspector
 
 import com.kenvix.complexbot.BotCommandFeature
 import com.kenvix.complexbot.feature.inspector.rule.ManualPunishmentRule
+import com.kenvix.complexbot.reply
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
+import net.mamoe.mirai.message.data.MessageSource.Key.recall
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.QuoteReply
-import net.mamoe.mirai.message.data.recall
 
 object PunishCommand : BotCommandFeature {
     override val description: String = "回复某句消息来快速对该消息的发送者执行某个惩罚（仅限管理员）"

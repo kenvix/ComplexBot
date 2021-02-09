@@ -6,7 +6,6 @@ import com.google.zxing.Reader
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
-import com.google.zxing.qrcode.detector.Detector
 import com.kenvix.complexbot.feature.inspector.InspectorRule
 import com.kenvix.complexbot.feature.inspector.InspectorStatisticUtils
 import com.kenvix.moecraftbot.ng.Defines
@@ -14,19 +13,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Image
-import net.mamoe.mirai.message.data.queryUrl
+import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import okhttp3.Request
 import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
 import java.io.BufferedInputStream
-import java.io.ByteArrayInputStream
 import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.channels.Channels
 import javax.imageio.ImageIO
 
 
@@ -113,11 +110,13 @@ object PhotoQrCodeAd : InspectorRule.Actual {
     }
 
     private suspend fun downloadCallOf(url: String, then: (suspend (InputStream) -> Boolean)) = withContext(Dispatchers.IO) {
-        val req = Request.Builder()
-            .url(url)
-            .build()
-            .run { Defines.okHttpClient.newCall(this) }
-            .execute()
+        val req = runInterruptible {
+            Request.Builder()
+                .url(url)
+                .build()
+                .run { Defines.okHttpClient.newCall(this) }
+                .execute()
+        }
 
         if (req.body != null)
             then(BufferedInputStream(req.body!!.byteStream(), 1 shl 16))

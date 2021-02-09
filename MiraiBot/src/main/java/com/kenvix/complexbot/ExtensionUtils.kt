@@ -12,6 +12,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.events.OtherClientMessageEvent
 import net.mamoe.mirai.event.events.UserMessageEvent
+import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -81,6 +82,11 @@ fun Bot.addFeature(handler: BotFeature) {
 }
 
 suspend fun MessageEvent.reply(message: String) = when(this) {
+    is GroupMessageEvent -> this.group.sendMessage(message)
+    else -> this.sender.sendMessage(message)
+}
+
+suspend fun MessageEvent.reply(message: Message) = when(this) {
     is GroupMessageEvent -> this.group.sendMessage(message)
     else -> this.sender.sendMessage(message)
 }

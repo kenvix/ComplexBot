@@ -2,6 +2,7 @@ package com.kenvix.complexbot.feature.middleware
 
 import com.kenvix.complexbot.BotMiddleware
 import com.kenvix.complexbot.isBotSystemAdministrator
+import com.kenvix.complexbot.reply
 import net.mamoe.mirai.event.events.MessageEvent
 
 object CorePermissionRequired : BotMiddleware {

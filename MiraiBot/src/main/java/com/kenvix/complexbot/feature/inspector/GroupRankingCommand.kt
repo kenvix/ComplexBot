@@ -1,6 +1,7 @@
 package com.kenvix.complexbot.feature.inspector
 
 import com.kenvix.complexbot.BotCommandFeature
+import com.kenvix.complexbot.reply
 import com.kenvix.moecraftbot.mirai.lib.parseCommandFromMessage
 import com.kenvix.moecraftbot.ng.lib.exception.UserInvalidUsageException
 import kotlinx.coroutines.delay

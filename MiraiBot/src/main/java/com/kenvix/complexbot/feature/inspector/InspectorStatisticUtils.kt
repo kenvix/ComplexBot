@@ -50,7 +50,7 @@ object InspectorStatisticUtils : Cached {
     }
 
     suspend fun putMemberJoinStat(event: MemberJoinRequestEvent) {
-        getStat(event.group.id).run {
+        getStat(event.group!!.id).run {
             val stat = JoinStatistic(
                 qq = event.fromId,
                 name = event.fromNick,
