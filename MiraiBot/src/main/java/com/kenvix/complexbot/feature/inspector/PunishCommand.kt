@@ -27,13 +27,15 @@ object PunishCommand : BotCommandFeature {
                 quotes.forEach {
                     val target = group.members[it.source.fromId]
 
-                    punish.punish(
-                        group,
-                        target,
-                        "管理员手动操作 [Reply]",
-                        it.source,
-                        ManualPunishmentRule
-                    )
+                    if (target != null) {
+                        punish.punish(
+                            group,
+                            target,
+                            "ManualOperationByReply",
+                            it.source,
+                            ManualPunishmentRule
+                        )
+                    }
 
                     if ((msg.sender as Member).permission.level == 0 && group.botPermission.level >= 1)
                         msg.message.runCatching { recall() }
@@ -44,13 +46,15 @@ object PunishCommand : BotCommandFeature {
                 ats.forEach {
                     val target = group.members[it.target]
 
-                    punish.punish(
-                        group,
-                        target,
-                        "管理员手动操作 [At]",
-                        null,
-                        ManualPunishmentRule
-                    )
+                    if (target != null) {
+                        punish.punish(
+                            group,
+                            target,
+                            "ManualOperationByAt",
+                            null,
+                            ManualPunishmentRule
+                        )
+                    }
 
                     if ((msg.sender as Member).permission.level == 0 && group.botPermission.level >= 1)
                         msg.message.runCatching { recall() }

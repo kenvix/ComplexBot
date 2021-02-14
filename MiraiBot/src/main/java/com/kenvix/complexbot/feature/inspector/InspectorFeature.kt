@@ -41,8 +41,8 @@ object InspectorFeature : BotFeature {
         }
 
         bot.eventChannel.subscribeAlways<MemberJoinRequestEvent> {
-            inspectorOptions[this.group.id]?.also {
-                logger.debug("Inspected member join request: ${group.id}(${group.name}) / $fromId($fromNick): $message")
+            inspectorOptions[this.group?.id]?.also {
+                logger.debug("Inspected member join request: ${group!!.id}(${group!!.name}) / $fromId($fromNick): $message")
                 InspectorStatisticUtils.putMemberJoinStat(this)
             }
         }

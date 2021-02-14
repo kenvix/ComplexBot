@@ -6,11 +6,13 @@ import com.kenvix.utils.log.Logging
 import kotlinx.coroutines.delay
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
+import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.MessageChainBuilder
 import net.mamoe.mirai.message.data.MessageSource
+import net.mamoe.mirai.message.data.MessageSource.Key.recall
 
 val punishments = createNamedElementsMap(
     Kick,
@@ -74,8 +76,8 @@ object Kick : AbstractPunishment() {
     override val rank: Int = 99999999
 
     override suspend fun punish(group: Group, target: Member, reason: String, msgSrc: MessageSource?, rule: InspectorRule?) {
-        msgSrc?.bot?.recall(msgSrc)
-        target.kick(reason)
+        msgSrc?.recall()
+        (target as NormalMember).kick(reason)
 
         sendPunishmentMessage(target, group, reason, rule)
     }
@@ -91,7 +93,7 @@ object Withdraw : AbstractPunishment() {
             if (it == null)  {
                 sendPunishmentMessage(target, group, "无法进行操作：MessageSource cannot be null", rule)
             } else {
-                it.bot.recall(it)
+                it.recall()
                 sendPunishmentMessage(target, group, reason, rule)
             }
         }
@@ -137,7 +139,7 @@ class Mute(private val minute: Int) : AbstractPunishment() {
     override val rank: Int = minute + 1000
 
     override suspend fun punish(group: Group, target: Member, reason: String, msgSrc: MessageSource?, rule: InspectorRule?) {
-        msgSrc?.bot?.recall(msgSrc)
+        msgSrc?.recall()
         target.mute(60 * minute)
 
         sendPunishmentMessage(target, group, reason, rule)
