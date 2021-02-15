@@ -21,9 +21,7 @@ repositories {
     mavenCentral()
     jcenter()
     google()
-//    maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
-//    maven(url = "https://repo.spring.io/libs-milestone")
-//    maven(url = "https://repo.spring.io/plugins-release")
+    maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
 }
 
 dependencies {
@@ -67,7 +65,6 @@ dependencies {
 //    implementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
 
     implementation("net.mamoe:mirai-core:$miraiCoreVersion")
-    implementation("net.mamoe:mirai-core-qqandroid:$miraiCoreVersion")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
