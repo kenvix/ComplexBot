@@ -51,7 +51,11 @@ object InspectorFeature : BotFeature {
             inspectorOptions[this.group.id]?.also {
                 logger.debug("Inspected member join accepted:${group.id}(${group.name}) / ${member.id}(${member.nameCardOrNick})")
                 InspectorStatisticUtils.getStat(group.id).joins[member.id]?.run stat@ {
-                    //TODO: Implement MIRAI Inviter info getter
+                    if (this@event is MemberJoinEvent.Invite) {
+                        inviterId = (this@event).invitor.id
+                        inviterName = (this@event).invitor.nameCardOrNick
+                    }
+
                     status = JoinStatus.Accepted.statusId
                 }
             }
