@@ -5,5 +5,5 @@ efficientnet-pytorch==0.7.0
 jieba==0.42.1
 gensim==3.8.3
 pandas==1.1.2
-joblib==0.16.0
+joblib==1.2.0
 sklearn==0.0
