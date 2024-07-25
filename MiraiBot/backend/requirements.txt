@@ -1,5 +1,5 @@
 thrift==0.13.0
-torch==1.6.0
+torch==2.2.0
 torchvision==0.7.0
 efficientnet-pytorch==0.7.0
 jieba==0.42.1
